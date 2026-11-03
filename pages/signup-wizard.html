@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#15803d" />
+  <title>تفعيل حساب موظف جديد | شركة أدكو ADCO</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+  <style>
+    .wizard-box {
+      max-width: 520px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .wizard-brand-head {
+      margin-bottom: 20px;
+    }
+    .wizard-brand-head img {
+      height: 46px;
+      width: auto;
+      margin-bottom: 8px;
+    }
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .step-item {
+      flex: 1;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--adco-gray-400);
+    }
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--adco-gray-200);
+      color: var(--adco-gray-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 6px;
+      font-weight: 800;
+      transition: all 0.25s;
+    }
+    .step-item.active .step-circle {
+      background: var(--adco-green-primary);
+      color: #ffffff;
+      box-shadow: 0 0 0 4px var(--adco-green-soft);
+    }
+    .step-item.active {
+      color: var(--adco-green-deep);
+    }
+    .step-item.completed .step-circle {
+      background: var(--adco-green-dark);
+      color: #ffffff;
+    }
+    .wizard-pane {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+    .wizard-pane.active {
+      display: block;
+    }
+    .rule-item {
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+      color: var(--adco-gray-600);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rule-item.valid {
+      color: var(--adco-green-dark);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-floating-wrapper">
+    <!-- Atmospheric Blurred Green Background Backdrop -->
+    <div class="auth-floating-bg" aria-hidden="true">
+      <img src="../assets/images/auth-hero-bg.webp" alt="" class="auth-floating-bg-img" />
+      <div class="auth-floating-bg-overlay"></div>
+      <div class="auth-floating-bg-ambient"></div>
+    </div>
+
+    <!-- Centered Floating Wizard Card -->
+    <main class="auth-floating-card wizard-box" style="max-width: 530px;">
+      <div class="wizard-brand-head" style="text-align: center; margin-bottom: 20px;">
+        <a href="../index.html" style="display: inline-block;">
+          <img src="../assets/images/ADCO-logo.png" alt="ADCO Logo" style="height: 50px; width: auto; margin-bottom: 10px;" />
+        </a>
+        <h1 style="font-size: 1.45rem; font-weight: 800; color: var(--adco-green-deep); margin-bottom: 6px;">تفعيل حساب موظف جديد</h1>
+        <p style="font-size: 0.88rem; color: var(--adco-gray-600); margin: 0;">مطابقة السجل الوظيفي وتعيين بيانات الدخول المعتمدة</p>
+      </div>
+
+        <div class="stepper">
+          <div class="step-item active" id="ind-1">
+            <div class="step-circle">1</div>
+            <span>فحص القيد</span>
+          </div>
+          <div class="step-item" id="ind-2">
+            <div class="step-circle">2</div>
+            <span>رمز OTP</span>
+          </div>
+          <div class="step-item" id="ind-3">
+            <div class="step-circle">3</div>
+            <span>كلمة المرور</span>
+          </div>
+        </div>
+
+        <!-- STEP 1: Credibility Check -->
+        <section class="wizard-pane active card" id="step-1" style="padding: 24px;">
+          <h3 style="margin-bottom: 6px;">الخطوة 1: التحقق من السجل الوظيفي</h3>
+          <p style="margin-bottom: 16px; font-size: 0.84rem;">
+            أدخل الاسم الكامل ورقمك الوظيفي لمطابقته مع قاعدة بيانات الموارد البشرية.
+          </p>
+
+          <form id="form-step-1">
+            <div class="form-group">
+              <label class="form-label">الاسم الكامل للموظف</label>
+              <input type="text" id="wiz-fullname" class="form-input" placeholder="مثال: أحمد محمود العبد" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">الرقم الوظيفي (Employee ID)</label>
+              <input type="text" id="wiz-empid" class="form-input" placeholder="مثال: ADCO-101" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top: 8px;">
+              <span>التحقق والمتابعة</span>
+              <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-sm" alt="" />
+            </button>
+          </form>
+        </section>
+
+        <!-- STEP 2: Mobile/Email & 4-Digit OTP Verification -->
+        <section class="wizard-pane card" id="step-2" style="padding: 24px;">
+          <h3 style="margin-bottom: 6px;">الخطوة 2: تأكيد الهاتف أو البريد الرسمي</h3>
+          <p style="margin-bottom: 16px; font-size: 0.84rem;" id="verified-emp-banner"></p>
+
+          <form id="form-step-2">
+            <div class="form-group">
+              <label class="form-label">رقم الهاتف أو البريد الإلكتروني</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="wiz-contact" class="form-input" placeholder="01012345678" required />
+                <button type="button" class="btn btn-secondary btn-sm" id="dispatch-otp-btn">إرسال OTP</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">رمز التحقق المكون من 4 أرقام</label>
+              <input
+                type="text"
+                id="wiz-otp"
+                class="form-input"
+                maxlength="4"
+                placeholder="5 8 2 1"
+                style="letter-spacing: 8px; text-align: center; font-weight: 800; font-size: 1.2rem;"
+                required
+              />
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 8px;">
+              <button type="button" class="btn btn-outline" id="back-to-1" style="width: 35%;">رجوع</button>
+              <button type="submit" class="btn btn-primary" style="flex: 1;">تأكيد الرمز</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- STEP 3: Strict Password Creation -->
+        <section class="wizard-pane card" id="step-3" style="padding: 24px;">
+          <h3 style="margin-bottom: 6px;">الخطوة 3: تعيين كلمة المرور</h3>
+          <p style="margin-bottom: 16px; font-size: 0.84rem;">
+            اختر كلمة مرور مطابقة للمعايير الأمنية المعتمدة لحماية حسابك الميداني.
+          </p>
+
+          <form id="form-step-3">
+            <div class="form-group">
+              <label class="form-label">كلمة المرور الجديدة</label>
+              <input type="password" id="wiz-pass" class="form-input" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">تأكيد كلمة المرور</label>
+              <input type="password" id="wiz-pass-confirm" class="form-input" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required />
+            </div>
+
+            <div class="card" style="background: var(--adco-green-mint); padding: 14px; margin-bottom: 18px;">
+              <div class="rule-item" id="rule-len">8 أحرف أو أكثر</div>
+              <div class="rule-item" id="rule-case">حرف إنجليزي كبير (A-Z) وحرف صغير (a-z)</div>
+              <div class="rule-item" id="rule-num">رقم واحد على الأقل (0-9)</div>
+              <div class="rule-item" id="rule-sym">رمز خاص واحد على الأقل (@ # $ % ^ & *)</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+              <span>إتمام التفعيل وبدء العمل</span>
+            </button>
+          </form>
+        </section>
+
+        <div style="text-align: center; margin-top: 16px;">
+          <a href="./login.html" style="color: var(--adco-green-dark); font-size: 0.86rem; font-weight: 600; text-decoration: none;">
+            لديك حساب مفعل بالفعل؟ تسجيل الدخول
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <!-- Centered Atmospheric Footer -->
+    <footer class="auth-floating-footer">
+      <span>شركة الإسكندرية للكيماويات والمنظفات (ADCO) &copy; 2026</span>
+      <span style="opacity: 0.6;">•</span>
+      <span>بوابة تفعيل الحسابات المعتمدة</span>
+    </footer>
+  </div>
+
+  <script src="../js/ui-helpers.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    let verifiedEmployee = null;
+
+    function goToStep(stepNum) {
+      document.querySelectorAll('.wizard-pane').forEach((el, idx) => {
+        el.classList.toggle('active', idx + 1 === stepNum);
+      });
+      for (let i = 1; i <= 3; i++) {
+        const ind = document.getElementById(`ind-${i}`);
+        ind.classList.remove('active', 'completed');
+        if (i < stepNum) ind.classList.add('completed');
+        if (i === stepNum) ind.classList.add('active');
+      }
+    }
+
+    document.getElementById('form-step-1').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('wiz-fullname').value;
+      const empId = document.getElementById('wiz-empid').value;
+
+      try {
+        verifiedEmployee = await AuthManager.verifyEmployeeCredentials(empId, name);
+        document.getElementById('verified-emp-banner').innerHTML =
+          `تم التحقق: <strong>${verifiedEmployee.fullName}</strong> (${verifiedEmployee.branch})`;
+        document.getElementById('wiz-contact').value = verifiedEmployee.mobile;
+        showToast('تمت مطابقة بيانات الموظف المعتمد بنجاح', 'success');
+        goToStep(2);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('dispatch-otp-btn').addEventListener('click', async () => {
+      const contact = document.getElementById('wiz-contact').value.trim();
+      if (!contact) return showToast('أدخل رقم الهاتف أو البريد الإلكتروني', 'warning');
+      const res = await AuthManager.requestOTP(contact);
+      document.getElementById('wiz-otp').value = res.simulatedOtp;
+      showToast(`تم إرسال رمز التحقق بنجاح`, 'success');
+    });
+
+    document.getElementById('back-to-1').addEventListener('click', () => goToStep(1));
+
+    document.getElementById('form-step-2').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const otpInput = document.getElementById('wiz-otp').value;
+      try {
+        AuthManager.verifyOTP(otpInput);
+        showToast('تم التحقق من رمز OTP بنجاح', 'success');
+        goToStep(3);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    const passInput = document.getElementById('wiz-pass');
+    passInput.addEventListener('input', () => {
+      const v = passInput.value;
+      const updateRule = (id, ok) => {
+        const el = document.getElementById(id);
+        el.classList.toggle('valid', ok);
+      };
+      updateRule('rule-len', v.length >= 8);
+      updateRule('rule-case', /[a-z]/.test(v) && /[A-Z]/.test(v));
+      updateRule('rule-num', /\d/.test(v));
+      updateRule('rule-sym', /[@#$%^&*!_?]/.test(v));
+    });
+
+    document.getElementById('form-step-3').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const p1 = passInput.value;
+      const p2 = document.getElementById('wiz-pass-confirm').value;
+
+      if (p1 !== p2) {
+        return showToast('كلمتا المرور غير متطابقتين', 'error');
+      }
+      if (!AuthManager.validatePasswordComplexity(p1)) {
+        return showToast('يرجى استيفاء جميع شروط قوة كلمة المرور.', 'error');
+      }
+
+      try {
+        await AuthManager.finalizeRegistration(verifiedEmployee.employeeId, p1);
+        showToast('تم تفعيل الحساب وتوثيق الجلسة بنجاح', 'success');
+        setTimeout(() => {
+          window.location.href = './dashboard.html';
+        }, 400);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
