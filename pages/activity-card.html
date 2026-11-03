@@ -205,6 +205,15 @@
               <div id="combo-brands"></div>
             </div>
 
+            <!-- Activity Start Date Input (Requirement 1: Default to creation time, editable by coordinator) -->
+            <div class="form-group" style="margin-top: 14px;">
+              <label class="form-label" for="f-activity-date" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span>تاريخ وتوقيت بدء النشاط *</span>
+                <span class="badge badge-mint" style="font-size: 0.7rem;">افتراضياً: وقت إنشاء البطاقة</span>
+              </label>
+              <input type="datetime-local" id="f-activity-date" class="form-input" style="min-height: 40px; font-weight: 600;" required />
+            </div>
+
             <!-- SKU Combobox -->
             <div class="form-group">
               <label class="form-label">المنتج والأحجام المحددة (SKU Variant) *</label>
@@ -536,6 +545,12 @@
       allowCustomText: true
     });
 
+    // Requirement 1: Initialize activity date with current Egypt time
+    const initialActDateInput = document.getElementById('f-activity-date');
+    if (initialActDateInput && !initialActDateInput.value) {
+      initialActDateInput.value = getEgyptDateTimeLocalString();
+    }
+
     const params = new URLSearchParams(window.location.search);
     const activityId = params.get('id');
 
@@ -714,7 +729,22 @@
             <div class="meta-row"><span>العلامات التجارية (${brandCount}):</span><strong>${(act.brands || []).join(' ، ')} (حصة: ${brandShareVal})</strong></div>
             <div class="meta-row"><span>المنتج:</span><strong>${act.skuVariant}</strong></div>
             ${act.magazineDate ? `<div class="meta-row"><span>تاريخ إصدار المجلة:</span><strong>${act.magazineDate}</strong></div>` : ''}
-            <div class="meta-row"><span>تاريخ الإنشاء:</span><strong dir="ltr">${formatDateTime(act.timestamp)}</strong></div>
+            <div class="meta-row"><span>تاريخ إنشاء البطاقة:</span><strong dir="ltr">${formatDateTime(act.createdAt || act.timestamp)}</strong></div>
+            <div class="meta-row" style="background: #f0fdf4; padding: 6px 10px; border-radius: 6px; border: 1px solid #bbf7d0;">
+              <span>تاريخ وتوقيت بدء النشاط:</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <strong dir="ltr" id="detail-start-date-val">${act.activityDateFormatted || (act.activityDate ? formatDateTime(act.activityDate) : formatDateTime(act.timestamp))}</strong>
+                ${(user && user.role === 'supervisor') ? `
+                  <button type="button" class="btn btn-outline btn-xs" id="btn-edit-act-date" title="تعديل تاريخ بدء النشاط كمشرف" style="padding: 2px 8px; font-size: 0.72rem; cursor: pointer;">
+                    تعديل التاريخ
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+            <div class="meta-row" style="background: ${act.isClosed ? '#f8fafc' : '#f0fdf4'}; padding: 6px 10px; border-radius: 6px; border: 1px solid ${act.isClosed ? '#cbd5e1' : '#86efac'};">
+              <span>تاريخ وتوقيت انتهاء النشاط:</span>
+              <strong dir="ltr">${act.endDate || (act.closedAt ? formatDateTime(act.closedAt) : '<span class="badge badge-mint" style="font-size:0.75rem;">نشط ومستمر (لم ينتهِ بعد)</span>')}</strong>
+            </div>
 
             <!-- Official Evaluation Criteria Breakdown (100 Points) -->
             <div class="card" style="margin-top: 16px; background: #f8fafc; border: 1.5px solid var(--adco-green-border); padding: 16px;">
@@ -962,6 +992,23 @@
           try {
             await ActivityManager.processClosureRequest(act.id, 'REJECTED', reason);
             showToast('تم رفض طلب إنهاء النشاط وإشعار المنسق', 'info');
+            renderActivityDetailView(act.id);
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+      }
+
+      // Supervisor edit activity start date anytime (Requirement 1)
+      const editDateBtn = document.getElementById('btn-edit-act-date');
+      if (editDateBtn) {
+        editDateBtn.addEventListener('click', async () => {
+          const defaultVal = getEgyptDateTimeLocalString(act.activityDate || act.timestamp || new Date());
+          const newDateStr = prompt('تعديل تاريخ وتوقيت بدء النشاط (بتوقيت مصر):\nيرجى إدخال التاريخ بالصيغة: YYYY-MM-DDTHH:mm', defaultVal);
+          if (!newDateStr || !newDateStr.trim()) return;
+          try {
+            await ActivityManager.updateActivityDate(act.id, newDateStr.trim());
+            showToast('تم تعديل تاريخ بدء النشاط بنجاح بتوقيت مصر', 'success');
             renderActivityDetailView(act.id);
           } catch (err) {
             showToast(err.message, 'error');
@@ -1230,6 +1277,9 @@
         return showToast('يرجى اختيار علامة تجارية واحدة على الأقل', 'warning');
       }
 
+      const actDateEl = document.getElementById('f-activity-date');
+      const actDateVal = actDateEl ? actDateEl.value : '';
+
       const payload = {
         coordinatorId: user.employeeId,
         coordinatorName: user.fullName,
@@ -1241,6 +1291,7 @@
         activityCount: activityCountVal,
         brands: selectedBrands,
         skuVariant: skuVal,
+        activityDate: actDateVal || undefined,
         magazineDate: activityVal === 'فرشة مجلة' ? magDateVal : '',
         photoUrl: initialProcessedPhotos[0].photoUrl,
         photoHash: initialProcessedPhotos[0].photoHash,

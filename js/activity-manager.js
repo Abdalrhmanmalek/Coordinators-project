@@ -407,6 +407,9 @@
         const ratingStats = this.computeOverallRating(act);
 
         brandsList.forEach((singleBrand, brandIdx) => {
+          const startDateDisplay = act.activityDate ? (global.formatDateTime ? global.formatDateTime(act.activityDate) : act.activityDate) : (global.formatDateTime ? global.formatDateTime(act.createdAt || act.timestamp) : (act.createdAt || '-'));
+          const endDateDisplay = act.isClosed ? (act.endDate || (act.closedAt ? (global.formatDateTime ? global.formatDateTime(act.closedAt) : act.closedAt) : 'تم الإنهاء')) : 'نشط ومستمر';
+
           expandedRows.push({
             ...act,
             rowKey: `${act.id}-B${brandIdx + 1}`,
@@ -419,6 +422,8 @@
             overallRating: ratingStats.overallRating,
             ratedSessionsCount: ratingStats.ratedCount,
             overallRatingBadge: ratingStats.badgeText,
+            activityStartDate: startDateDisplay,
+            activityEndDate: endDateDisplay,
             reviewerName: act.reviewerName || (act.status !== 'Under Review' ? 'م. هاني شاكر عبد الله' : '-'),
             reviewedAtFormatted: act.reviewedAt ? (global.formatDateTime ? global.formatDateTime(act.reviewedAt) : act.reviewedAt.slice(0, 16).replace('T', ' ')) : (act.status !== 'Under Review' ? '2026-10-31 16:30' : '-'),
             reviewNotes: act.supervisorNotes || '-'
@@ -455,6 +460,8 @@
       const activityTypeVal = payload.activityType || 'جندولة';
       const activityCountVal = Math.max(1, Math.min(10, Number(payload.activityCount) || 1));
       const magazineDateVal = activityVal === 'فرشة مجلة' ? payload.magazineDate || '' : '';
+      const actDate = payload.activityDate ? payload.activityDate : nowIso;
+      const formattedActDate = global.formatDateTime ? global.formatDateTime(actDate) : actDate;
 
       const defaultLoc = {
         latitude: Number((31.2001 + (Math.random() - 0.5) * 0.03).toFixed(5)),
@@ -479,6 +486,11 @@
         activityCount: activityCountVal,
         displayType: `${activityVal} - ${activityTypeVal}`,
         magazineDate: magazineDateVal,
+        activityDate: actDate,
+        startDate: actDate,
+        activityDateFormatted: formattedActDate,
+        endDate: null,
+        isClosed: false,
         photoUrl: initialPhotos[0].photoUrl,
         photoHash: initialPhotos[0].photoHash,
         initialPhotos: initialPhotos,
@@ -645,6 +657,7 @@
       const act = all[index];
       act.isClosed = true;
       act.closedAt = new Date().toISOString();
+      act.endDate = global.formatDateTime ? global.formatDateTime(act.closedAt) : act.closedAt;
       act.closureRequested = false;
       act.closureStatus = 'COMPLETED';
       act.closureReasonType = act.closureReasonType || 'قرار إداري مباشر من المشرف';
@@ -684,6 +697,7 @@
 
         act.isClosed = true;
         act.closedAt = new Date().toISOString();
+        act.endDate = global.formatDateTime ? global.formatDateTime(act.closedAt) : act.closedAt;
       }
 
       act.closureRequested = false;
@@ -693,6 +707,27 @@
       all[index] = act;
       this.saveAllActivities(all);
 
+      return {
+        success: true,
+        activity: act
+      };
+    }
+
+    /**
+     * Supervisor updates Activity Date anytime
+     */
+    static updateActivityDate(activityId, newDate) {
+      const all = this.getAllActivities();
+      const index = all.findIndex((a) => a.id === activityId);
+      if (index === -1) {
+        throw new Error('لم يتم العثور على بطاقة النشاط.');
+      }
+      const act = all[index];
+      act.activityDate = newDate;
+      act.startDate = newDate;
+      act.activityDateFormatted = global.formatDateTime ? global.formatDateTime(newDate) : newDate;
+      all[index] = act;
+      this.saveAllActivities(all);
       return {
         success: true,
         activity: act

@@ -220,6 +220,15 @@
           <form id="review-form">
             <input type="hidden" id="rev-act-id" />
 
+            <!-- Requirement 1: Supervisor can modify Activity Start Date anytime -->
+            <div class="form-group" style="margin-bottom: 12px; background: #f0fdf4; padding: 10px 12px; border-radius: 8px; border: 1px solid #86efac;">
+              <label class="form-label" for="rev-activity-date" style="font-size: 0.82rem; font-weight: 700; color: #166534; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span>تعديل تاريخ وتوقيت بدء النشاط (صلاحية المشرف في أي وقت)</span>
+                <span class="badge badge-mint" style="font-size: 0.68rem;">بتوقيت مصر</span>
+              </label>
+              <input type="datetime-local" id="rev-activity-date" class="form-input" style="font-weight: 600; background: #ffffff; min-height: 38px;" />
+            </div>
+
             <div class="form-group" style="margin-bottom: 12px;">
               <label class="form-label" style="font-weight: 700; font-size: 0.84rem;">اختر جولة المتابعة المراد تقييمها</label>
               <select id="rev-round-select" class="form-select"></select>
@@ -804,6 +813,14 @@
             <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">المنتج (SKU):</span>
             <strong>${act.skuVariant || 'الجميع'}</strong>
           </div>
+          <div>
+            <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">تاريخ بدء النشاط:</span>
+            <strong dir="ltr" style="color: var(--adco-green-deep);">${act.activityDateFormatted || (act.activityDate ? formatDateTime(act.activityDate) : formatDateTime(act.timestamp))}</strong>
+          </div>
+          <div>
+            <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">تاريخ انتهاء النشاط:</span>
+            <strong dir="ltr">${act.endDate || (act.closedAt ? formatDateTime(act.closedAt) : 'نشط ومستمر')}</strong>
+          </div>
           <div style="grid-column: 1 / -1;">
             <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">العلامات التجارية وحصة العرض:</span>
             <strong style="color: var(--adco-green-dark);">${(act.brands || []).join('، ')} (حصة البراند: ${shareFormatted})</strong>
@@ -952,6 +969,11 @@
           inputDocs.value = evalStats.breakdown.documentation.score;
           updateEvalTotal();
 
+          const revDateInput = document.getElementById('rev-activity-date');
+          if (revDateInput) {
+            revDateInput.value = getEgyptDateTimeLocalString(act.activityDate || act.timestamp || new Date());
+          }
+
           document.getElementById('rev-status').value = act.status === 'Under Review' ? 'Accepted' : act.status;
           document.getElementById('rev-notes').value = act.supervisorNotes || '';
           modal.classList.add('active');
@@ -979,6 +1001,10 @@
           <div style="font-size: 0.8rem; color: var(--adco-green-dark); margin-top: 4px;">
             <span>النشاط: <strong>${act.activity || '-'} (${act.activityType || '-'} &times; ${act.activityCount || 1})</strong></span> |
             <span>العلامات: <strong>${(act.brands || []).join(' ، ')}</strong></span>
+          </div>
+          <div style="font-size: 0.8rem; color: #1e293b; margin-top: 6px; display: flex; gap: 14px; flex-wrap: wrap; background: #ffffff; padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1;">
+            <span>تاريخ بدء النشاط: <strong dir="ltr">${act.activityDateFormatted || (act.activityDate ? formatDateTime(act.activityDate) : formatDateTime(act.timestamp))}</strong></span>
+            <span>تاريخ انتهاء النشاط: <strong dir="ltr">${act.endDate || (act.closedAt ? formatDateTime(act.closedAt) : 'نشط ومستمر')}</strong></span>
           </div>
         </div>
 
@@ -1152,9 +1178,10 @@
         documentation: Number(inputDocs.value) || 0
       };
       const rawScore = Number(((breakdown.executionQuality / 20) * 10).toFixed(1));
+      const newActivityDate = document.getElementById('rev-activity-date') ? document.getElementById('rev-activity-date').value : undefined;
 
       try {
-        const res = await SupervisorEngine.reviewActivity(id, status, rawScore, notes, roundNum, breakdown, user);
+        const res = await SupervisorEngine.reviewActivity(id, status, rawScore, notes, roundNum, breakdown, user, newActivityDate);
         modal.classList.remove('active');
         showToast(`تم التحديث بنجاح! ${res.ratingStats.badgeText}`, 'success');
         renderList();

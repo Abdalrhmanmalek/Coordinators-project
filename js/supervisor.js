@@ -11,12 +11,18 @@
      * Submit inspection review for a specific follow-up upload session (or latest session)
      * and dynamically recalculate Overall Rating = (Sum of rated session scores) / (Count of rated sessions)
      */
-    static async reviewActivity(activityId, status, score, notes, targetRoundNumber = null, evaluationBreakdown = null, reviewerUser = null) {
+    static async reviewActivity(activityId, status, score, notes, targetRoundNumber = null, evaluationBreakdown = null, reviewerUser = null, newActivityDate = null) {
       await new Promise((r) => setTimeout(r, 300));
       const all = global.ActivityManager.getAllActivities();
       const target = all.find((a) => a.id === activityId);
       if (!target) {
         throw new Error('لم يتم العثور على بطاقة النشاط المحددة.');
+      }
+
+      if (newActivityDate) {
+        target.activityDate = newActivityDate;
+        target.startDate = newActivityDate;
+        target.activityDateFormatted = global.formatDateTime ? global.formatDateTime(newActivityDate) : newActivityDate;
       }
 
       const reviewerName = reviewerUser ? reviewerUser.fullName : (global.AuthManager ? (global.AuthManager.getCurrentUser() || {}).fullName : 'م. هاني شاكر عبد الله') || 'م. هاني شاكر عبد الله';
@@ -110,6 +116,8 @@
         'اسم المشرف المراجع (Reviewer)',
         'تاريخ المراجعة (Review Date)',
         'حالة إنهاء النشاط',
+        'تاريخ بدء النشاط (Start Date)',
+        'تاريخ انتهاء النشاط (End Date)',
         'ملاحظات المشرف',
         'تاريخ الإرسال'
       ];
@@ -119,6 +127,8 @@
         const closureLabel = r.isClosed ? 'تم إنهاء وتفكيك النشاط' : r.closureRequested ? 'طلب إنهاء قيد المراجعة' : 'نشط';
         const reviewerDisplay = r.reviewerName || (r.status !== 'Under Review' ? 'م. هاني شاكر عبد الله' : '-');
         const reviewedDateDisplay = r.reviewedAtFormatted || (r.reviewedAt ? (global.formatDateTime ? global.formatDateTime(r.reviewedAt) : r.reviewedAt) : (r.status !== 'Under Review' ? '2026-10-31 16:30' : '-'));
+        const startDateDisplay = r.activityStartDate || (r.activityDate ? (global.formatDateTime ? global.formatDateTime(r.activityDate) : r.activityDate) : (r.timestamp ? (global.formatDateTime ? global.formatDateTime(r.timestamp) : r.timestamp) : '-'));
+        const endDateDisplay = r.activityEndDate || (r.isClosed ? (r.endDate || (r.closedAt ? (global.formatDateTime ? global.formatDateTime(r.closedAt) : r.closedAt) : 'منتهي')) : 'نشط ومستمر');
 
         return [
           `"${r.id}"`,
@@ -141,8 +151,10 @@
           `"${reviewerDisplay}"`,
           `"${reviewedDateDisplay}"`,
           `"${closureLabel}"`,
+          `"${startDateDisplay}"`,
+          `"${endDateDisplay}"`,
           `"${(r.supervisorNotes || '').replace(/"/g, '""')}"`,
-          `"${new Date(r.timestamp).toLocaleString('ar-EG')}"`
+          `"${startDateDisplay}"`
         ];
       });
 

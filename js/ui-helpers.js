@@ -107,6 +107,32 @@ function formatDateTime(isoOrDate) {
   }
 }
 
+function getEgyptDateTimeLocalString(isoOrDate) {
+  const d = isoOrDate ? new Date(isoOrDate) : new Date();
+  if (isNaN(d.getTime())) return '';
+  try {
+    const p = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Africa/Cairo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(d);
+    const m = {};
+    p.forEach((x) => (m[x.type] = x.value));
+    return `${m.year}-${m.month}-${m.day}T${m.hour}:${m.minute}`;
+  } catch {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+  }
+}
+
 function getIconPrefix() {
 return window.location.pathname.includes('/pages/') ? '../assets/icons/' : './assets/icons/';
 }
@@ -555,6 +581,7 @@ global.queueOfflineItem = queueOfflineItem;
 global.getOfflineQueue = getOfflineQueue;
 global.removeOfflineItem = removeOfflineItem;
 global.formatDateTime = formatDateTime;
+global.getEgyptDateTimeLocalString = getEgyptDateTimeLocalString;
 global.showToast = showToast;
 global.renderStatusBadge = renderStatusBadge;
 global.updateActiveTab = updateActiveTab;

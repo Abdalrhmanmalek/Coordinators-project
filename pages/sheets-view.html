@@ -112,6 +112,16 @@
           </select>
         </div>
 
+        <div>
+          <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">تاريخ بدء النشاط (من)</label>
+          <input type="date" id="flt-date-from" class="form-input" style="min-height: 38px; padding: 6px 10px; font-size: 0.85rem;" />
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">تاريخ بدء النشاط (إلى)</label>
+          <input type="date" id="flt-date-to" class="form-input" style="min-height: 38px; padding: 6px 10px; font-size: 0.85rem;" />
+        </div>
+
         <div style="grid-column: 1 / -1;">
           <input
             type="text"
@@ -147,6 +157,8 @@
             <th>النشاط</th>
             <th>نوع النشاط</th>
             <th>عدد النشاط</th>
+            <th>تاريخ بدء النشاط</th>
+            <th>تاريخ انتهاء النشاط</th>
             <th>تاريخ إصدار المجلة</th>
             <th>التقييم العام للنشاط</th>
             <th>الحالة</th>
@@ -177,6 +189,8 @@
     const fltActivityType = document.getElementById('flt-activity-type');
     const fltStatus = document.getElementById('flt-status');
     const fltClosure = document.getElementById('flt-closure');
+    const fltDateFrom = document.getElementById('flt-date-from');
+    const fltDateTo = document.getElementById('flt-date-to');
     const resetBtn = document.getElementById('reset-sheet-filters');
 
     // Populate filter dropdowns from catalogs
@@ -221,6 +235,8 @@
       const selType = fltActivityType.value;
       const selStatus = fltStatus.value;
       const selClosure = fltClosure.value;
+      const fromDate = (fltDateFrom.value || '').trim();
+      const toDate = (fltDateTo.value || '').trim();
 
       currentFilteredRows = expanded.filter((r) => {
         // Search free text
@@ -246,6 +262,17 @@
         if (selType !== 'ALL' && r.activityType !== selType) return false;
         if (selStatus !== 'ALL' && r.status !== selStatus) return false;
 
+        // Date range filter on activity date (Requirement 2)
+        if (fromDate || toDate) {
+          const rawDateStr = r.activityDate || r.createdAt || r.timestamp || '';
+          const matchDate = rawDateStr.match(/(\d{4}-\d{2}-\d{2})/);
+          const rowDateOnly = matchDate ? matchDate[1] : '';
+          if (rowDateOnly) {
+            if (fromDate && rowDateOnly < fromDate) return false;
+            if (toDate && rowDateOnly > toDate) return false;
+          }
+        }
+
         // Closure filter
         if (selClosure === 'ACTIVE' && (r.isClosed || r.closureRequested)) return false;
         if (selClosure === 'CLOSED' && !r.isClosed) return false;
@@ -258,7 +285,7 @@
 
       const tbody = document.getElementById('sheet-rows-mount');
       if (currentFilteredRows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="17" style="text-align:center; padding:32px; color:#64748b;">لا توجد صفوف تطابق الفلاتر المحددة حالياً.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="19" style="text-align:center; padding:32px; color:#64748b;">لا توجد صفوف تطابق الفلاتر المحددة حالياً.</td></tr>`;
         return;
       }
 
@@ -282,6 +309,10 @@
             <td style="font-weight:700;">${r.activity || '-'}</td>
             <td>${r.activityType || '-'}</td>
             <td style="text-align:center; font-weight:800;">${r.activityCount || 1}</td>
+            <td style="font-size:0.8rem; white-space:nowrap;" dir="ltr">${r.activityStartDate || '-'}</td>
+            <td style="font-size:0.8rem; white-space:nowrap;" dir="ltr">
+              ${r.activityEndDate ? r.activityEndDate : (r.isClosed ? 'منتهي ومفكك' : '<span class="badge badge-mint" style="font-size:0.7rem;">نشط ومستمر</span>')}
+            </td>
             <td style="text-align:center;" dir="ltr">${r.magazineDate || '-'}</td>
             <td style="font-weight:800; color:#92400e; background:#fffbeb;">
               <img src="../assets/icons/star.svg" class="ui-icon ui-icon-sm" alt="" style="vertical-align:middle;" />
@@ -310,7 +341,7 @@
         .join('');
     }
 
-    [searchInput, fltClient, fltBrand, fltActivity, fltActivityType, fltStatus, fltClosure].forEach((el) => {
+    [searchInput, fltClient, fltBrand, fltActivity, fltActivityType, fltStatus, fltClosure, fltDateFrom, fltDateTo].forEach((el) => {
       el.addEventListener('change', renderGrid);
       el.addEventListener('input', renderGrid);
     });
@@ -323,6 +354,8 @@
       fltActivityType.value = 'ALL';
       fltStatus.value = 'ALL';
       fltClosure.value = 'ALL';
+      fltDateFrom.value = '';
+      fltDateTo.value = '';
       renderGrid();
       showToast('تمت إعادة ضبط فلاتر الشيت', 'info');
     });
