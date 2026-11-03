@@ -11,7 +11,8 @@
 
 ```
 adco-field-app/
-├── ARCHITECTURE_AND_DATA_FLOW.md    # Master Architecture, Data Flow & Type Matrix Blueprint
+├── SYSTEM_ARCHITECTURE_AND_BACKEND_DATA_FLOW.md  # Master Architecture, Data Flow & Type Matrix Blueprint
+├── UI_UX_DESIGN_AND_FRONTEND_STYLE_GUIDE.md      # UI/UX Specifications, Design Tokens & SVG Assets Guide
 ├── index.html                       # Seamless Root Entry & Vercel Redirect Gateway
 ├── manifest.json                    # PWA Web App Manifest
 ├── sw.js                            # Offline Service Worker (Cache First for Static Assets)
