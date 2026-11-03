@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#15803d" />
+  <title>لوحة الإشراف وتقييم العمليات | ADCO Supervisor</title>
+    <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <style>
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      background: #ffffff;
+      border: 1px solid var(--adco-gray-300);
+      color: var(--adco-gray-700);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .filter-chip.active {
+      background: var(--adco-green-primary);
+      color: #ffffff;
+      border-color: var(--adco-green-primary);
+    }
+    .review-modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .review-modal-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .rev-photo-box {
+      background: #f8fafc;
+      border: 1px solid var(--adco-gray-200);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .rev-photo-img-wrapper {
+      position: relative;
+      background: #0f172a;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+      max-height: 280px;
+      overflow: hidden;
+    }
+    .rev-photo-img-wrapper > img {
+      width: 100%;
+      height: 100%;
+      max-height: 280px;
+      object-fit: cover;
+      transition: transform 0.2s ease;
+    }
+    .rev-photo-img-wrapper:hover > img {
+      transform: scale(1.03);
+    }
+    .rev-photo-zoom-hint {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #ffffff;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-header-mount"></div>
+
+  <main class="web-main-workspace">
+    <div style="margin-bottom: 20px;">
+      <h2>غرفة عمليات المشرفين ومراجعة العروض</h2>
+      <p>فحص واعتماد الصور الميدانية، تقييم جولات المتابعة، والرقابة على دورة حياة الأنشطة</p>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <button type="button" class="filter-chip active" data-st="ALL">الكل</button>
+      <button type="button" class="filter-chip" data-st="CLOSURE_PENDING">
+        <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>طلبات إنهاء النشاط</span>
+      </button>
+      <button type="button" class="filter-chip" data-st="Under Review">
+        <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>بانتظار التقييم</span>
+      </button>
+      <button type="button" class="filter-chip" data-st="Accepted">
+        <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>مقبول</span>
+      </button>
+      <button type="button" class="filter-chip" data-st="Rejected">
+        <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>مرفوض</span>
+      </button>
+      <button type="button" class="filter-chip" data-st="CLOSED">
+        <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>الأنشطة المنتهية</span>
+      </button>
+
+      <button type="button" class="btn btn-outline btn-sm" id="toggle-custom-search-btn" style="margin-right: auto; padding: 5px 14px;">
+        <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>بحث مخصص وفلاتر</span>
+      </button>
+    </div>
+
+    <!-- Expandable Custom Search Panel (Requirement 10) -->
+    <div id="custom-search-panel" class="card" style="display: none; margin-bottom: 20px; padding: 18px; background: #ffffff; border: 1.5px solid var(--adco-green-border);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+        <strong style="color: var(--adco-green-deep); font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+          <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>تخصيص معايير البحث والفلترة المتقدمة (Custom Search)</span>
+        </strong>
+        <span class="badge badge-mint" id="custom-search-count-badge">بحث مخصص</span>
+      </div>
+
+      <div class="responsive-form-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
+        <div>
+          <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">العميل / السلسلة</label>
+          <select id="cs-client" class="form-select" style="min-height: 38px; padding: 6px 10px; font-size: 0.85rem;">
+            <option value="ALL">جميع العملاء</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">العلامة التجارية</label>
+          <select id="cs-brand" class="form-select" style="min-height: 38px; padding: 6px 10px; font-size: 0.85rem;">
+            <option value="ALL">جميع العلامات</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">النشاط</label>
+          <select id="cs-activity" class="form-select" style="min-height: 38px; padding: 6px 10px; font-size: 0.85rem;">
+            <option value="ALL">جميع الأنشطة</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">نوع النشاط</label>
+          <select id="cs-activity-type" class="form-select" style="min-height: 38px; padding: 6px 10px; font-size: 0.85rem;">
+            <option value="ALL">جميع الأنواع</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">اسم المنسق</label>
+          <input type="text" id="cs-coord" class="form-input" style="min-height: 38px; padding: 6px 10px; font-size: 0.85rem;" placeholder="ابحث باسم المنسق..." />
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">أدنى تقييم (Score)</label>
+          <select id="cs-min-score" class="form-select" style="min-height: 38px; padding: 6px 10px; font-size: 0.85rem;">
+            <option value="0">الكل (بدون حد أدنى)</option>
+            <option value="80">80+ نقطة (ممتاز)</option>
+            <option value="60">60+ نقطة (متوسط)</option>
+            <option value="40">40+ نقطة</option>
+          </select>
+        </div>
+
+        <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;">
+          <button type="button" class="btn btn-secondary btn-sm" id="cs-reset-btn">إعادة ضبط الفلاتر</button>
+          <button type="button" class="btn btn-primary btn-sm" id="cs-apply-btn">تطبيق البحث المخصص</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supervisor Inspection Cards Grid (Full-Width Responsive Multi-Column) -->
+    <div id="supervisor-cards-mount"></div>
+  </main>
+
+  <!-- Review Modal (Official Evaluation 100 Points & Complete Details) -->
+  <div id="review-modal" class="modal-overlay">
+    <div class="modal-sheet" style="max-width: 1020px; width: 95%; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 id="modal-act-title" style="display: flex; align-items: center; gap: 8px;">
+          <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>فحص وتقييم بطاقة النشاط</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-review-modal">&times;</button>
+      </div>
+
+      <div class="review-modal-grid">
+        <!-- Right Column (In RTL this is the right side): Top Activity Details + Evaluation Criteria & Decision -->
+        <div class="review-col-right" style="display: flex; flex-direction: column; gap: 14px;">
+          <!-- 1. All Activity Details Box (Top Right) -->
+          <div id="rev-act-details" class="card" style="background: #ffffff; border: 1.5px solid var(--adco-gray-200); padding: 14px; box-shadow: none;">
+            <!-- Populated dynamically via renderReviewActDetails(act) -->
+          </div>
+
+          <!-- 2. Evaluation Criteria & Decision Form -->
+          <form id="review-form">
+            <input type="hidden" id="rev-act-id" />
+
+            <!-- Requirement 1: Supervisor can modify Activity Start Date anytime -->
+            <div class="form-group" style="margin-bottom: 12px; background: #f0fdf4; padding: 10px 12px; border-radius: 8px; border: 1px solid #86efac;">
+              <label class="form-label" for="rev-activity-date" style="font-size: 0.82rem; font-weight: 700; color: #166534; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span>تعديل تاريخ وتوقيت بدء النشاط (صلاحية المشرف في أي وقت)</span>
+                <span class="badge badge-mint" style="font-size: 0.68rem;">بتوقيت مصر</span>
+              </label>
+              <input type="datetime-local" id="rev-activity-date" class="form-input" style="font-weight: 600; background: #ffffff; min-height: 38px;" />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" style="font-weight: 700; font-size: 0.84rem;">اختر جولة المتابعة المراد تقييمها</label>
+              <select id="rev-round-select" class="form-select"></select>
+            </div>
+
+            <!-- Official Evaluation Criteria (إجمالي 100 نقطة) -->
+            <div class="card" style="background: #f8fafc; border: 1.5px solid var(--adco-green-border); padding: 14px; margin-bottom: 14px; box-shadow: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--adco-gray-200); padding-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                <strong style="color: var(--adco-green-deep); font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
+                  <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+                  <span>معايير التقييم الرسمي (إجمالي 100 نقطة)</span>
+                </strong>
+                <span id="eval-live-total-badge" class="badge badge-success" style="font-size: 0.92rem; font-weight: 800;">100 / 100 نقطة</span>
+              </div>
+
+              <div class="responsive-form-grid" style="gap: 10px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 0.8rem; display: flex; justify-content: space-between;">
+                    <span>الأنشطة الجديدة المعتمدة</span>
+                    <strong style="color: var(--adco-green-deep);">(40 نقطة)</strong>
+                  </label>
+                  <input type="number" id="eval-score-new-act" class="form-input" min="0" max="40" step="1" value="40" required />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 0.8rem; display: flex; justify-content: space-between;">
+                    <span>جودة التنفيذ الميداني</span>
+                    <strong style="color: var(--adco-green-deep);">(20 نقطة)</strong>
+                  </label>
+                  <input type="number" id="eval-score-quality" class="form-input" min="0" max="20" step="1" value="18" required />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 0.8rem; display: flex; justify-content: space-between;">
+                    <span>مدة الاستمرارية المثبتة</span>
+                    <strong style="color: var(--adco-green-deep);">(25 نقطة)</strong>
+                  </label>
+                  <input type="number" id="eval-score-continuity" class="form-input" min="0" max="25" step="1" value="25" required />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 0.8rem; display: flex; justify-content: space-between;">
+                    <span>الالتزام بالتوثيق وصحة البيانات</span>
+                    <strong style="color: var(--adco-green-deep);">(15 نقطة)</strong>
+                  </label>
+                  <input type="number" id="eval-score-docs" class="form-input" min="0" max="15" step="1" value="15" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label">قرار الاعتماد</label>
+              <select id="rev-status" class="form-select" required>
+                <option value="Accepted">مقبول ومطابق للمواصفات (Accepted)</option>
+                <option value="Rejected">مرفوض - يتطلب إعادة تنسيق (Rejected)</option>
+                <option value="Under Review">إبقاء قيد المراجعة (Under Review)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label">ملاحظات وتوجيهات المشرف للمنسق</label>
+              <textarea
+                id="rev-notes"
+                class="form-textarea"
+                rows="2"
+                placeholder="اكتب ملاحظاتك وتوجيهاتك للمنسق..."
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              <img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" />
+              <span>حفظ التقييم وتحديث التقييم العام</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Left Column (In RTL this is the left side): Photo + Metadata + Location + Timestamp + History Button -->
+        <div class="review-col-left" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- 1. The Photo Box -->
+          <div class="rev-photo-box">
+            <div style="padding: 10px 14px; background: #ffffff; border-bottom: 1px solid var(--adco-gray-200); display: flex; justify-content: space-between; align-items: center;">
+              <strong style="font-size: 0.88rem; color: var(--adco-green-deep); display: flex; align-items: center; gap: 6px;">
+                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span id="rev-photo-title">صورة العرض الميداني</span>
+              </strong>
+            </div>
+
+            <div class="rev-photo-img-wrapper" id="rev-photo-click-area" title="اضغط للتكبير والفحص عالي الدقة">
+              <img id="rev-photo-img" src="" alt="صورة العرض الميداني" />
+            </div>
+          </div>
+
+          <!-- 2. Metadata in front of photo data (Requirement 2) -->
+          <div class="card" style="padding: 12px; background: #f8fafc; border: 1.5px solid var(--adco-green-border); font-size: 0.8rem; box-shadow: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-weight: 700; color: var(--adco-green-deep); display: flex; align-items: center; gap: 4px;">
+                <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>فحص وبصمة الصورة (Metadata)</span>
+              </span>
+              <span id="rev-photo-origin-badge" class="badge"></span>
+            </div>
+            <div style="font-size: 0.78rem; color: #1e293b; margin-bottom: 4px; font-weight: 600;" id="rev-photo-origin-label"></div>
+            <div style="font-size: 0.74rem; color: #64748b; display: flex; flex-direction: column; gap: 3px; margin-top: 6px;">
+              <div>وقت الالتقاط الفعلي: <strong id="rev-photo-taken-time" dir="ltr" style="color: #065f46;"></strong> (توقيت مصر)</div>
+              <div>الجهاز والكاميرا: <strong id="rev-photo-device-model" style="color: #1e293b;"></strong></div>
+            </div>
+          </div>
+
+          <!-- 3. Location & Timestamp Box -->
+          <div class="card" style="padding: 12px; background: #ffffff; border: 1px solid var(--adco-gray-200); font-size: 0.8rem; box-shadow: none;">
+            <!-- Location -->
+            <div style="margin-bottom: 10px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                <span style="font-weight: 700; color: var(--adco-green-deep); display: flex; align-items: center; gap: 5px;">
+                  <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <span>موقع الالتقاط الميداني (Live Phone GPS)</span>
+                </span>
+                <span class="badge badge-success" style="font-size: 0.65rem;">GPS موثق</span>
+              </div>
+              <div id="rev-loc-coords" style="font-size: 0.78rem; color: var(--adco-gray-700); margin-bottom: 6px;" dir="ltr">31.21560&deg; N, 29.95530&deg; E</div>
+              <a id="rev-loc-map-link" href="#" target="_blank" rel="noopener noreferrer" style="color: var(--adco-green-dark); font-size: 0.76rem; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;">
+                <span>عرض الموقع على خرائط Google</span>
+                <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-xs" alt="" />
+              </a>
+            </div>
+
+            <!-- Timestamp of submission -->
+            <div style="border-top: 1px solid var(--adco-gray-200); padding-top: 8px;">
+              <span style="font-weight: 700; color: var(--adco-green-deep); display: flex; align-items: center; gap: 5px; margin-bottom: 3px;">
+                <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>وقت وتاريخ الرفع والتسليم (توقيت مصر)</span>
+              </span>
+              <div id="rev-timestamp" style="font-size: 0.78rem; color: var(--adco-gray-700); font-weight: 600;" dir="ltr">2026-10-31 14:20:00</div>
+            </div>
+          </div>
+
+          <!-- 4. Down Button for History of the Activity -->
+          <button type="button" id="rev-view-history-btn" class="btn btn-secondary" style="width: 100%; padding: 10px 14px; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-sm" alt="" />
+            <span>عرض سجل المتابعات والعمليات الكاملة</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Audit & Actions History Modal (Requirement 7) -->
+  <div id="activity-audit-modal" class="modal-overlay">
+    <div class="modal-sheet" style="max-width: 760px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 id="audit-modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>سجل إجراءات ومتابعات النشاط الكاملة</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-audit-modal">&times;</button>
+      </div>
+      <div id="audit-modal-content" style="padding: 20px;"></div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal for Supervisor Photo Zoom Inspection -->
+  <div id="photo-lightbox" class="lightbox-overlay">
+    <div class="lightbox-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-bottom: 1px solid #334155;">
+        <div>
+          <strong id="lb-round-title" style="font-size: 0.95rem; color: #4ade80;">معاينة الصورة الميدانية</strong>
+          <div id="lb-timestamp" style="font-size: 0.76rem; color: #cbd5e1;" dir="ltr">2026-10-31 14:20</div>
+        </div>
+        <button type="button" id="close-lightbox-btn" class="close-modal-btn" style="background: #334155; color: #ffffff;">&times;</button>
+      </div>
+      <img id="lb-image" src="" alt="High Resolution Inspection" />
+      <div style="padding: 12px 18px; font-size: 0.8rem; display: flex; justify-content: space-between; color: #e2e8f0;">
+        <span id="lb-uploader">المنسق الميداني</span>
+        <span id="lb-specs">1280&times;720 px</span>
+      </div>
+    </div>
+  </div>
+
+    <script type="module" src="../js/pages/supervisor.page.js"></script>
+</body>
+</html>

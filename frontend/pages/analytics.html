@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#15803d" />
+  <title>تحليلات الأداء Power BI | ADCO Field Portal</title>
+    <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <style>
+    .pbi-header {
+      background: #f8fafc;
+      color: var(--adco-gray-800);
+      padding: 12px 18px;
+      border: 1px solid var(--adco-gray-200);
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .bar-row {
+      margin-bottom: 14px;
+    }
+    .bar-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .bar-track {
+      height: 12px;
+      background: var(--adco-gray-200);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--adco-green-primary);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-header-mount"></div>
+
+  <main class="web-main-workspace">
+    <div style="margin-bottom: 20px;">
+      <h2>تحليلات الأداء والانتشار الميداني</h2>
+      <p>مؤشرات التغطية ونسب الحصص التسويقية الموزونة للعلامات التجارية عبر السلاسل التجارية</p>
+    </div>
+
+    <div class="pbi-header">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../assets/icons/bar-chart-3.svg" class="ui-icon ui-icon-md" alt="" />
+        <span>Microsoft Power BI Telemetry Feed</span>
+      </div>
+      <span class="badge badge-mint">Live DirectQuery (Brand Share 1/N)</span>
+    </div>
+
+    <div class="card" style="padding: 20px;">
+      <h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+        <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>فلاتر الحملات الترويجية (Campaign Slicers)</span>
+      </h4>
+      <div class="responsive-form-grid">
+        <div>
+          <label class="form-label">السلسلة التجارية</label>
+          <select id="bi-client-filter" class="form-select">
+            <option value="ALL">جميع السلاسل (All)</option>
+            <option value="فتح الله">فتح الله جملة ماركت</option>
+            <option value="زهران">سوبر ماركت زهران</option>
+            <option value="كارفور">كارفور هايبر ماركت</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">النشاط</label>
+          <select id="bi-display-filter" class="form-select">
+            <option value="ALL">جميع الأنشطة</option>
+            <option value="عقد">عقد</option>
+            <option value="فرشة مجلة">فرشة مجلة</option>
+            <option value="إضافي">إضافي</option>
+            <option value="افتتاح فرع جديد">افتتاح فرع جديد</option>
+            <option value="مهرجان">مهرجان</option>
+            <option value="موسمي">موسمي</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="responsive-form-grid" style="margin-bottom: 20px;">
+      <div class="card" style="text-align: center; padding: 24px;">
+        <span style="font-size: 0.85rem; color: var(--adco-gray-600);">نسبة قبول العروض</span>
+        <div style="font-size: 2.2rem; font-weight: 800; color: var(--adco-green-primary); margin: 6px 0;" id="bi-acc-rate">92%</div>
+        <span class="badge badge-success">+4.2% مقارنة بالشهر السابق</span>
+      </div>
+      <div class="card" style="text-align: center; padding: 24px;">
+        <span style="font-size: 0.85rem; color: var(--adco-gray-600);">متوسط التقييم العام للأنشطة</span>
+        <div style="font-size: 2.2rem; font-weight: 800; color: var(--adco-green-deep); margin: 6px 0;" id="bi-avg-quality">9.0/10</div>
+        <span class="badge badge-mint">معيار الجودة المعتمد</span>
+      </div>
+    </div>
+
+    <!-- Analytics Dashboard Grid -->
+    <div class="analytics-dashboard-grid">
+      <div class="card" style="padding: 24px;">
+        <h4 style="margin-bottom: 16px;">حصة ظهور العلامات التجارية الموزونة (Brand Share = 1/N)</h4>
+        <div id="brand-bars-mount"></div>
+      </div>
+
+      <div class="card" style="padding: 24px;">
+        <h4 style="margin-bottom: 16px;">التغطية الجغرافية لقطاعات الإسكندرية</h4>
+        <div class="bar-row">
+          <div class="bar-meta"><span>قطاع وسط (سموحة - محرم بك)</span><span>96%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width: 96%;"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-meta"><span>قطاع شرق (رشدي - سيدي جابر - المنتزه)</span><span>89%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width: 89%;"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-meta"><span>قطاع غرب وبرج العرب</span><span>82%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width: 82%;"></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+    <script type="module" src="../js/pages/analytics.page.js"></script>
+</body>
+</html>

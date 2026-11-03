@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#15803d" />
+  <title>بطاقة النشاط والمتابعة بالصور | ADCO Field Portal</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <style>
+    .hash-box {
+      background: #0f172a;
+      color: #4ade80;
+      font-family: monospace;
+      font-size: 0.72rem;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      word-break: break-all;
+      direction: ltr;
+      text-align: left;
+      margin-top: 8px;
+    }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--adco-gray-200);
+      font-size: 0.88rem;
+      gap: 10px;
+    }
+    .meta-row:last-child {
+      border-bottom: none;
+    }
+    .overall-rating-banner {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stepper-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+    .stepper-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .stepper-btn:hover {
+      background: #e2e8f0;
+      border-color: #94a3b8;
+    }
+    .camera-dropzone-box {
+      border: 2px dashed #86efac;
+      background: #f0fdf4;
+      border-radius: 12px;
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+    }
+    .camera-dropzone-box:hover {
+      border-color: #15803d;
+      background: #dcfce7;
+    }
+    .camera-preview-thumb {
+      width: 100%;
+      height: auto;
+      max-height: 320px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+      border: 1px solid #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-header-mount"></div>
+
+  <main class="web-main-workspace">
+    <!-- MODE B: DETAILED ACTIVITY CARD & FOLLOW-UP MODULE -->
+    <section id="detail-view-section" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2>تفاصيل بطاقة النشاط والمتابعات</h2>
+          <p>استعراض بيانات العرض، التسلسل الزمني للمتابعات، وحساب التقييم التراكمي</p>
+        </div>
+        <a href="./activity-card.html" class="btn btn-secondary btn-sm">
+          <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>إنشاء بطاقة جديدة</span>
+        </a>
+      </div>
+
+      <input
+        type="file"
+        id="followup-camera-input"
+        accept="image/*"
+        capture="environment"
+        multiple
+        style="display: none;"
+      />
+
+      <div id="detail-card-mount"></div>
+    </section>
+
+    <!-- MODE A: CREATE NEW ACTIVITY FORM (2-Column Desktop: 60% Form / 40% Sticky Camera) -->
+    <section id="create-form-section">
+      <div style="margin-bottom: 20px;">
+        <h2>إنشاء بطاقة نشاط ميداني جديدة</h2>
+        <p>حدد بيانات العميل، التصنيف، العلامات التجارية، والتقط صورة العرض الميداني بالكاميرا الحية</p>
+      </div>
+
+      <form id="activity-form">
+        <div class="activity-workspace-grid">
+          <!-- Right Workspace: Fields & Comboboxes (60%) -->
+          <div class="card" style="padding: 24px;">
+            <div class="responsive-form-grid">
+              <div class="form-group">
+                <label class="form-label">العميل / السلسلة التجارية (Client Name) *</label>
+                <div id="combo-client"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">فرع العميل (Branch) *</label>
+                <div id="combo-branch"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">قطاع المنسق *</label>
+                <div id="combo-coord-branch"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">النشاط *</label>
+                <div id="combo-activity"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">نوع النشاط *</label>
+                <div id="combo-activity-type"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">عدد النشاط (1 إلى 10) *</label>
+                <div class="stepper-control">
+                  <button type="button" class="stepper-btn" id="count-dec-btn" title="إنقاص">&minus;</button>
+                  <select id="f-activity-count" class="form-select" style="text-align: center; font-weight: 800; font-size: 1.05rem;" required>
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                  </select>
+                  <button type="button" class="stepper-btn" id="count-inc-btn" title="زيادة">&#43;</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Conditional Magazine Date Box -->
+            <div class="form-group" id="magazine-date-group" style="display: none; background: #fffbeb; padding: 14px; border-radius: var(--radius-sm); border: 1.5px solid #f59e0b; margin-top: 10px;">
+              <label class="form-label" style="color: #92400e;">
+                <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-sm" alt="" />
+                <span>تاريخ إصدار المجلة * (مطلوب لفرشة المجلة)</span>
+              </label>
+              <input type="date" id="f-magazine-date" class="form-input" />
+            </div>
+
+            <!-- Multi-Select Brands Combobox -->
+            <div class="form-group" style="margin-top: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+                <label class="form-label" style="margin-bottom: 0;">العلامات التجارية المشاركة *</label>
+                <span class="badge badge-mint" id="live-brand-share-badge">حصة البراند: 0.50 (50%)</span>
+              </div>
+              <div id="combo-brands"></div>
+            </div>
+
+            <!-- Activity Start Date Input (Requirement 1: Default to creation time, editable by coordinator) -->
+            <div class="form-group" style="margin-top: 14px;">
+              <label class="form-label" for="f-activity-date" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span>تاريخ وتوقيت بدء النشاط *</span>
+                <span class="badge badge-mint" style="font-size: 0.7rem;">افتراضياً: وقت إنشاء البطاقة</span>
+              </label>
+              <input type="datetime-local" id="f-activity-date" class="form-input" style="min-height: 40px; font-weight: 600;" required />
+            </div>
+
+            <!-- SKU Combobox -->
+            <div class="form-group">
+              <label class="form-label">المنتج والأحجام المحددة (SKU Variant) *</label>
+              <div id="combo-sku"></div>
+            </div>
+          </div>
+
+          <!-- Left Workspace: Sticky Camera Dropzone & Compression Telemetry (40%) -->
+          <div class="card sticky-panel" style="padding: 24px;">
+            <h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+              <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-md" alt="" />
+              <span>صورة العرض الميداني (720p معالجة)</span>
+            </h4>
+
+            <input
+              type="file"
+              id="camera-input"
+              accept="image/*"
+              capture="environment"
+              multiple
+              style="display: none;"
+            />
+
+            <div class="camera-dropzone-box" id="camera-preview-box">
+              <div style="text-align: center;">
+                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xl" style="margin-bottom: 8px;" alt="" />
+                <p style="margin-bottom: 12px; font-weight: 600;">التقط صورة حية للعرض أو اختر صورة للتأكيد</p>
+                <button type="button" class="btn btn-secondary btn-sm" id="trigger-camera-btn">
+                  فتح الكاميرا / اختيار ملف
+                </button>
+              </div>
+            </div>
+
+            <div id="compression-telemetry" style="display: none; margin-top: 14px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--adco-green-deep); margin-bottom: 6px;">
+                <span id="tel-res">الأبعاد: 1280&times;720</span>
+                <span id="tel-size">الحجم: 165 KB</span>
+              </div>
+              <div id="tel-gps" style="font-size: 0.78rem; font-weight: 600; color: #065f46; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 6px 10px; display: flex; align-items: center; gap: 6px; margin-top: 6px;">
+                <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span id="tel-gps-text">جاري طلب إحداثيات الموقع الميداني (GPS) من الهاتف...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Submit Action: Full Width at Bottom -->
+          <div style="grid-column: 1 / -1; margin-top: 4px;">
+            <button type="submit" class="btn btn-primary" id="submit-activity-btn" style="width: 100%; min-height: 48px; font-size: 1rem;">
+              <img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" />
+              <span>اعتماد وإرسال بطاقة النشاط</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- Timeline Slide-Over Modal -->
+  <div id="timeline-modal" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>سجل المتابعات والصور</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-timeline-modal">&times;</button>
+      </div>
+
+      <div id="timeline-sessions-mount" class="timeline-list"></div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div id="photo-lightbox" class="lightbox-overlay">
+    <div class="lightbox-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-bottom: 1px solid #334155;">
+        <div>
+          <strong id="lb-round-title" style="font-size: 0.95rem; color: #4ade80;">متابعة رقم 2</strong>
+          <div id="lb-timestamp" style="font-size: 0.76rem; color: #cbd5e1;" dir="ltr">2026-10-31 14:20</div>
+        </div>
+        <button type="button" id="close-lightbox-btn" class="close-modal-btn" style="background: #334155; color: #ffffff;">&times;</button>
+      </div>
+      <img id="lb-image" src="" alt="High Resolution Inspection" />
+      <div style="padding: 12px 18px; font-size: 0.8rem;">
+        <div style="display: flex; justify-content: space-between; color: #e2e8f0;">
+          <span id="lb-uploader">المنسق: أحمد محمود</span>
+          <span id="lb-specs">1280&times;720 | 180 KB</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Coordinator Closure Request Dialog (طلب إنهاء النشاط مع تحديد السبب) -->
+  <div id="closure-request-modal" class="modal-overlay">
+    <div class="modal-sheet" style="max-width: 500px; border-radius: 14px; margin: auto; overflow: hidden;">
+      <div class="modal-header">
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>طلب إنهاء وتفكيك النشاط</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-closure-modal">&times;</button>
+      </div>
+
+      <div style="padding: 20px;">
+        <p style="font-size: 0.86rem; color: var(--adco-gray-700); margin-bottom: 16px; line-height: 1.5;">
+          يرجى تحديد سبب إنهاء النشاط الميداني لرفعه للمشرف للاعتماد والأرشفة:
+        </p>
+
+        <form id="form-closure-request">
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label" style="font-weight: 700; margin-bottom: 8px;">سبب الإنهاء *</label>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <label class="closure-reason-card" id="card-reason-time" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1.5px solid var(--adco-green-main); background: #f0fdf4; border-radius: 10px; cursor: pointer; transition: all 0.15s ease;">
+                <input type="radio" name="closureReason" value="انتهاء المدة" checked style="margin-top: 3px; accent-color: #15803d; width: 18px; height: 18px;" />
+                <div>
+                  <strong style="display: block; font-size: 0.92rem; color: #064e3b; margin-bottom: 2px;">انتهاء المدة</strong>
+                  <span style="font-size: 0.78rem; color: #166534; line-height: 1.4; display: block;">انتهاء مدة العقد أو المهرجان أو الفترة الزمنية المحددة للعرض</span>
+                </div>
+              </label>
+
+              <label class="closure-reason-card" id="card-reason-client" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1.5px solid #cbd5e1; background: #ffffff; border-radius: 10px; cursor: pointer; transition: all 0.15s ease;">
+                <input type="radio" name="closureReason" value="انتهاء بطلب من العميل" style="margin-top: 3px; accent-color: #15803d; width: 18px; height: 18px;" />
+                <div>
+                  <strong style="display: block; font-size: 0.92rem; color: #0f172a; margin-bottom: 2px;">انتهاء بطلب من العميل</strong>
+                  <span style="font-size: 0.78rem; color: #64748b; line-height: 1.4; display: block;">بناءً على رغبة إدارة السلسلة أو طلب مباشر من إدارة الفرع</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 18px;">
+            <label class="form-label" style="font-weight: 700;">ملاحظات توضيحية إضافية (اختياري)</label>
+            <textarea id="closure-notes-input" class="form-textarea" rows="2" placeholder="اكتب أي ملاحظات إضافية للمشرف بخصوص تفكيك الستاند أو إعادة البضاعة..."></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-secondary btn-sm" id="cancel-closure-modal-btn">إلغاء</button>
+            <button type="submit" class="btn btn-primary btn-sm">
+              <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+              <span>إرسال طلب الإنهاء للمشرف</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Coordinator Follow-up Photo & Location Verification (Requirement 1, 2, 3, 4) -->
+  <div id="followup-verify-modal" class="modal-overlay">
+    <div class="modal-sheet" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-md" alt="" />
+          <span id="fv-modal-title">تأكيد وفحص الصورة والموقع الميداني</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-followup-verify-modal">&times;</button>
+      </div>
+
+      <div style="padding: 18px;">
+        <!-- 1. Photo Preview Box -->
+        <div style="position: relative; border-radius: 10px; overflow: hidden; background: #0f172a; margin-bottom: 12px; text-align: center; border: 1.5px solid var(--adco-gray-300);">
+          <img id="fv-preview-img" src="" alt="معاينة الصورة" style="max-height: 240px; width: 100%; object-fit: contain;" />
+          <div style="position: absolute; top: 10px; right: 10px;">
+            <span id="fv-origin-badge" class="badge"></span>
+          </div>
+        </div>
+
+        <!-- 2. Photo Metadata & Origin Info (Requirement 2) -->
+        <div class="card" style="background: #f8fafc; border: 1.5px solid var(--adco-green-border); padding: 12px; margin-bottom: 12px; font-size: 0.8rem; box-shadow: none;">
+          <div style="font-weight: 700; color: var(--adco-green-deep); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>فحص وبصمة الصورة (Photo Metadata)</span>
+          </div>
+          
+          <div class="responsive-form-grid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px;">
+            <div>
+              <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">مصدر الصورة:</span>
+              <strong id="fv-meta-origin"></strong>
+            </div>
+            <div>
+              <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">وقت الالتقاط الفعلي (توقيت مصر):</span>
+              <strong id="fv-meta-taken" dir="ltr"></strong>
+            </div>
+            <div>
+              <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">جهاز وكاميرا الالتقاط:</span>
+              <strong id="fv-meta-device"></strong>
+            </div>
+            <div>
+              <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">موقع الصورة المدمج (EXIF GPS):</span>
+              <strong id="fv-meta-exif-gps"></strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Verified Phone Location & Submission Time (Requirement 1, 3, 4) -->
+        <div class="card" style="background: #f0fdf4; border: 1.5px solid #86efac; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; box-shadow: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+            <div style="font-weight: 700; color: #166534; display: flex; align-items: center; gap: 6px;">
+              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+              <span>الموقع الميداني المعتمد (Live Phone GPS)</span>
+            </div>
+            <span class="badge badge-success" style="font-size: 0.68rem;">تم التحقق بنجاح</span>
+          </div>
+
+          <div style="font-size: 0.8rem; margin-bottom: 4px;" dir="ltr">
+            <strong id="fv-loc-coords"></strong> <span id="fv-loc-acc" style="color: #15803d; font-size: 0.72rem;"></span>
+          </div>
+          <div style="font-size: 0.76rem; color: #14532d; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+            <span>وقت التسليم: <strong id="fv-submit-time" dir="ltr"></strong> (توقيت مصر)</span>
+            <a id="fv-map-link" href="#" target="_blank" rel="noopener noreferrer" style="color: #166534; font-weight: 700; text-decoration: underline;">عرض الموقع على الخريطة &larr;</a>
+          </div>
+        </div>
+
+        <!-- 4. Explicit Action Buttons (Submit & Cancel - Requirement 1) -->
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="btn-confirm-followup-submit" class="btn btn-primary" style="flex: 2; padding: 12px 16px;">
+            <img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" />
+            <span>اعتماد وتأكيد رفع الصورة والموقع</span>
+          </button>
+          <button type="button" id="btn-cancel-followup" class="btn btn-secondary" style="flex: 1; padding: 12px 14px;">
+            <span>إلغاء</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script type="module" src="../js/pages/activity-card.page.js"></script>
+</body>
+</html>

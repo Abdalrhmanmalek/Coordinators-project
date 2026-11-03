@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#15803d" />
+  <title>لوحة المنسق الميداني | ADCO Field Portal</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <style>
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 768px) {
+      .kpi-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid var(--adco-gray-200);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .kpi-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--adco-green-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .kpi-num {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--adco-green-deep);
+      line-height: 1.1;
+    }
+    .kpi-title {
+      font-size: 0.82rem;
+      color: var(--adco-gray-600);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .activity-card-item {
+      display: flex;
+      gap: 16px;
+      align-items: stretch;
+      text-decoration: none;
+      color: inherit;
+      padding: 16px;
+      background: #ffffff;
+      border: 1px solid var(--adco-gray-200);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      height: 100%;
+      min-height: 122px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .activity-card-item:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--adco-green-border);
+      transform: translateY(-2px);
+    }
+    .activity-card-thumb {
+      width: 90px;
+      height: 90px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid var(--adco-gray-200);
+    }
+    .filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .filter-chip {
+      background: #ffffff;
+      border: 1px solid var(--adco-gray-300);
+      color: var(--adco-gray-700);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .filter-chip.active {
+      background: var(--adco-green-primary);
+      color: #ffffff;
+      border-color: var(--adco-green-primary);
+    }
+  </style>
+</head>
+<body>
+  <div id="app-header-mount"></div>
+
+  <main class="web-main-workspace">
+    <!-- Top Welcome & Quick Actions -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <h1 id="welcome-title" style="margin-bottom: 4px;">لوحة المتابعة الميدانية</h1>
+        <p id="welcome-role">استعراض الأنشطة الترويجية ومتابعة تقييمات الجودة المعتمدة</p>
+      </div>
+      <a href="./activity-card.html" class="btn btn-primary">
+        <img src="../assets/icons/plus-circle.svg" class="ui-icon" alt="" />
+        <span>تسجيل نشاط جديد</span>
+      </a>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-icon-wrap">
+          <img src="../assets/icons/layout-dashboard.svg" class="ui-icon ui-icon-lg" alt="" />
+        </div>
+        <div>
+          <div class="kpi-num" id="kpi-total">0</div>
+          <div class="kpi-title">إجمالي الأنشطة المسجلة</div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon-wrap" style="background: #dcfce7;">
+          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-lg" alt="" />
+        </div>
+        <div>
+          <div class="kpi-num" id="kpi-accepted" style="color: var(--adco-green-primary);">0</div>
+          <div class="kpi-title">الأنشطة المعتمدة والمقبولة</div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon-wrap" style="background: #fef3c7;">
+          <img src="../assets/icons/star.svg" class="ui-icon ui-icon-lg" alt="" />
+        </div>
+        <div>
+          <div class="kpi-num" id="kpi-avg-score" style="color: #d97706;">0/100</div>
+          <div class="kpi-title">متوسط التقييم الشامل (من 100)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-chips">
+        <button type="button" class="filter-chip active" data-filter="ALL">الكل</button>
+        <button type="button" class="filter-chip" data-filter="Under Review">
+          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>قيد المراجعة</span>
+        </button>
+        <button type="button" class="filter-chip" data-filter="Accepted">
+          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>مقبول</span>
+        </button>
+        <button type="button" class="filter-chip" data-filter="Rejected">
+          <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>مرفوض</span>
+        </button>
+      </div>
+
+      <a href="./leaderboard.html" style="font-size: 0.85rem; color: var(--adco-green-primary); font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+        <img src="../assets/icons/trophy.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>عرض لوحة المتصدرين</span>
+      </a>
+    </div>
+
+    <!-- Activities Cards Grid (Full-Width Responsive Multi-Column) -->
+    <div id="activities-list"></div>
+  </main>
+
+  <script type="module" src="../js/pages/dashboard.page.js"></script>
+</body>
+</html>

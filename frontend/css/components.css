@@ -1,0 +1,808 @@
+/**
+ * ADCO Field Operations Design System - UI Components
+ * Single Responsibility: Modular, self-contained UI components (buttons, forms, cards, comboboxes, badges, modals, tables, toasts)
+ */
+
+/* =========================================================
+   1. BUTTONS & ACTIONS
+   ========================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--adco-green-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(21, 128, 61, 0.25);
+}
+
+.btn-primary:hover {
+  background: var(--adco-green-dark);
+  box-shadow: 0 4px 14px rgba(21, 128, 61, 0.35);
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: var(--adco-green-dark);
+  border-color: var(--adco-gray-200);
+}
+
+.btn-secondary:hover {
+  background: var(--adco-gray-50);
+  border-color: var(--adco-green-border);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--adco-green-primary);
+  border-color: var(--adco-green-primary);
+}
+
+.btn-outline:hover {
+  background: var(--adco-green-mint);
+}
+
+.btn-danger {
+  background: var(--adco-danger-soft);
+  color: var(--adco-danger);
+  border-color: #fca5a5;
+}
+
+.btn-danger:hover {
+  background: #fecaca;
+  color: var(--adco-danger-dark);
+}
+
+.btn-danger-subtle {
+  background: #fef2f2;
+  color: var(--adco-danger-dark);
+  border: 1px solid #fecaca;
+  font-weight: 600;
+}
+
+.btn-danger-subtle:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+}
+
+.btn-sm {
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+}
+
+.btn-xs {
+  min-height: 28px;
+  padding: 2px 8px;
+  font-size: 0.74rem;
+  border-radius: var(--radius-xs);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* =========================================================
+   2. FORM CONTROLS & VISIBLE INPUTS
+   ========================================================= */
+.form-group {
+  margin-bottom: 18px;
+  width: 100%;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--adco-gray-800);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="number"],
+select,
+textarea,
+.form-input,
+.form-select,
+.form-textarea,
+.combobox-input {
+  width: 100% !important;
+  min-height: 44px;
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  color: #0f172a !important;
+  font-size: 0.92rem;
+  outline: none;
+  font-family: inherit;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  display: block;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus,
+.combobox-input:focus {
+  border-color: var(--adco-green-primary) !important;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15) !important;
+}
+
+input::placeholder,
+textarea::placeholder,
+.combobox-input::placeholder {
+  color: var(--adco-gray-400);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Password Toggle Wrapper */
+.password-toggle-wrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--adco-gray-400);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.password-toggle-btn:hover {
+  color: var(--adco-gray-700);
+}
+
+/* =========================================================
+   3. SEARCHABLE COMBOBOX & MULTI-SELECT TAGS
+   ========================================================= */
+.combobox-container {
+  position: relative;
+  width: 100%;
+}
+
+.combobox-control {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.combobox-input {
+  padding-left: 56px !important;
+}
+
+.combobox-actions {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+}
+
+.combobox-clear-btn,
+.combobox-toggle-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.combobox-clear-btn:hover,
+.combobox-toggle-btn:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.combobox-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: var(--z-dropdown);
+  padding: 4px;
+}
+
+.combobox-container.open .combobox-dropdown {
+  display: block;
+}
+
+.combobox-option {
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: #1e293b;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.1s;
+}
+
+.combobox-option:hover,
+.combobox-option.highlighted {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.combobox-option.selected {
+  background: #dcfce7;
+  color: #15803d;
+  font-weight: 700;
+}
+
+.combobox-empty {
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.match-highlight {
+  font-weight: 700;
+  color: #15803d;
+}
+
+/* Multi-select Tags Pill Container */
+.multi-selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  min-height: 32px;
+  align-items: center;
+}
+
+.multi-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.multi-tag-remove {
+  background: none;
+  border: none;
+  color: #15803d;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.multi-tag-remove:hover {
+  color: #ef4444;
+}
+
+/* =========================================================
+   4. CARDS, KPI TILES & META PANELS
+   ========================================================= */
+.card {
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  border: 1px solid var(--adco-gray-200);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 18px;
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: #ffffff;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--adco-green-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-num {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--adco-green-deep);
+  line-height: 1.1;
+}
+
+.kpi-title {
+  font-size: 0.82rem;
+  color: var(--adco-gray-600);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--adco-gray-100);
+  font-size: 0.86rem;
+}
+
+.meta-row:last-child {
+  border-bottom: none;
+}
+
+.overall-rating-banner {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1.5px solid var(--adco-green-border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Activity Card Item */
+.activity-card-item {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  text-decoration: none;
+  color: inherit;
+  background: #ffffff;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  min-height: 120px;
+}
+
+.activity-card-item:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--adco-green-border);
+  transform: translateY(-2px);
+}
+
+.activity-card-thumb {
+  width: 90px;
+  height: 90px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--adco-gray-200);
+}
+
+/* Filter Chips Bar */
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.filter-chip {
+  background: #ffffff;
+  border: 1px solid var(--adco-gray-300);
+  color: var(--adco-gray-700);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.filter-chip.active {
+  background: var(--adco-green-primary);
+  color: #ffffff;
+  border-color: var(--adco-green-primary);
+}
+
+/* =========================================================
+   5. BADGES, PILLS & BRAND SHARE SPLITS
+   ========================================================= */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-mint {
+  background: var(--adco-green-soft);
+  color: var(--adco-green-deep);
+  border: 1px solid var(--adco-green-border);
+}
+
+.badge-success {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.badge-warning {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.badge-danger {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.badge-secondary {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.share-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+/* =========================================================
+   6. MODALS, SHEETS & PHOTO LIGHTBOX
+   ========================================================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-modal);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-sheet {
+  background: #ffffff;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow-y: auto;
+  padding: 24px;
+  border: 1px solid var(--adco-gray-200);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--adco-gray-200);
+}
+
+.close-modal-btn {
+  background: var(--adco-gray-100);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--adco-gray-600);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-modal-btn:hover {
+  background: var(--adco-gray-200);
+  color: var(--adco-gray-800);
+}
+
+/* Lightbox Modal */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.lightbox-overlay.active {
+  display: flex;
+}
+
+.lightbox-box {
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-box img {
+  width: 100%;
+  max-height: 65vh;
+  object-fit: contain;
+  background: #020617;
+}
+
+/* Timeline & Thumbs Grid */
+.timeline-card {
+  background: #f8fafc;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.timeline-thumbs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.timeline-thumb-item {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 1px solid var(--adco-gray-200);
+  cursor: pointer;
+}
+
+.timeline-thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.timeline-thumb-zoom {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  background: rgba(15, 23, 42, 0.75);
+  color: #ffffff;
+  font-size: 0.65rem;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+/* =========================================================
+   7. WIDESCREEN DATA TABLES & SCROLL WRAPPERS
+   ========================================================= */
+.grid-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.sheets-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: right;
+  min-width: 1200px;
+}
+
+.sheets-grid th {
+  background: #f8fafc;
+  color: var(--adco-gray-700);
+  font-weight: 700;
+  padding: 12px 14px;
+  border-bottom: 2px solid var(--adco-gray-200);
+  white-space: nowrap;
+}
+
+.sheets-grid td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--adco-gray-200);
+  color: var(--adco-gray-800);
+}
+
+.sheets-grid tr:hover td {
+  background: #f1f5f9;
+}
+
+.sheets-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid var(--adco-gray-200);
+  border-bottom: none;
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+
+/* =========================================================
+   8. TOAST NOTIFICATIONS
+   ========================================================= */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  animation: toastSlideIn 0.25s ease-out;
+}
+
+.toast-success {
+  background: #065f46;
+  border-right: 4px solid #34d399;
+}
+
+.toast-error {
+  background: #991b1b;
+  border-right: 4px solid #f87171;
+}
+
+.toast-warning {
+  background: #92400e;
+  border-right: 4px solid #fbbf24;
+}
+
+.toast-info {
+  background: #0f172a;
+  border-right: 4px solid #38bdf8;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
