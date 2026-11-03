@@ -352,6 +352,86 @@
     </div>
   </div>
 
+  <!-- Modal: Coordinator Follow-up Photo & Location Verification (Requirement 1, 2, 3, 4) -->
+  <div id="followup-verify-modal" class="modal-overlay">
+    <div class="modal-sheet" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-md" alt="" />
+          <span id="fv-modal-title">تأكيد وفحص الصورة والموقع الميداني</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-followup-verify-modal">&times;</button>
+      </div>
+
+      <div style="padding: 18px;">
+        <!-- 1. Photo Preview Box -->
+        <div style="position: relative; border-radius: 10px; overflow: hidden; background: #0f172a; margin-bottom: 12px; text-align: center; border: 1.5px solid var(--adco-gray-300);">
+          <img id="fv-preview-img" src="" alt="معاينة الصورة" style="max-height: 240px; width: 100%; object-fit: contain;" />
+          <div style="position: absolute; top: 10px; right: 10px;">
+            <span id="fv-origin-badge" class="badge"></span>
+          </div>
+        </div>
+
+        <!-- 2. Photo Metadata & Origin Info (Requirement 2) -->
+        <div class="card" style="background: #f8fafc; border: 1.5px solid var(--adco-green-border); padding: 12px; margin-bottom: 12px; font-size: 0.8rem; box-shadow: none;">
+          <div style="font-weight: 700; color: var(--adco-green-deep); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>فحص وبصمة الصورة (Photo Metadata)</span>
+          </div>
+          
+          <div class="responsive-form-grid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px;">
+            <div>
+              <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">مصدر الصورة:</span>
+              <strong id="fv-meta-origin"></strong>
+            </div>
+            <div>
+              <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">وقت الالتقاط الفعلي (توقيت مصر):</span>
+              <strong id="fv-meta-taken" dir="ltr"></strong>
+            </div>
+            <div>
+              <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">جهاز وكاميرا الالتقاط:</span>
+              <strong id="fv-meta-device"></strong>
+            </div>
+            <div>
+              <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">موقع الصورة المدمج (EXIF GPS):</span>
+              <strong id="fv-meta-exif-gps"></strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Verified Phone Location & Submission Time (Requirement 1, 3, 4) -->
+        <div class="card" style="background: #f0fdf4; border: 1.5px solid #86efac; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; box-shadow: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+            <div style="font-weight: 700; color: #166534; display: flex; align-items: center; gap: 6px;">
+              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+              <span>الموقع الميداني المعتمد (Live Phone GPS)</span>
+            </div>
+            <span class="badge badge-success" style="font-size: 0.68rem;">تم التحقق بنجاح</span>
+          </div>
+
+          <div style="font-size: 0.8rem; margin-bottom: 4px;" dir="ltr">
+            <strong id="fv-loc-coords"></strong> <span id="fv-loc-acc" style="color: #15803d; font-size: 0.72rem;"></span>
+          </div>
+          <div style="font-size: 0.76rem; color: #14532d; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+            <span>وقت التسليم: <strong id="fv-submit-time" dir="ltr"></strong> (توقيت مصر)</span>
+            <a id="fv-map-link" href="#" target="_blank" rel="noopener noreferrer" style="color: #166534; font-weight: 700; text-decoration: underline;">عرض الموقع على الخريطة &larr;</a>
+          </div>
+        </div>
+
+        <!-- 4. Explicit Action Buttons (Submit & Cancel - Requirement 1) -->
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="btn-confirm-followup-submit" class="btn btn-primary" style="flex: 2; padding: 12px 16px;">
+            <img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" />
+            <span>اعتماد وتأكيد رفع الصورة والموقع</span>
+          </button>
+          <button type="button" id="btn-cancel-followup" class="btn btn-secondary" style="flex: 1; padding: 12px 14px;">
+            <span>إلغاء</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="../js/ui-helpers.js"></script>
   <script src="../js/camera-compressor.js"></script>
   <script src="../js/auth.js"></script>
@@ -914,50 +994,66 @@
     }
 
     let currentDeviceLocation = null;
+    let pendingFollowupBatch = null;
+    let pendingFollowupLocation = null;
 
+    const followupVerifyModal = document.getElementById('followup-verify-modal');
+    document.getElementById('close-followup-verify-modal').addEventListener('click', () => {
+      followupVerifyModal.classList.remove('active');
+      document.getElementById('followup-camera-input').value = '';
+    });
+    document.getElementById('btn-cancel-followup').addEventListener('click', () => {
+      followupVerifyModal.classList.remove('active');
+      document.getElementById('followup-camera-input').value = '';
+    });
+
+    // Requirement 3: Strictly ask for location; if denied, reject the photo!
     async function requestDeviceLocation() {
       const telGps = document.getElementById('tel-gps-text');
-      if (telGps) telGps.textContent = 'جاري طلب إحداثيات الموقع الميداني (GPS) من الهاتف...';
+      if (telGps) telGps.textContent = 'جاري طلب إذن الموقع الجغرافي (GPS)...';
+
       if (!navigator.geolocation) {
-        if (telGps) telGps.textContent = 'المتصفح لا يدعم GPS، تم اعتماد موقع الفرع تلقائياً';
-        return null;
+        throw new Error('المتصفح أو الهاتف لا يدعم خدمة الـ GPS، ويلزم توفرها لاعتماد الصور.');
       }
 
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const loc = {
               latitude: Number(pos.coords.latitude.toFixed(5)),
               longitude: Number(pos.coords.longitude.toFixed(5)),
               accuracy: Math.round(pos.coords.accuracy || 10),
-              timestamp: new Date().toISOString()
+              timestamp: formatDateTime(new Date()),
+              verified: true
             };
             currentDeviceLocation = loc;
             if (telGps) {
-              telGps.innerHTML = `الموقع الملتقط: <strong>${loc.latitude}&deg; N, ${loc.longitude}&deg; E</strong> (&plusmn;${loc.accuracy}م)`;
+              telGps.innerHTML = `تم التحقق من الموقع GPS بنجاح: <strong>${loc.latitude}&deg; N, ${loc.longitude}&deg; E</strong> (&plusmn;${loc.accuracy}م)`;
+              telGps.parentElement.style.background = '#f0fdf4';
+              telGps.parentElement.style.borderColor = '#86efac';
             }
             resolve(loc);
           },
           (err) => {
-            console.warn('Geolocation warning:', err.message);
-            const fallbackLoc = {
-              latitude: Number((31.2156 + (Math.random() - 0.5) * 0.02).toFixed(5)),
-              longitude: Number((29.9553 + (Math.random() - 0.5) * 0.02).toFixed(5)),
-              accuracy: 12,
-              address: 'موقع الفرع الميداني (تقديري)',
-              timestamp: new Date().toISOString()
-            };
-            currentDeviceLocation = fallbackLoc;
+            console.warn('Geolocation denied/error:', err.code, err.message);
+            currentDeviceLocation = null;
             if (telGps) {
-              telGps.textContent = 'تم اعتماد موقع الفرع الميداني للإسكندرية';
+              telGps.innerHTML = '<strong style="color: #b91c1c;">تم رفض إذن الموقع الجغرافي (Access Denied) — تم حظر رفع الصورة</strong>';
+              telGps.parentElement.style.background = '#fef2f2';
+              telGps.parentElement.style.borderColor = '#fca5a5';
             }
-            resolve(fallbackLoc);
+            if (err.code === 1 || err.code === err.PERMISSION_DENIED) {
+              reject(new Error('❌ تم رفض إذن الوصول للموقع الجغرافي (Access Denied). لنظام أدكو الرقابي، يلزم منح صلاحية الـ GPS لاعتماد الصور الميدانية. تم حظر وإلغاء رفع الصورة.'));
+            } else {
+              reject(new Error('❌ تعذر تحديد إحداثيات الـ GPS بدقة. يرجى تفعيل خدمة الموقع في هاتفك والمحاولة مجدداً.'));
+            }
           },
-          { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
+          { enableHighAccuracy: true, timeout: 9000, maximumAge: 0 }
         );
       });
     }
 
+    // Requirement 1 & 2: Coordinator adds follow-up photo -> verify photo metadata & location -> explicit submit button
     document.getElementById('followup-camera-input').addEventListener('change', async (e) => {
       const files = e.target.files;
       if (!files || files.length === 0 || !activityId) return;
@@ -966,18 +1062,70 @@
       const nextRound = (currentAct && currentAct.followUpHistory ? currentAct.followUpHistory.length : 1) + 1;
 
       try {
-        showToast(`جاري التقاط موقع الهاتف وضغط ${files.length} صورة بدقة 720p...`, 'info');
-        const [loc, processedBatch] = await Promise.all([
-          requestDeviceLocation(),
-          CameraCompressor.processFilesBatch(files, `Follow-up #${nextRound}`)
-        ]);
+        showToast('جاري التحقق من إذن الموقع وفحص بصمة الصورة...', 'info');
 
-        const result = await ActivityManager.addFollowUpPhotos(activityId, processedBatch, user, loc || currentDeviceLocation);
+        // Requirement 3: Ask for location access; if denied, reject the photo
+        const loc = await requestDeviceLocation();
 
-        showToast(`تم تسجيل ${result.newSession.roundTitle} مع توثيق الموقع الجغرافي بنجاح`, 'success');
+        // Process batch and extract rich EXIF metadata
+        const processedBatch = await CameraCompressor.processFilesBatch(files, `Follow-up #${nextRound}`);
+        if (!processedBatch || processedBatch.length === 0) {
+          throw new Error('فشلت معالجة الصورة.');
+        }
+
+        pendingFollowupBatch = processedBatch;
+        pendingFollowupLocation = loc;
+
+        const first = processedBatch[0];
+        const meta = first.metadata || {};
+
+        // Populate Verification Modal
+        document.getElementById('fv-modal-title').textContent = `تأكيد وفحص متابعة رقم ${nextRound} — ${currentAct.client}`;
+        document.getElementById('fv-preview-img').src = first.photoUrl;
+
+        const originBadge = document.getElementById('fv-origin-badge');
+        originBadge.textContent = meta.originBadge || 'كاميرا مباشرة';
+        originBadge.className = `badge ${meta.originBadgeClass || 'badge-success'}`;
+
+        document.getElementById('fv-meta-origin').textContent = meta.originLabel || 'التقاط مباشر بكاميرا الهاتف';
+        document.getElementById('fv-meta-taken').textContent = meta.takenAtEgypt || formatDateTime(new Date());
+        document.getElementById('fv-meta-device').textContent = meta.deviceModel || 'هاتف محلي';
+        document.getElementById('fv-meta-exif-gps').textContent = meta.exifGps ? `${meta.exifGps.latitude}°, ${meta.exifGps.longitude}°` : 'غير متوفر بالصورة (تم اعتماد Live GPS)';
+
+        document.getElementById('fv-loc-coords').textContent = `${loc.latitude}° N, ${loc.longitude}° E`;
+        document.getElementById('fv-loc-acc').textContent = `(دقة ±${loc.accuracy}م)`;
+        document.getElementById('fv-submit-time').textContent = formatDateTime(new Date());
+        document.getElementById('fv-map-link').href = `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`;
+
+        // Requirement 1: Open verification modal with submit button
+        followupVerifyModal.classList.add('active');
+      } catch (err) {
+        e.target.value = '';
+        alert(err.message);
+        showToast(err.message, 'error', 5000);
+      }
+    });
+
+    // Requirement 1: Explicit Submit Button inside Verification Modal
+    document.getElementById('btn-confirm-followup-submit').addEventListener('click', async () => {
+      if (!pendingFollowupBatch || !pendingFollowupLocation || !activityId) return;
+      const btn = document.getElementById('btn-confirm-followup-submit');
+      btn.disabled = true;
+      btn.innerHTML = `<span>جاري الاعتماد والرفع...</span>`;
+
+      try {
+        const result = await ActivityManager.addFollowUpPhotos(activityId, pendingFollowupBatch, user, pendingFollowupLocation);
+        followupVerifyModal.classList.remove('active');
+        document.getElementById('followup-camera-input').value = '';
+        pendingFollowupBatch = null;
+        pendingFollowupLocation = null;
+        showToast(`تم اعتماد وتأكيد ${result.newSession.roundTitle} بنجاح بتوقيت مصر`, 'success');
         renderActivityDetailView(activityId);
       } catch (err) {
         showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" /><span>اعتماد وتأكيد رفع الصورة والموقع</span>`;
       }
     });
 
@@ -988,14 +1136,32 @@
         sizeKb: 176,
         width: 1280,
         height: 720,
-        capturedAt: formatDateTime(new Date())
+        capturedAt: formatDateTime(new Date()),
+        metadata: {
+          takenAtEgypt: formatDateTime(new Date()),
+          originBadge: 'كاميرا مباشرة',
+          originLabel: 'التقاط مباشر بكاميرا الهاتف الميداني',
+          originBadgeClass: 'badge-success',
+          deviceModel: 'كاميرا الهاتف الميداني المعتمدة',
+          exifGps: null
+        }
       }
     ];
 
     const cameraInput = document.getElementById('camera-input');
-    document.getElementById('trigger-camera-btn').addEventListener('click', () => {
-      requestDeviceLocation();
-      cameraInput.click();
+    const submitActBtn = document.getElementById('submit-activity-btn');
+
+    document.getElementById('trigger-camera-btn').addEventListener('click', async () => {
+      try {
+        await requestDeviceLocation();
+        cameraInput.click();
+      } catch (err) {
+        alert(err.message);
+        showToast(err.message, 'error', 5000);
+        if (submitActBtn) {
+          submitActBtn.disabled = true;
+        }
+      }
     });
 
     cameraInput.addEventListener('change', async (e) => {
@@ -1003,25 +1169,39 @@
       if (!files || files.length === 0) return;
 
       try {
-        showToast('جاري ضغط ومعالجة الصور وطلب إحداثيات GPS...', 'info');
-        const [loc, batch] = await Promise.all([
-          requestDeviceLocation(),
-          CameraCompressor.processFilesBatch(files, 'Round 1')
-        ]);
+        showToast('جاري التحقق من إذن الموقع وفحص بصمة الصورة...', 'info');
+        const loc = await requestDeviceLocation();
+        const batch = await CameraCompressor.processFilesBatch(files, 'Round 1');
         initialProcessedPhotos = batch;
 
         const first = batch[0];
+        const meta = first.metadata || {};
         const previewBox = document.getElementById('camera-preview-box');
-        previewBox.innerHTML = `<img src="${first.photoUrl}" alt="Preview" class="camera-preview-thumb" />`;
+        previewBox.innerHTML = `
+          <div style="position: relative; width: 100%; height: 100%;">
+            <img src="${first.photoUrl}" alt="Preview" class="camera-preview-thumb" />
+            <div style="position: absolute; top: 6px; right: 6px;">
+              <span class="badge ${meta.originBadgeClass || 'badge-success'}">${meta.originBadge || 'كاميرا مباشرة'}</span>
+            </div>
+          </div>
+        `;
         previewBox.onclick = () => cameraInput.click();
 
         document.getElementById('compression-telemetry').style.display = 'block';
         document.getElementById('tel-res').textContent = `الأبعاد: ${first.width}×${first.height} px`;
-        document.getElementById('tel-size').textContent = `الحجم المضغوط: ${first.sizeKb} KB`;
+        document.getElementById('tel-size').textContent = `الحجم المضغوط: ${first.sizeKb} KB | مصدر: ${meta.originBadge || 'كاميرا'}`;
 
-        showToast('تم اعتماد الصورة وتحديد الموقع الجغرافي بنجاح', 'success');
+        if (submitActBtn) {
+          submitActBtn.disabled = false;
+        }
+        showToast('تم اعتماد بصمة الصورة والتحقق من الموقع GPS بنجاح', 'success');
       } catch (err) {
-        showToast(err.message, 'error');
+        e.target.value = '';
+        alert(err.message);
+        showToast(err.message, 'error', 5000);
+        if (submitActBtn) {
+          submitActBtn.disabled = true;
+        }
       }
     });
 

@@ -481,6 +481,7 @@
         magazineDate: magazineDateVal,
         photoUrl: initialPhotos[0].photoUrl,
         photoHash: initialPhotos[0].photoHash,
+        initialPhotos: initialPhotos,
         location: locationData,
         status: 'Under Review',
         supervisorScore: null,

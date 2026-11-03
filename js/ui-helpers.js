@@ -84,14 +84,27 @@ localStorage.setItem(FALLBACK_QUEUE_KEY, JSON.stringify(list));
 }
 
 function formatDateTime(isoOrDate) {
-const d = isoOrDate ? new Date(isoOrDate) : new Date();
-if (isNaN(d.getTime())) return String(isoOrDate || '');
-const yyyy = d.getFullYear();
-const mm = String(d.getMonth() + 1).padStart(2, '0');
-const dd = String(d.getDate()).padStart(2, '0');
-const hh = String(d.getHours()).padStart(2, '0');
-const min = String(d.getMinutes()).padStart(2, '0');
-return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+  const d = isoOrDate ? new Date(isoOrDate) : new Date();
+  if (isNaN(d.getTime())) return String(isoOrDate || '');
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Africa/Cairo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).format(d).replace(',', '').trim();
+  } catch {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+  }
 }
 
 function getIconPrefix() {
