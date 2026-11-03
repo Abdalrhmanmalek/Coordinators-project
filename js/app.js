@@ -119,7 +119,8 @@
 
             <!-- Center Mobile Brand: Company Name in the middle space -->
             <div class="web-mobile-center-title">
-              شركة الإسكندرية للكيماويات (ADCO)
+              <span class="wmct-name">شركة الإسكندرية للكيماويات</span>
+              <span class="wmct-sub"><i class="wmct-dot"></i>ADCO</span>
             </div>
 
             <!-- Left: Rank, Profile & Logout -->

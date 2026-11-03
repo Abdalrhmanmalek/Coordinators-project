@@ -549,3 +549,46 @@ global.createSearchableCombobox = createSearchableCombobox;
 global.createMultiSelectCombobox = createMultiSelectCombobox;
 global.setupNetworkListener = setupNetworkListener;
 })(window);
+
+/* Show / hide password toggle (auto-applied to every password input, including dynamic modals) */
+(function () {
+  var EYE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var EYE_OFF = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-6.5 0-10-7-10-7a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/></svg>';
+
+  function enhance(input) {
+    if (input.dataset.pwToggle) return;
+    input.dataset.pwToggle = '1';
+    var wrap = document.createElement('span');
+    wrap.style.cssText = 'position:relative;display:block;width:100%;';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    input.style.paddingLeft = '42px';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.tabIndex = -1;
+    btn.setAttribute('aria-label', 'إظهار كلمة المرور');
+    btn.innerHTML = EYE;
+    btn.style.cssText = 'position:absolute;left:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:#64748b;cursor:pointer;border-radius:8px;padding:0;';
+    btn.addEventListener('click', function () {
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? EYE_OFF : EYE;
+      btn.setAttribute('aria-label', show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+      btn.style.color = show ? '#15803d' : '#64748b';
+    });
+    wrap.appendChild(btn);
+  }
+
+  function scan() {
+    document.querySelectorAll('input[type="password"]').forEach(enhance);
+  }
+
+  function start() {
+    scan();
+    new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
