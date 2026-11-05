@@ -1,7 +1,7 @@
-# Alexandria Company for Chemicals and Detergents (ADCO) — Master Backend API Endpoints Specification
+# (ADCO) شركة الاسكندريه للكيماويات و المنظفات — Master Backend API Endpoints Specification
 
 > **System Version:** 2.5.0 Enterprise Architecture  
-> **Official Corporate Entity:** Alexandria Company for Chemicals and Detergents (ADCO)  
+> **Official Corporate Entity:** (ADCO) شركة الاسكندريه للكيماويات و المنظفات  
 > **Backend Architecture:** Node.js / TypeScript RESTful JSON API v1  
 > **Database:** PostgreSQL 16 + Redis Cache + S3 Media Store  
 > **Timezone Requirement:** Strictly `Africa/Cairo` (UTC+2)  
@@ -19,15 +19,15 @@ All incoming requests to the API Gateway must adhere to the following header spe
 | **`Content-Type`** | `string` | Conditional | Must be `application/json` for JSON payloads or `multipart/form-data` for file uploads. |
 | **`Authorization`** | `string` | Yes (for protected endpoints) | Format: `Bearer <JWT_ACCESS_TOKEN>`. |
 | **`Idempotency-Key`** | `string (UUIDv4)` | Yes (for state-mutating requests) | Required on all `POST`, `PUT`, `PATCH` operations to prevent duplicate transactions. |
-| **`Accept-Language`** | `string` | Optional | Defaults to `en-US, en;q=0.9, ar;q=0.8`. |
+| **`Accept-Language`** | `string` | Optional | Defaults to `ar-EG, ar;q=0.9, en;q=0.8`. |
 
 ### 1.2 3-Tier Role-Based Access Control (RBAC) Matrix
 
-| Role Identifier | Role Title | Tier Level | Scoping Rule & Access Boundaries |
+| Role Identifier | Arabic Display | Tier Level | Scoping Rule & Access Boundaries |
 |:---|:---|:---:|:---|
-| **`COORDINATOR`** | Field Coordinator | Tier 1 | Restricted strictly to activities created for their single assigned client branch (`assignedClientName` + `assignedBranchName`). Cannot view activities from other branches. |
-| **`COORDINATOR_SUPERVISOR`** | Coordinator Supervisor | Tier 2 | Scoped to **all branches of their assigned retail client in their region** (e.g. all branches of *Fathalla Wholesale Market* in Alexandria). Has full operational capabilities + dedicated branch and coordinator filtering toolbar over all client activities. |
-| **`MARKETING_MANAGER`**<br>*(alias: `COORDINATION_MANAGER`)* | Marketing Manager | Tier 3 | Unrestricted nationwide administrative access. Evaluates follow-ups with 100-point scoring, approves/rejects activities & closure requests, exports $1/N$ multi-brand sheets, and inspects analytics. |
+| **`COORDINATOR`** | منسق ميداني | Tier 1 | Restricted strictly to activities created for their single assigned client branch (`assignedClientName` + `assignedBranchName`). Cannot view activities from other branches. |
+| **`COORDINATOR_SUPERVISOR`** | مشرف منسق | Tier 2 | Scoped to **all branches of their assigned retail client in their region** (e.g. all branches of *فتح الله جملة ماركت* in Alexandria). Has full operational capabilities + dedicated branch and coordinator filtering toolbar over all client activities. |
+| **`MARKETING_MANAGER`**<br>*(alias: `COORDINATION_MANAGER`)* | مسؤول التسويق | Tier 3 | Unrestricted nationwide administrative access. Evaluates follow-ups with 100-point scoring, approves/rejects activities & closure requests, exports $1/N$ multi-brand sheets, and inspects analytics. |
 
 ### 1.3 Standard Error Response Structure
 All error responses from the backend follow this standardized JSON schema:
@@ -37,12 +37,12 @@ All error responses from the backend follow this standardized JSON schema:
   "success": false,
   "statusCode": 400,
   "error": "Bad Request",
-  "message": "Magazine end date must be greater than or equal to start date",
+  "message": "تاريخ نهاية المجلة يجب أن يكون لاحقاً أو مساوياً لتاريخ البداية",
   "errors": [
     {
       "field": "magazineEndDate",
       "rule": "endDate >= startDate",
-      "message": "Invalid magazine end date"
+      "message": "تاريخ نهاية المجلة غير صالح"
     }
   ],
   "timestamp": "2026-11-05T20:30:00.000Z",
@@ -64,8 +64,8 @@ All error responses from the backend follow this standardized JSON schema:
 * **Request Body DTO (Zod Schema):**
   ```typescript
   z.object({
-    employeeId: z.string().trim().regex(/^ADCO-\d{3,5}$/i, "Employee ID must begin with ADCO followed by digits"),
-    password: z.string().min(6, "Password must be at least 6 characters")
+    employeeId: z.string().trim().regex(/^ADCO-\d{3,5}$/i, "الرقم الوظيفي يجب أن يبدأ بـ ADCO متبوعاً بأرقام"),
+    password: z.string().min(6, "كلمة المرور يجب أن لا تقل عن 6 أحرف")
   })
   ```
 * **Sample Request Payload:**
@@ -86,16 +86,16 @@ All error responses from the backend follow this standardized JSON schema:
       "expiresIn": 3600,
       "user": {
         "employeeId": "ADCO-501",
-        "fullName": "Ayman Abdelrahman El-Rouby",
+        "fullName": "أيمن عبد الرحمن الروبي",
         "mobile": "01055566677",
         "email": "ayman.r@adco.com.eg",
         "role": "coordinator_supervisor",
         "rank": "#2",
         "score": 92,
-        "assignedClientName": "Fathalla Wholesale Market",
+        "assignedClientName": "فتح الله جملة ماركت (Fathalla)",
         "assignedBranchName": null,
-        "region": "Alexandria",
-        "branch": "Fathalla Wholesale Market Operations - Alexandria"
+        "region": "الإسكندرية",
+        "branch": "مسؤول فروع فتح الله جملة ماركت - الإسكندرية"
       }
     }
     ```
@@ -117,14 +117,14 @@ All error responses from the backend follow this standardized JSON schema:
   z.object({
     employeeId: z.string().trim().regex(/^ADCO-\d{3,5}$/i),
     fullName: z.string().min(3).max(100),
-    mobile: z.string().regex(/^01[0125]\d{8}$/, "Invalid Egyptian mobile phone number"),
-    email: z.string().email("Invalid email format"),
+    mobile: z.string().regex(/^01[0125]\d{8}$/, "رقم هاتف محمول مصري غير صالح"),
+    email: z.string().email("صيغة بريد إلكتروني غير صالحة"),
     password: z.string().min(6),
     role: z.enum(['coordinator', 'coordinator_supervisor']).default('coordinator'),
     branch: z.string().min(2).max(100),
     assignedClientName: z.string().nullable().optional(),
     assignedBranchName: z.string().nullable().optional(),
-    region: z.string().default('Alexandria')
+    region: z.string().default('الإسكندرية')
   })
   ```
 * **Expected Response & HTTP Status Codes:**
@@ -157,7 +157,7 @@ All error responses from the backend follow this standardized JSON schema:
 * **Required Role:** `COORDINATOR`, `COORDINATOR_SUPERVISOR`, `MARKETING_MANAGER`
 * **Description:** Revokes current refresh token and blacklists access token in Redis cache.
 * **Expected Response & HTTP Status Codes:**
-  * **`200 OK`**: `{ "success": true, "message": "Successfully logged out" }`.
+  * **`200 OK`**: `{ "success": true, "message": "تم تسجيل الخروج بنجاح" }`.
   * **`401 Unauthorized`**: Missing or invalid token.
 
 ---
@@ -188,7 +188,7 @@ All error responses from the backend follow this standardized JSON schema:
   }
   ```
 * **Expected Response:**
-  * **`200 OK`**: `{ "success": true, "message": "Contact credentials successfully updated" }`.
+  * **`200 OK`**: `{ "success": true, "message": "تم تحديث بيانات الاتصال بنجاح" }`.
   * **`400 Bad Request`**: Invalid Egyptian phone or email structure.
   * **`401 Unauthorized`**: Unauthenticated.
 
@@ -207,7 +207,7 @@ All error responses from the backend follow this standardized JSON schema:
   }
   ```
 * **Expected Response:**
-  * **`200 OK`**: `{ "success": true, "message": "Password successfully updated" }`.
+  * **`200 OK`**: `{ "success": true, "message": "تم تحديث كلمة المرور بنجاح" }`.
   * **`400 Bad Request`**: New password does not meet minimum 6-character length.
   * **`401 Unauthorized`**: Old password is incorrect.
 
@@ -253,7 +253,7 @@ All error responses from the backend follow this standardized JSON schema:
 * **Method & Path:** `POST /api/v1/activities`
 * **Target Backend File:** `src/modules/activities/activities.routes.ts` -> `ActivityController.createActivity`
 * **Required Role:** `COORDINATOR`, `COORDINATOR_SUPERVISOR`, `MARKETING_MANAGER`
-* **Description:** Creates an operational activity card. Normalizes products into `activity_products`, calculates $1/N$ brand shares into `activity_brands`, validates mandatory magazine date range when `activity = 'Magazine Feature'`, and validates hardware GPS lock.
+* **Description:** Creates an operational activity card. Normalizes products into `activity_products`, calculates $1/N$ brand shares into `activity_brands`, validates mandatory magazine date range when `activity = 'فرشة مجلة'`, and validates hardware GPS lock.
 * **Request Headers:**
   * `Authorization: Bearer <token>`
   * `Content-Type: application/json`
@@ -266,8 +266,8 @@ All error responses from the backend follow this standardized JSON schema:
     coordinatorBranch: z.string().min(2).max(100),
     activity: z.string().min(2).max(80),
     activityType: z.enum([
-      'Gondola', 'Dress Up', 'Side Gondola', 'Stand', 'Podium',
-      'Pillar', 'Cut Man', 'See-Through', 'Light Box', 'Floor Display'
+      'جندولة', 'دريس اب', 'سايد جندولة', 'ستاند', 'بوديوم',
+      'بيلر', 'كات مان', 'سي ثرو', 'لايت بوكس', 'عرض أرضي'
     ]),
     activityCount: z.number().int().min(1).max(10).default(1),
     magazineStartDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
@@ -278,45 +278,45 @@ All error responses from the backend follow this standardized JSON schema:
       mainGroup: z.string().min(2).max(100),
       subGroup: z.string().min(2).max(100),
       skuItem: z.string().min(2).max(200)
-    })).min(1, "At least one product item must be added via the 4-level structure"),
+    })).min(1, "يجب إدراج صنف واحد على الأقل عبر الهيكل الرباعي"),
     photoUrl: z.string().url(),
     photoHash: z.string().length(64),
     latitude: z.number().min(-90).max(90),
     longitude: z.number().min(-180).max(180)
   }).refine((data) => {
-    if (data.activity === 'Magazine Feature') {
+    if (data.activity === 'فرشة مجلة') {
       return data.magazineStartDate && data.magazineEndDate && data.magazineEndDate >= data.magazineStartDate;
     }
     return true;
   }, {
-    message: "Magazine start date and end date are required when Magazine Feature is selected, and end date must be after or equal to start date",
+    message: "تاريخ بداية ونهاية المجلة إلزاميان عند اختيار فرشة مجلة، وتاريخ النهاية يجب أن يكون لاحقاً للبداية",
     path: ["magazineEndDate"]
   })
   ```
 * **Sample Request Payload:**
   ```json
   {
-    "client": "Fathalla Wholesale Market",
-    "branch": "Smouha Branch - Alexandria",
-    "coordinatorBranch": "East Alexandria Sector (Smouha / Roushdy / Sidi Gaber)",
-    "activity": "Magazine Feature",
-    "activityType": "Gondola",
+    "client": "فتح الله جملة ماركت (Fathalla)",
+    "branch": "فرع سموحة - الإسكندرية",
+    "coordinatorBranch": "قطاع شرق الإسكندرية (سموحة / رشدي / سيدي جابر)",
+    "activity": "فرشة مجلة",
+    "activityType": "جندولة",
     "activityCount": 2,
     "magazineStartDate": "2026-11-01",
     "magazineEndDate": "2026-11-15",
     "activityDate": "2026-11-01T10:15:00+02:00",
     "products": [
       {
-        "brandName": "Velveta",
-        "mainGroup": "Fabric Softeners",
-        "subGroup": "Concentrated Softener",
-        "skuItem": "Velveta Concentrated Floral Breeze 1L"
+        "brandName": "Velveta (فلفيتا)",
+        "mainGroup": "معطرات الأقمشة",
+        "subGroup": "معطر مركز",
+        "skuItem": "فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر"
       },
       {
-        "brandName": "Fairy",
-        "mainGroup": "Dishwashing Liquid",
-        "subGroup": "Platinum Plus",
-        "skuItem": "Fairy Platinum Plus Lemon 650ml"
+        "brandName": "Fairy (فيري)",
+        "mainGroup": "سائل غسيل الأطباق",
+        "subGroup": "بلاتينيوم بلس",
+        "skuItem": "فيري بلاتينيوم بلس ليمون 650 مل"
       }
     ],
     "photoUrl": "https://cdn.adco.com.eg/photos/2026/11/act-0841.jpg",
@@ -354,7 +354,7 @@ All error responses from the backend follow this standardized JSON schema:
   ```json
   {
     "roundNumber": 2,
-    "roundTitle": "Additional Follow-Up #2",
+    "roundTitle": "متابعة إضافية #2",
     "photos": [
       {
         "photoUrl": "https://cdn.adco.com.eg/photos/2026/11/followup-2.jpg",
@@ -376,7 +376,7 @@ All error responses from the backend follow this standardized JSON schema:
 
 ---
 
-### 4.5 Submit "Request Activity Completion" (Closure Request)
+### 4.5 Submit "Request Activity Completion" (طلب انهاء النشاط)
 * **Method & Path:** `POST /api/v1/activities/:id/request-end`
 * **Target Backend File:** `src/modules/activities/activities.routes.ts` -> `ActivityController.requestClosure`
 * **Required Role:** `COORDINATOR`, `COORDINATOR_SUPERVISOR`
@@ -384,11 +384,11 @@ All error responses from the backend follow this standardized JSON schema:
 * **Request Body DTO:**
   ```json
   {
-    "notes": "Conclusion of magazine feature display period and dismantling stands per branch management instructions"
+    "notes": "انتهاء مدة فرشة المجلة وفك الاستاندات بناء على تعليمات إدارة الفرع"
   }
   ```
 * **Expected Response:**
-  * **`200 OK`**: `{ "success": true, "message": "Activity completion request submitted and pending supervisor review" }`.
+  * **`200 OK`**: `{ "success": true, "message": "تم تقديم طلب إنهاء النشاط وهو قيد مراجعة المشرف" }`.
   * **`404 Not Found`**: Activity not found.
 
 ---
@@ -401,7 +401,7 @@ All error responses from the backend follow this standardized JSON schema:
 * **Request Body DTO:**
   ```json
   {
-    "supervisorFeedback": "Field campaign concluded and final dismantling approved"
+    "supervisorFeedback": "تم انتهاء الحملة الميدانية واعتماد الفك النهائي"
   }
   ```
 * **Expected Response:**
@@ -419,7 +419,7 @@ All error responses from the backend follow this standardized JSON schema:
   ```json
   {
     "decision": "COMPLETED",
-    "supervisorFeedback": "Dismantling inspection photos verified; activity completion officially approved"
+    "supervisorFeedback": "تمت مراجعة صور فك العرض واعتماد إنهاء النشاط رسمياً"
   }
   ```
 * **Expected Response:**
@@ -485,10 +485,10 @@ All error responses from the backend follow this standardized JSON schema:
 * **Target Backend File:** `src/modules/evaluations/evaluations.routes.ts` -> `EvaluationController.submitReview`
 * **Required Role:** `MARKETING_MANAGER`
 * **Description:** Submits official evaluation scoring across the 4 criteria (Total: 100 Points):
-  1. **New Verified Activities (`newActivity`):** Max 40 points
-  2. **Field Execution Quality (`executionQuality`):** Max 20 points
-  3. **Proven Continuity (`continuity`):** Max 25 points
-  4. **Documentation & Data Integrity (`documentation`):** Max 15 points
+  1. **الأنشطة الجديدة المعتمدة (`newActivity`):** Max 40 points
+  2. **جودة التنفيذ الميداني (`executionQuality`):** Max 20 points
+  3. **مدة الاستمرارية المثبتة (`continuity`):** Max 25 points
+  4. **الالتزام بالتوثيق وصحة البيانات (`documentation`):** Max 15 points
 * **Request Body DTO (Zod Schema):**
   ```typescript
   z.object({
@@ -511,7 +511,7 @@ All error responses from the backend follow this standardized JSON schema:
     "decision": "Accepted",
     "rawScore": 9.5,
     "roundNumber": 1,
-    "notes": "Excellent execution and optimal brand share distribution between both brands",
+    "notes": "تنفيذ ممتاز وتوزيع نموذجي لحصص العرض بين العلامتين",
     "breakdown": {
       "newActivity": 40,
       "executionQuality": 19,
@@ -526,7 +526,7 @@ All error responses from the backend follow this standardized JSON schema:
     {
       "success": true,
       "totalWeightedScore": 99,
-      "badgeTier": "Excellent - Diamond Tier",
+      "badgeTier": "ممتاز - فئة ماسية",
       "overallRating": 9.9,
       "updatedActivity": { /* Activity DTO */ }
     }
@@ -596,29 +596,29 @@ All error responses from the backend follow this standardized JSON schema:
       {
         "rank": "#1",
         "coordinatorId": "ADCO-102",
-        "coordinatorName": "Sara Tarek Ibrahim",
-        "branch": "Loran Branch - Corniche",
+        "coordinatorName": "سارة طارق إبراهيم",
+        "branch": "فرع لوران - الكورنيش",
         "totalScore": 98,
         "acceptedCount": 14,
-        "tier": "Excellent - Diamond Tier"
+        "tier": "ممتاز - فئة ماسية"
       },
       {
         "rank": "#2",
         "coordinatorId": "ADCO-501",
-        "coordinatorName": "Ayman Abdelrahman El-Rouby",
-        "branch": "Fathalla Wholesale Market Operations - Alexandria",
+        "coordinatorName": "أيمن عبد الرحمن الروبي",
+        "branch": "مسؤول فروع فتح الله جملة ماركت - الإسكندرية",
         "totalScore": 94,
         "acceptedCount": 12,
-        "tier": "Excellent - Diamond Tier"
+        "tier": "ممتاز - فئة ماسية"
       },
       {
         "rank": "#3",
         "coordinatorId": "ADCO-101",
-        "coordinatorName": "Ahmed Mahmoud El-Abd",
-        "branch": "Smouha Branch - Alexandria",
+        "coordinatorName": "أحمد محمود العبد",
+        "branch": "فرع سموحة - الإسكندرية",
         "totalScore": 88,
         "acceptedCount": 9,
-        "tier": "Very Good - Gold Tier"
+        "tier": "جيد جداً - فئة ذهبية"
       }
     ]
     ```
@@ -651,3 +651,4 @@ All error responses from the backend follow this standardized JSON schema:
 | `/api/v1/supervisor/export-csv` | `GET` | ❌ | ❌ | ✅ |
 | `/api/v1/reports/analytics` | `GET` | ❌ | ❌ | ✅ |
 | `/api/v1/leaderboard` | `GET` | ✅ | ✅ | ✅ |
+
