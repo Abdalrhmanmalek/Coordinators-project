@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#064e3b" />
+  <title>تسجيل الدخول | شركة أدكو ADCO</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/auth.css" />
+  <link rel="stylesheet" href="../css/enhancements.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+</head>
+<body>
+  <div class="auth-floating-wrapper">
+    <!-- Atmospheric Blurred Green Background Backdrop -->
+    <div class="auth-floating-bg" aria-hidden="true">
+      <img src="../assets/images/auth-hero-bg.webp" alt="" class="auth-floating-bg-img" />
+      <div class="auth-floating-bg-overlay"></div>
+      <div class="auth-floating-bg-ambient"></div>
+    </div>
+
+    <!-- Centered Floating Box -->
+    <main class="auth-floating-card lg-s1">
+      <div class="lg-s2">
+        <a class="lg-s3" href="../index.html">
+          <img class="lg-s4" src="../assets/images/ADCO-logo.png" alt="ADCO Logo" />
+        </a>
+        <div class="lg-s5">
+          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>بوابة العمليات الميدانية المعتمدة</span>
+        </div>
+        <h1 class="lg-s6">منظومة ادارة العمليات</h1>
+        <p class="lg-s7">أدخل الرقم الوظيفي وكلمة المرور المسجلة بسجلات أدكو</p>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group lg-s8">
+          <label class="form-label lg-s9" for="employeeId">الرقم الوظيفي (Employee ID)</label>
+          <input
+            type="text"
+            id="employeeId"
+            class="form-input lg-s10"
+            placeholder="مثال: ADCO-101 أو ADCO-901"
+            required
+            dir="ltr"
+           
+          />
+        </div>
+
+        <div class="form-group lg-s8">
+          <label class="form-label lg-s9" for="password">كلمة المرور</label>
+          <input
+            type="password"
+            id="password"
+            class="form-input lg-s11"
+            placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+            required
+           
+          />
+        </div>
+
+        <div class="lg-s12">
+          <button class="lg-s13"
+            type="button"
+            id="open-reset-btn"
+           
+          >
+            نسيت كلمة المرور؟
+          </button>
+          <a class="lg-s14" href="./signup-wizard.html">
+            <span>تفعيل حساب جديد</span>
+            <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-sm" alt="" />
+          </a>
+        </div>
+
+        <button type="submit" class="btn btn-primary lg-s15" id="login-submit-btn">
+          <img src="../assets/icons/log-in.svg" class="ui-icon" alt="" />
+          <span>تسجيل الدخول</span>
+        </button>
+
+        <!-- Quick 3-Tier Demo Accounts Switcher -->
+        <div class="lg-s16">
+          <span class="lg-s17">
+            دخول سريع لحسابات المستويات الثلاثة (3-Tier RBAC):
+          </span>
+          <div class="lg-s18">
+            <button type="button" class="btn btn-secondary btn-sm lg-s19" onclick="quickFill('ADCO-101', 'Pass@1234')">
+              <span><strong>1. منسق ميداني:</strong> أحمد محمود (سموحة)</span>
+              <span class="badge badge-mint lg-s20">ADCO-101</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm lg-s21" onclick="quickFill('ADCO-501', 'Super@2026')">
+              <span><strong>2. مشرف منسق:</strong> أيمن الروبي (فتح الله)</span>
+              <span class="badge badge-success lg-s20">ADCO-501</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm lg-s19" onclick="quickFill('ADCO-901', 'Admin@2026')">
+              <span><strong>3. مسؤول التسويق:</strong> م. حسام غانم (إشراف عام)</span>
+              <span class="badge badge-warning lg-s20">ADCO-901</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    <!-- Centered Atmospheric Footer -->
+    <footer class="auth-floating-footer">
+      <span>(ADCO) شركة الاسكندريه للكيماويات و المنظفات &copy; 2026</span>
+      <span class="lg-s22">•</span>
+      <span>نظام المتابعة والتوثيق الميداني المعتمد</span>
+    </footer>
+
+    <!-- Forgot Password Modal via OTP -->
+    <div id="reset-modal" class="modal-overlay">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="lg-s23">
+            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-md" alt="" />
+            <span>استعادة كلمة المرور عبر رمز التحقق</span>
+          </h3>
+          <button type="button" class="close-modal-btn" id="close-reset-modal">&times;</button>
+        </div>
+
+        <form id="reset-form">
+          <div class="form-group">
+            <label class="form-label">الرقم الوظيفي</label>
+            <input type="text" id="reset-emp-id" class="form-input" placeholder="ADCO-101" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">رقم الهاتف أو البريد الرسمي</label>
+            <div class="lg-s24">
+              <input type="text" id="reset-contact" class="form-input" placeholder="01012345678" required />
+              <button type="button" class="btn btn-secondary btn-sm" id="send-reset-otp-btn">إرسال الرمز</button>
+            </div>
+          </div>
+
+          <div class="is-hidden" id="reset-otp-section">
+            <div class="form-group">
+              <label class="form-label">رمز التحقق (4 أرقام - الرمز التجريبي: 5821)</label>
+              <input type="text" id="reset-otp-code" class="form-input lg-s25" maxlength="4" placeholder="5821" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">كلمة المرور الجديدة</label>
+              <input type="password" id="reset-new-pass" class="form-input" placeholder="Pass@2026" />
+            </div>
+            <button type="submit" class="btn btn-primary lg-s26">تحديث كلمة المرور والدخول</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/ui-helpers.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/pages/login.page.js"></script>
+</body>
+</html>

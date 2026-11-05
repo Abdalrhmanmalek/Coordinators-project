@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#15803d" />
+  <title>لوحة المنسق الميداني | ADCO Field Portal</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <link rel="stylesheet" href="../css/enhancements.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+</head>
+<body>
+  <div id="app-header-mount"></div>
+
+  <main class="web-main-workspace">
+    <!-- Top Welcome & Quick Actions -->
+    <div class="db-s1">
+      <div>
+        <h1 class="db-s2" id="welcome-title">لوحة المتابعة الميدانية</h1>
+        <p id="welcome-role">استعراض الأنشطة الترويجية ومتابعة تقييمات الجودة المعتمدة</p>
+      </div>
+      <a href="./activity-card.html" class="btn btn-primary">
+        <img src="../assets/icons/plus-circle.svg" class="ui-icon" alt="" />
+        <span>تسجيل نشاط جديد</span>
+      </a>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-icon-wrap">
+          <img src="../assets/icons/layout-dashboard.svg" class="ui-icon ui-icon-lg" alt="" />
+        </div>
+        <div>
+          <div class="kpi-num" id="kpi-total">0</div>
+          <div class="kpi-title">إجمالي الأنشطة المسجلة</div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon-wrap db-s3">
+          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-lg" alt="" />
+        </div>
+        <div>
+          <div class="kpi-num db-s4" id="kpi-accepted">0</div>
+          <div class="kpi-title">الانشطه المقبوله</div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon-wrap db-s5">
+          <img src="../assets/icons/star.svg" class="ui-icon ui-icon-lg" alt="" />
+        </div>
+        <div>
+          <div class="kpi-num db-s6" id="kpi-avg-score">0/100</div>
+          <div class="kpi-title">متوسط التقييم الشامل (من 100)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dedicated Filter Bar for Coordinator Supervisor (Tier 2 RBAC) -->
+    <div id="sup-filter-toolbar" class="card db-s7 is-hidden">
+      <div class="db-s8">
+        <div class="db-s9">
+          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>تصفية الفروع والمنسقين التابعين للمشرف: <strong id="sup-client-tag">فتح الله جملة ماركت (Fathalla)</strong></span>
+        </div>
+        <span class="badge badge-mint" id="sup-branch-count-badge">كل فروع العميل</span>
+      </div>
+      <div class="responsive-form-grid db-s10">
+        <div class="form-group db-s11">
+          <label class="form-label db-s12" for="filter-sup-branch">فرع العميل</label>
+          <select id="filter-sup-branch" class="form-select db-s13">
+            <option value="ALL">كل فروع العميل</option>
+          </select>
+        </div>
+        <div class="form-group db-s11">
+          <label class="form-label db-s12" for="filter-sup-coord">المنسق الميداني</label>
+          <select id="filter-sup-coord" class="form-select db-s13">
+            <option value="ALL">كل المنسقين</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-chips">
+        <button type="button" class="filter-chip active" data-filter="ALL">الكل</button>
+        <button type="button" class="filter-chip" data-filter="Under Review">
+          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>قيد المراجعة</span>
+        </button>
+        <button type="button" class="filter-chip" data-filter="Accepted">
+          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>مقبول</span>
+        </button>
+        <button type="button" class="filter-chip" data-filter="Rejected">
+          <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>مرفوض</span>
+        </button>
+      </div>
+
+      <a class="db-s14" href="./leaderboard.html">
+        <img src="../assets/icons/trophy.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>عرض لوحة المتصدرين</span>
+      </a>
+    </div>
+
+    <!-- Activities Cards Grid (Full-Width Responsive Multi-Column) -->
+    <div id="activities-list"></div>
+  </main>
+
+  <script src="../js/ui-helpers.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/activity-manager.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/pages/dashboard.page.js"></script>
+</body>
+</html>

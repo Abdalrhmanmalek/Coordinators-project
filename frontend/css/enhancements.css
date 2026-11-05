@@ -1,0 +1,238 @@
+/* =========================================================
+   enhancements.css
+   Touch / hover interaction enhancements and late responsive overrides.
+   ========================================================= */
+
+/* =========================================================
+   LIGHTWEIGHT INTERACTIVE TACTILE & HOVER SYSTEM
+   Optimized for 60fps on weak mobile phones & modern desktops
+   ========================================================= */
+
+/* Eliminate mobile 300ms tap delay & ugly blue box highlights */
+button,
+a,
+input,
+select,
+textarea,
+.btn,
+.card,
+.activity-card-item,
+.filter-chip,
+.web-nav-item,
+.web-rank-badge,
+.web-mobile-toggle,
+.stepper-btn {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Fast hardware-accelerated tap feedback on touch (Zero CPU overhead) */
+.btn:active,
+button:active:not(:disabled),
+.stepper-btn:active,
+.web-mobile-toggle:active,
+.web-rank-badge:active,
+.filter-chip:active,
+.activity-card-item:active {
+  transform: scale(0.96) !important;
+  transition: transform 0.08s ease-out;
+}
+
+/* Fallback for btn-danger-subtle on all devices */
+.btn-danger-subtle {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Desktop Hover Enhancements (Filtered for devices with mice/fine pointers to prevent mobile sticky hovers) */
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover {
+    background-color: var(--adco-green-dark);
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 14px rgba(21, 128, 61, 0.3);
+  }
+
+  .btn-secondary:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+    color: var(--adco-green-deep);
+    transform: translateY(-1.5px);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+
+  .btn-outline:hover {
+    background-color: #f0fdf4;
+    border-color: #15803d;
+    color: #15803d;
+    transform: translateY(-1.5px);
+    box-shadow: 0 2px 8px rgba(21, 128, 61, 0.15);
+  }
+
+  .btn-danger:hover {
+    background-color: #dc2626;
+    color: #ffffff;
+    border-color: #dc2626;
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+
+  .btn-danger-subtle:hover {
+    background: #fee2e2;
+    border-color: #f87171;
+    color: #991b1b;
+    transform: translateY(-1.5px);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
+  }
+
+  .web-nav-item:hover {
+    color: var(--adco-green-primary);
+    background-color: #f0fdf4;
+    border-radius: 8px;
+    transform: translateY(-1px);
+  }
+
+  .web-rank-badge:hover {
+    transform: translateY(-1.5px) scale(1.02);
+    box-shadow: 0 3px 10px rgba(245, 158, 11, 0.25);
+  }
+
+  .web-mobile-toggle:hover {
+    background-color: #f0fdf4;
+    border-color: #86efac;
+    transform: translateY(-1px);
+  }
+
+  .filter-chip:hover {
+    border-color: var(--adco-green-primary);
+    color: var(--adco-green-primary);
+    background-color: #f0fdf4;
+    transform: translateY(-1px);
+  }
+
+  .stepper-btn:hover {
+    background-color: #f0fdf4;
+    border-color: #86efac;
+    color: #15803d;
+  }
+
+  .card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  }
+
+  .activity-card-item:hover {
+    transform: translateY(-2px);
+    border-color: #86efac;
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.12);
+  }
+
+  .data-table tbody tr:hover {
+    background-color: #f0fdf4 !important;
+  }
+
+  .closure-reason-card:hover {
+    border-color: #86efac !important;
+    background-color: #f0fdf4 !important;
+  }
+}
+
+/* =========================================================
+   HEADER REFINEMENT: brand-matched rank badge & company title
+   ========================================================= */
+.web-rank-badge {
+  background: linear-gradient(135deg, #16a34a 0%, #065f46 100%);
+  color: #ffffff;
+  border: 1px solid #065f46;
+  box-shadow: 0 2px 8px rgba(6, 95, 70, 0.28);
+}
+.web-rank-badge .ui-icon {
+  filter: brightness(0) invert(1);
+}
+@media (hover: hover) {
+  .web-rank-badge:hover {
+    box-shadow: 0 4px 12px rgba(6, 95, 70, 0.38);
+  }
+}
+
+@media (max-width: 900px) {
+  .web-mobile-center-title {
+    flex-direction: column;
+    gap: 1px;
+    padding: 2px 6px;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    max-width: 230px;
+    line-height: 1.25;
+  }
+  .web-mobile-center-title:hover,
+  .web-mobile-center-title:active {
+    background: none;
+    border: none;
+    box-shadow: none;
+    transform: none;
+    color: inherit;
+  }
+  .wmct-name {
+    font-size: clamp(0.74rem, 2.6vw, 0.88rem);
+    font-weight: 800;
+    color: #064e3b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .wmct-sub {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    color: #16a34a;
+  }
+  .wmct-dot {
+    width: 14px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, #16a34a);
+  }
+  .wmct-sub::after {
+    content: "";
+    width: 14px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #16a34a, transparent);
+  }
+}
+@media (max-width: 480px) {
+  .web-mobile-center-title {
+    max-width: 175px;
+    margin: 0 4px;
+    padding: 0;
+  }
+  .wmct-name {
+    font-size: 0.74rem;
+  }
+}
+
+/* Logo blends seamlessly with its container: one solid color */
+.auth-floating-card {
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.auth-floating-card img[src*="ADCO-logo"],
+.web-brand-logo {
+  mix-blend-mode: multiply;
+  background: transparent;
+}

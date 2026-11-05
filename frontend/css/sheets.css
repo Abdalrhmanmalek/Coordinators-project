@@ -1,0 +1,226 @@
+/* =========================================================
+   sheets.css
+   Multi-brand sheets grid (sheets-view.html).
+   ========================================================= */
+
+/* Sheets Table Full-Bleed Grid */
+.grid-scroll-wrapper {
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+}
+
+.sheets-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: right;
+  min-width: 1100px;
+}
+
+.sheets-grid th {
+  background: #f8fafc;
+  color: var(--adco-gray-700);
+  font-weight: 700;
+  padding: 12px 14px;
+  border-bottom: 2px solid var(--adco-gray-200);
+  white-space: nowrap;
+}
+
+.sheets-grid td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--adco-gray-200);
+  color: var(--adco-gray-800);
+}
+
+.sheets-grid tr:hover td {
+  background: #f1f5f9;
+}
+
+/* ---- extracted from pages/sheets-view.html <style> ---- */
+    .sheets-toolbar {
+      background: var(--adco-gray-100);
+      color: var(--adco-gray-800);
+      padding: 12px 18px;
+      border: 1px solid var(--adco-gray-200);
+      border-bottom: none;
+      border-top-left-radius: var(--radius-md);
+      border-top-right-radius: var(--radius-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .share-pill {
+      display: inline-block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+
+/* ---- pages/sheets-view.html: former inline styles (doubled selector keeps the old inline-style precedence) ---- */
+.sh-s1.sh-s1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sh-s2.sh-s2 {
+  margin-bottom: 16px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1.5px solid var(--adco-gray-200);
+}
+
+.sh-s3.sh-s3 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sh-s4.sh-s4 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--adco-green-deep);
+}
+
+.sh-s5.sh-s5 {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+}
+
+.sh-s6.sh-s6 {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.sh-s7.sh-s7 {
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.sh-s8.sh-s8 {
+  min-height: 38px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
+.sh-s9.sh-s9 {
+  grid-column: 1 / -1;
+}
+
+.sh-s10.sh-s10 {
+  min-height: 40px;
+}
+
+.sh-s11.sh-s11 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sh-s12.sh-s12 {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.sh-s13.sh-s13 {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.sh-s14.sh-s14 {
+  text-align: center;
+  padding: 32px;
+  color: #64748b;
+}
+
+.sh-s15.sh-s15 {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.sh-s16.sh-s16 {
+  font-family: monospace;
+  font-weight: 700;
+}
+
+.sh-s17.sh-s17 {
+  color: var(--adco-green-deep);
+  text-decoration: none;
+}
+
+.sh-s18.sh-s18 {
+  font-weight: 700;
+  color: var(--adco-green-deep);
+}
+
+.sh-s19.sh-s19 {
+  text-align: center;
+}
+
+.sh-s20.sh-s20 {
+  font-weight: 700;
+}
+
+.sh-s21.sh-s21 {
+  text-align: center;
+  font-weight: 800;
+}
+
+.sh-s22.sh-s22 {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.sh-s23.sh-s23 {
+  font-size: 0.7rem;
+}
+
+.sh-s24.sh-s24 {
+  font-weight: 800;
+  color: #92400e;
+  background: #fffbeb;
+}
+
+.sh-s25.sh-s25 {
+  vertical-align: middle;
+}
+
+.sh-s26.sh-s26 {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.sh-s27.sh-s27 {
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+.sh-s28.sh-s28 {
+  font-size: 0.74rem;
+}
+
+.sh-s29.sh-s29 {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#15803d" />
+  <title>بطاقة النشاط والمتابعة بالصور | ADCO Field Portal</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/activity.css" />
+  <link rel="stylesheet" href="../css/enhancements.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+</head>
+
+<body>
+  <div id="app-header-mount"></div>
+
+  <main class="web-main-workspace">
+    <!-- MODE B: DETAILED ACTIVITY CARD & FOLLOW-UP MODULE -->
+    <section class="is-hidden" id="detail-view-section">
+      <div class="ac-s1">
+        <div>
+          <h2>تفاصيل بطاقة النشاط والمتابعات</h2>
+          <p>استعراض بيانات العرض، التسلسل الزمني للمتابعات، وحساب التقييم التراكمي</p>
+        </div>
+        <a href="./activity-card.html" class="btn btn-secondary btn-sm">
+          <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>إنشاء بطاقة جديدة</span>
+        </a>
+      </div>
+
+      <input class="is-hidden" type="file" id="followup-camera-input" accept="image/*" capture="environment" multiple />
+
+      <div id="detail-card-mount"></div>
+    </section>
+
+    <!-- MODE A: CREATE NEW ACTIVITY FORM (2-Column Desktop: 60% Form / 40% Sticky Camera) -->
+    <section id="create-form-section">
+      <div class="ac-s2">
+        <h2>إنشاء بطاقة نشاط ميداني جديدة</h2>
+        <p>حدد بيانات العميل، التصنيف، العلامات التجارية، والتقط صورة العرض الميداني بالكاميرا الحية</p>
+      </div>
+
+      <form id="activity-form">
+        <div class="activity-workspace-grid">
+          <!-- Right Workspace: Fields & Comboboxes (60%) -->
+          <div class="card ac-s3">
+            <div class="responsive-form-grid">
+              <div class="form-group">
+                <label class="form-label">العميل / السلسلة التجارية (Client Name) *</label>
+                <div id="combo-client"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">فرع العميل *</label>
+                <div id="combo-branch"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">فرع الشركة (Branch) *</label>
+                <div id="combo-coord-branch"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">النشاط *</label>
+                <div id="combo-activity"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">نوع النشاط *</label>
+                <div id="combo-activity-type"></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">عدد النشاط (1 إلى 10) *</label>
+                <div class="stepper-control">
+                  <button type="button" class="stepper-btn" id="count-dec-btn" title="إنقاص">&minus;</button>
+                  <select id="f-activity-count" class="form-select ac-s4" required>
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                  </select>
+                  <button type="button" class="stepper-btn" id="count-inc-btn" title="زيادة">&#43;</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Conditional Magazine Date Range Box -->
+            <div class="form-group ac-s5 is-hidden" id="magazine-date-group">
+              <div class="ac-s6">
+                <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-md" alt="" />
+                <strong class="ac-s7">فترة إصدار المجلة * (إلزامي لفرشة المجلة)</strong>
+              </div>
+              <div class="ac-s8">
+                <div>
+                  <label class="form-label ac-s9" for="f-magazine-start-date">تاريخ البداية (Start Date) *</label>
+                  <input type="date" id="f-magazine-start-date" class="form-input ac-s10" />
+                </div>
+                <div>
+                  <label class="form-label ac-s9" for="f-magazine-end-date">تاريخ النهاية (End Date) *</label>
+                  <input type="date" id="f-magazine-end-date" class="form-input ac-s10" />
+                </div>
+              </div>
+            </div>
+
+            <!-- 4-Level Cascading Product Selection Section -->
+            <div class="form-group ac-s11">
+              <div class="product-section-header">
+                <div>
+                  <label class="form-label ac-s12">قائمة المنتجات والأصناف المشاركة *</label>
+                  <span class="ac-s13">اختر الأصناف عبر المستويات الأربعة (البراند &larr; رئيسية &larr; فرعية &larr;
+                    الصنف)</span>
+                </div>
+                <div class="product-actions-group">
+                  <span class="badge badge-mint" id="live-brand-share-badge">حصة البراند: 1.00 (100%)</span>
+                  <button type="button" class="btn btn-primary btn-sm" id="btn-open-product-modal"
+                    onclick="openProductModal()">
+                    <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+                    <span>إضافة منتج</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Selected Products Container -->
+              <div class="ac-s14" id="selected-products-container">
+                <div class="ac-s15" id="selected-products-list"></div>
+                <div class="ac-s16" id="no-products-placeholder">
+                  لم يتم إضافة أي منتجات بعد. اضغط على <strong>( إضافة منتج)</strong> لاختيار الصنف عبر المستويات
+                  الأربعة.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Left Workspace: Sticky Camera Dropzone & Compression Telemetry (40%) -->
+          <div class="card sticky-panel ac-s3">
+            <h4 class="ac-s17">
+              <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-md" alt="" />
+              <span>صورة العرض الميداني (720p معالجة)</span>
+            </h4>
+
+            <input class="is-hidden" type="file" id="camera-input" accept="image/*" capture="environment" multiple />
+
+            <div class="camera-dropzone-box" id="camera-preview-box">
+              <div class="ac-s18">
+                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xl ac-s19" alt="" />
+                <p class="ac-s20">التقط صورة حية للعرض أو اختر صورة للتأكيد</p>
+                <button type="button" class="btn btn-secondary btn-sm" id="trigger-camera-btn">
+                  فتح الكاميرا / اختيار ملف
+                </button>
+              </div>
+            </div>
+
+            <div class="ac-s21 is-hidden" id="compression-telemetry">
+              <div class="ac-s22">
+                <span id="tel-res">الأبعاد: 1280&times;720</span>
+                <span id="tel-size">الحجم: 165 KB</span>
+              </div>
+              <div class="ac-s23" id="tel-gps">
+                <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span id="tel-gps-text">جاري طلب إحداثيات الموقع الميداني (GPS) من الهاتف...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Submit Action: Full Width at Bottom -->
+          <div class="ac-s24">
+            <button type="submit" class="btn btn-primary ac-s25" id="submit-activity-btn">
+              <img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" />
+              <span>اعتماد وإرسال بطاقة النشاط</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- Timeline Slide-Over Modal -->
+  <div id="timeline-modal" class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="ac-s26">
+          <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>سجل المتابعات والصور</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-timeline-modal">&times;</button>
+      </div>
+
+      <div id="timeline-sessions-mount" class="timeline-list"></div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div id="photo-lightbox" class="lightbox-overlay">
+    <div class="lightbox-box">
+      <div class="ac-s27">
+        <div>
+          <strong class="ac-s28" id="lb-round-title">متابعة رقم 2</strong>
+          <div class="ac-s29" id="lb-timestamp" dir="ltr">2026-10-31 14:20</div>
+        </div>
+        <button type="button" id="close-lightbox-btn" class="close-modal-btn ac-s30">&times;</button>
+      </div>
+      <img id="lb-image" src="" alt="High Resolution Inspection" />
+      <div class="ac-s31">
+        <div class="ac-s32">
+          <span id="lb-uploader">المنسق: أحمد محمود</span>
+          <span id="lb-specs">1280&times;720 | 180 KB</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Coordinator Closure Request Dialog (طلب إنهاء النشاط مع تحديد السبب) -->
+  <div id="closure-request-modal" class="modal-overlay">
+    <div class="modal-sheet ac-s33">
+      <div class="modal-header">
+        <h3 class="ac-s26">
+          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>طلب إنهاء وتفكيك النشاط</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-closure-modal">&times;</button>
+      </div>
+
+      <div class="ac-s34">
+        <p class="ac-s35">
+          يرجى تحديد سبب إنهاء النشاط الميداني لرفعه للمشرف للاعتماد والأرشفة:
+        </p>
+
+        <form id="form-closure-request">
+          <div class="form-group ac-s36">
+            <label class="form-label ac-s37">سبب الإنهاء *</label>
+            <div class="ac-s38">
+              <label class="closure-reason-card ac-s39" id="card-reason-time">
+                <input class="ac-s40" type="radio" name="closureReason" value="انتهاء المدة" checked />
+                <div>
+                  <strong class="ac-s41">انتهاء المدة</strong>
+                  <span class="ac-s42">انتهاء مدة العقد أو المهرجان أو الفترة الزمنية المحددة للعرض</span>
+                </div>
+              </label>
+
+              <label class="closure-reason-card ac-s43" id="card-reason-client">
+                <input class="ac-s40" type="radio" name="closureReason" value="انتهاء بطلب من العميل" />
+                <div>
+                  <strong class="ac-s44">انتهاء بطلب من العميل</strong>
+                  <span class="ac-s45">بناءً على رغبة إدارة السلسلة أو طلب مباشر من إدارة الفرع</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group ac-s46">
+            <label class="form-label ac-s47">ملاحظات توضيحية إضافية (اختياري)</label>
+            <textarea id="closure-notes-input" class="form-textarea" rows="2"
+              placeholder="اكتب أي ملاحظات إضافية للمشرف بخصوص تفكيك الستاند أو إعادة البضاعة..."></textarea>
+          </div>
+
+          <div class="ac-s48">
+            <button type="button" class="btn btn-secondary btn-sm" id="cancel-closure-modal-btn">إلغاء</button>
+            <button type="submit" class="btn btn-primary btn-sm">
+              <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+              <span>إرسال طلب الإنهاء للمشرف</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Coordinator Follow-up Photo & Location Verification (Requirement 1, 2, 3, 4) -->
+  <div id="followup-verify-modal" class="modal-overlay">
+    <div class="modal-sheet ac-s49">
+      <div class="modal-header">
+        <h3 class="ac-s26">
+          <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-md" alt="" />
+          <span id="fv-modal-title">تأكيد وفحص الصورة والموقع الميداني</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-followup-verify-modal">&times;</button>
+      </div>
+
+      <div class="ac-s50">
+        <!-- 1. Photo Preview Box -->
+        <div class="ac-s51">
+          <img class="ac-s52" id="fv-preview-img" src="" alt="معاينة الصورة" />
+          <div class="ac-s53">
+            <span id="fv-origin-badge" class="badge"></span>
+          </div>
+        </div>
+
+        <!-- 2. Photo Metadata & Origin Info (Requirement 2) -->
+        <div class="card ac-s54">
+          <div class="ac-s55">
+            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>فحص وبصمة الصورة (Photo Metadata)</span>
+          </div>
+
+          <div class="responsive-form-grid ac-s56">
+            <div>
+              <span class="ac-s57">مصدر الصورة:</span>
+              <strong id="fv-meta-origin"></strong>
+            </div>
+            <div>
+              <span class="ac-s57">وقت الالتقاط الفعلي (توقيت مصر):</span>
+              <strong id="fv-meta-taken" dir="ltr"></strong>
+            </div>
+            <div>
+              <span class="ac-s57">جهاز وكاميرا الالتقاط:</span>
+              <strong id="fv-meta-device"></strong>
+            </div>
+            <div>
+              <span class="ac-s57">موقع الصورة المدمج (EXIF GPS):</span>
+              <strong id="fv-meta-exif-gps"></strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Verified Phone Location & Submission Time (Requirement 1, 3, 4) -->
+        <div class="card ac-s58">
+          <div class="ac-s59">
+            <div class="ac-s60">
+              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+              <span>الموقع الميداني المعتمد (Live Phone GPS)</span>
+            </div>
+            <span class="badge badge-success ac-s61">تم التحقق بنجاح</span>
+          </div>
+
+          <div class="ac-s62" dir="ltr">
+            <strong id="fv-loc-coords"></strong> <span class="ac-s63" id="fv-loc-acc"></span>
+          </div>
+          <div class="ac-s64">
+            <span>وقت التسليم: <strong id="fv-submit-time" dir="ltr"></strong> (توقيت مصر)</span>
+            <a class="ac-s65" id="fv-map-link" href="#" target="_blank" rel="noopener noreferrer">عرض الموقع على الخريطة
+              &larr;</a>
+          </div>
+        </div>
+
+        <!-- 4. Explicit Action Buttons (Submit & Cancel - Requirement 1) -->
+        <div class="ac-s66">
+          <button type="button" id="btn-confirm-followup-submit" class="btn btn-primary ac-s67">
+            <img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" />
+            <span>اعتماد وتأكيد رفع الصورة والموقع</span>
+          </button>
+          <button type="button" id="btn-cancel-followup" class="btn btn-secondary ac-s68">
+            <span>إلغاء</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 4-Level Cascading Product Picker Modal -->
+  <div class="modal-overlay custom-modal-backdrop ac-s69 is-hidden" id="product-picker-modal"
+    onclick="if(event.target === this) { if(window.closeProductModal) window.closeProductModal(); else { this.style.display='none'; this.classList.remove('active'); } }">
+    <div class="modal-sheet custom-modal-card ac-s70" onclick="event.stopPropagation()">
+      <div class="ac-s71">
+        <h3 class="ac-s72">
+          <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>إضافة منتج عبر الهيكل الرباعي</span>
+        </h3>
+        <button class="ac-s73" type="button" id="close-product-modal-btn"
+          onclick="if(window.closeProductModal) window.closeProductModal(); else { const m = document.getElementById('product-picker-modal'); if(m){ m.style.display='none'; m.classList.remove('active'); } }"
+          title="إغلاق">&times;</button>
+      </div>
+      <div class="ac-s34">
+        <p class="ac-s74">
+          حدد البراند والمجموعات للوصول للصنف بدقة، وسيتم إدراجه تلقائياً وتحديث حصة البراند ($1/N):
+        </p>
+        <div class="ac-s75">
+          <!-- 1. Brand -->
+          <div class="form-group">
+            <label class="form-label ac-s76" for="picker-brand">1. اسم البراند (Brand Name) *</label>
+            <select id="picker-brand" class="form-select ac-s77"
+              onchange="if(window.syncCascade) window.syncCascade(this.value);">
+              <option value="Persil (برسيل)" selected>Persil (برسيل)</option>
+              <option value="Velveta (فلفيتا)">Velveta (فلفيتا)</option>
+              <option value="Fairy (فيري)">Fairy (فيري)</option>
+              <option value="Clorox (كلوركس)">Clorox (كلوركس)</option>
+              <option value="Downy (داوني)">Downy (داوني)</option>
+              <option value="Pril (بريل)">Pril (بريل)</option>
+              <option value="Harpic (هاربيك)">Harpic (هاربيك)</option>
+              <option value="Oxi (أوكسي)">Oxi (أوكسي)</option>
+              <option value="Dettol (ديتول)">Dettol (ديتول)</option>
+              <option value="Finish (فينيش)">Finish (فينيش)</option>
+            </select>
+          </div>
+
+          <!-- 2. Main Group -->
+          <div class="form-group">
+            <label class="form-label ac-s76" for="picker-main-group">2. مجموعة رئيسية (Main Group) *</label>
+            <select id="picker-main-group" class="form-select ac-s77"
+              onchange="if(window.syncCascade) window.syncCascade(document.getElementById('picker-brand').value, this.value);">
+              <option value="منظفات الملابس السائلة (جل)" selected>منظفات الملابس السائلة (جل)</option>
+              <option value="مساحيق غسيل بودرة">مساحيق غسيل بودرة</option>
+            </select>
+          </div>
+
+          <!-- 3. Sub Group -->
+          <div class="form-group">
+            <label class="form-label ac-s76" for="picker-sub-group">3. مجموعة فرعية (Sub Group) *</label>
+            <select id="picker-sub-group" class="form-select ac-s77"
+              onchange="if(window.syncCascade) window.syncCascade(document.getElementById('picker-brand').value, document.getElementById('picker-main-group').value, this.value);">
+              <option value="برسيل جل أوتوماتيك" selected>برسيل جل أوتوماتيك</option>
+              <option value="برسيل بلاك للأقمشة الداكنة">برسيل بلاك للأقمشة الداكنة</option>
+            </select>
+          </div>
+
+          <!-- 4. Item / SKU -->
+          <div class="form-group">
+            <label class="form-label ac-s76" for="picker-sku">4. الصنف (Item / SKU) *</label>
+            <select id="picker-sku" class="form-select ac-s77">
+              <option value="برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية" selected>برسيل جل لافندر 3.9 لتر + داوني 1 لتر
+                هدية</option>
+              <option value="برسيل جل حماية الألوان كولور 2.6 لتر">برسيل جل حماية الألوان كولور 2.6 لتر</option>
+              <option value="برسيل جل باور كلين الأبيض الناصع 3.9 لتر">برسيل جل باور كلين الأبيض الناصع 3.9 لتر</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="ac-s78">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-product-modal"
+          onclick="if(window.closeProductModal) window.closeProductModal(); else { const m = document.getElementById('product-picker-modal'); if(m){ m.style.display='none'; m.classList.remove('active'); } }">إلغاء</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-confirm-add-product" onclick="confirmAddProduct()">
+          <img src="../assets/icons/plus.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span> إضافة الصنف</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/ui-helpers.js"></script>
+  <script src="../js/camera-compressor.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/activity-manager.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/pages/activity-card.page.js"></script>
+</body>
+
+</html>

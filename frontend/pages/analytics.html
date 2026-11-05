@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#15803d" />
+  <title>تحليلات الأداء Power BI | ADCO Field Portal</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/analytics.css" />
+  <link rel="stylesheet" href="../css/enhancements.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+</head>
+<body>
+  <div id="app-header-mount"></div>
+
+  <main class="web-main-workspace">
+    <div class="an-s1">
+      <h2>تحليلات الأداء والانتشار الميداني</h2>
+      <p>مؤشرات التغطية ونسب الحصص التسويقية الموزونة للعلامات التجارية عبر السلاسل التجارية</p>
+    </div>
+
+    <div class="pbi-header">
+      <div class="an-s2">
+        <img src="../assets/icons/bar-chart-3.svg" class="ui-icon ui-icon-md" alt="" />
+        <span>Microsoft Power BI Telemetry Feed</span>
+      </div>
+      <span class="badge badge-mint">Live DirectQuery (Brand Share 1/N)</span>
+    </div>
+
+    <div class="card an-s3">
+      <h4 class="an-s4">
+        <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>فلاتر الحملات الترويجية (Campaign Slicers)</span>
+      </h4>
+      <div class="responsive-form-grid">
+        <div>
+          <label class="form-label">السلسلة التجارية</label>
+          <select id="bi-client-filter" class="form-select">
+            <option value="ALL">جميع السلاسل (All)</option>
+            <option value="فتح الله">فتح الله جملة ماركت</option>
+            <option value="زهران">سوبر ماركت زهران</option>
+            <option value="كارفور">كارفور هايبر ماركت</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">النشاط</label>
+          <select id="bi-display-filter" class="form-select">
+            <option value="ALL">جميع الأنشطة</option>
+            <option value="عقد">عقد</option>
+            <option value="فرشة مجلة">فرشة مجلة</option>
+            <option value="إضافي">إضافي</option>
+            <option value="افتتاح فرع جديد">افتتاح فرع جديد</option>
+            <option value="مهرجان">مهرجان</option>
+            <option value="موسمي">موسمي</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="responsive-form-grid an-s1">
+      <div class="card an-s5">
+        <span class="an-s6">نسبة قبول العروض</span>
+        <div class="an-s7" id="bi-acc-rate">92%</div>
+        <span class="badge badge-success">+4.2% مقارنة بالشهر السابق</span>
+      </div>
+      <div class="card an-s5">
+        <span class="an-s6">متوسط التقييم العام للأنشطة</span>
+        <div class="an-s8" id="bi-avg-quality">9.0/10</div>
+        <span class="badge badge-mint">معيار الجودة المعتمد</span>
+      </div>
+    </div>
+
+    <!-- Analytics Dashboard Grid -->
+    <div class="analytics-dashboard-grid">
+      <div class="card an-s9">
+        <h4 class="an-s10">حصة ظهور العلامات التجارية الموزونة (Brand Share = 1/N)</h4>
+        <div id="brand-bars-mount"></div>
+      </div>
+
+      <div class="card an-s9">
+        <h4 class="an-s10">التغطية الجغرافية لقطاعات الإسكندرية</h4>
+        <div class="bar-row">
+          <div class="bar-meta"><span>قطاع وسط (سموحة - محرم بك)</span><span>96%</span></div>
+          <div class="bar-track"><div class="bar-fill an-s11"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-meta"><span>قطاع شرق (رشدي - سيدي جابر - المنتزه)</span><span>89%</span></div>
+          <div class="bar-track"><div class="bar-fill an-s12"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-meta"><span>قطاع غرب وبرج العرب</span><span>82%</span></div>
+          <div class="bar-track"><div class="bar-fill an-s13"></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/ui-helpers.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/activity-manager.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/pages/analytics.page.js"></script>
+</body>
+</html>

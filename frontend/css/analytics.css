@@ -1,0 +1,129 @@
+/* =========================================================
+   analytics.css
+   Analytics dashboard grid (analytics.html).
+   ========================================================= */
+
+/* Analytics Dashboard Grid */
+.analytics-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .analytics-dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* ---- extracted from pages/analytics.html <style> ---- */
+    .pbi-header {
+      background: #f8fafc;
+      color: var(--adco-gray-800);
+      padding: 12px 18px;
+      border: 1px solid var(--adco-gray-200);
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .bar-row {
+      margin-bottom: 14px;
+    }
+    .bar-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .bar-track {
+      height: 12px;
+      background: var(--adco-gray-200);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--adco-green-primary);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+/* ---- pages/analytics.html: former inline styles (doubled selector keeps the old inline-style precedence) ---- */
+.an-s1.an-s1 {
+  margin-bottom: 20px;
+}
+
+.an-s2.an-s2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.an-s3.an-s3 {
+  padding: 20px;
+}
+
+.an-s4.an-s4 {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.an-s5.an-s5 {
+  text-align: center;
+  padding: 24px;
+}
+
+.an-s6.an-s6 {
+  font-size: 0.85rem;
+  color: var(--adco-gray-600);
+}
+
+.an-s7.an-s7 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--adco-green-primary);
+  margin: 6px 0;
+}
+
+.an-s8.an-s8 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--adco-green-deep);
+  margin: 6px 0;
+}
+
+.an-s9.an-s9 {
+  padding: 24px;
+}
+
+.an-s10.an-s10 {
+  margin-bottom: 16px;
+}
+
+.an-s11.an-s11 {
+  width: 96%;
+}
+
+.an-s12.an-s12 {
+  width: 89%;
+}
+
+.an-s13.an-s13 {
+  width: 82%;
+}
+
+.an-s14.an-s14 {
+  text-align: center;
+}
+

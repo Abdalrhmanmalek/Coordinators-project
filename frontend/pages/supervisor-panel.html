@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#15803d" />
+  <title>لوحة الإشراف وتقييم العمليات | ADCO Supervisor</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/supervisor.css" />
+  <link rel="stylesheet" href="../css/enhancements.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+</head>
+<body>
+  <div id="app-header-mount"></div>
+
+  <main class="web-main-workspace">
+    <div class="sp-s1">
+      <h2>غرفة عمليات المشرفين ومراجعة العروض</h2>
+      <p>فحص واعتماد الصور الميدانية، تقييم جولات المتابعة، والرقابة على دورة حياة الأنشطة</p>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <button type="button" class="filter-chip active" data-st="ALL">الكل</button>
+      <button type="button" class="filter-chip" data-st="CLOSURE_PENDING">
+        <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>طلبات إنهاء النشاط</span>
+      </button>
+      <button type="button" class="filter-chip" data-st="Under Review">
+        <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>بانتظار التقييم</span>
+      </button>
+      <button type="button" class="filter-chip" data-st="Accepted">
+        <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>مقبول</span>
+      </button>
+      <button type="button" class="filter-chip" data-st="Rejected">
+        <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>مرفوض</span>
+      </button>
+      <button type="button" class="filter-chip" data-st="CLOSED">
+        <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>الأنشطة المنتهية</span>
+      </button>
+
+      <button type="button" class="btn btn-outline btn-sm sp-s2" id="toggle-custom-search-btn">
+        <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>بحث مخصص وفلاتر</span>
+      </button>
+    </div>
+
+    <!-- Expandable Custom Search Panel (Requirement 10) -->
+    <div id="custom-search-panel" class="card sp-s3 is-hidden">
+      <div class="sp-s4">
+        <strong class="sp-s5">
+          <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>تخصيص معايير البحث والفلترة المتقدمة (Custom Search)</span>
+        </strong>
+        <span class="badge badge-mint" id="custom-search-count-badge">بحث مخصص</span>
+      </div>
+
+      <div class="responsive-form-grid sp-s6">
+        <div>
+          <label class="form-label sp-s7">العميل / السلسلة</label>
+          <select id="cs-client" class="form-select sp-s8">
+            <option value="ALL">جميع العملاء</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label sp-s7">العلامة التجارية</label>
+          <select id="cs-brand" class="form-select sp-s8">
+            <option value="ALL">جميع العلامات</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label sp-s7">النشاط</label>
+          <select id="cs-activity" class="form-select sp-s8">
+            <option value="ALL">جميع الأنشطة</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label sp-s7">نوع النشاط</label>
+          <select id="cs-activity-type" class="form-select sp-s8">
+            <option value="ALL">جميع الأنواع</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label sp-s7">اسم المنسق</label>
+          <input type="text" id="cs-coord" class="form-input sp-s8" placeholder="ابحث باسم المنسق..." />
+        </div>
+
+        <div>
+          <label class="form-label sp-s7">أدنى تقييم (Score)</label>
+          <select id="cs-min-score" class="form-select sp-s8">
+            <option value="0">الكل (بدون حد أدنى)</option>
+            <option value="80">80+ نقطة (ممتاز)</option>
+            <option value="60">60+ نقطة (متوسط)</option>
+            <option value="40">40+ نقطة</option>
+          </select>
+        </div>
+
+        <div class="sp-s9">
+          <button type="button" class="btn btn-secondary btn-sm" id="cs-reset-btn">إعادة ضبط الفلاتر</button>
+          <button type="button" class="btn btn-primary btn-sm" id="cs-apply-btn">تطبيق البحث المخصص</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supervisor Inspection Cards Grid (Full-Width Responsive Multi-Column) -->
+    <div id="supervisor-cards-mount"></div>
+  </main>
+
+  <!-- Review Modal (Official Evaluation 100 Points & Complete Details) -->
+  <div id="review-modal" class="modal-overlay">
+    <div class="modal-sheet sp-s10">
+      <div class="modal-header">
+        <h3 class="sp-s11" id="modal-act-title">
+          <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>فحص وتقييم بطاقة النشاط</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-review-modal">&times;</button>
+      </div>
+
+      <div class="review-modal-grid">
+        <!-- Right Column (In RTL this is the right side): Top Activity Details + Evaluation Criteria & Decision -->
+        <div class="review-col-right sp-s12">
+          <!-- 1. All Activity Details Box (Top Right) -->
+          <div id="rev-act-details" class="card sp-s13">
+            <!-- Populated dynamically via renderReviewActDetails(act) -->
+          </div>
+
+          <!-- 2. Evaluation Criteria & Decision Form -->
+          <form id="review-form">
+            <input type="hidden" id="rev-act-id" />
+
+            <!-- Requirement 1: Supervisor can modify Activity Start Date anytime -->
+            <div class="form-group sp-s14">
+              <label class="form-label sp-s15" for="rev-activity-date">
+                <span>تعديل تاريخ وتوقيت بدء النشاط (صلاحية المشرف في أي وقت)</span>
+                <span class="badge badge-mint sp-s16">بتوقيت مصر</span>
+              </label>
+              <input type="datetime-local" id="rev-activity-date" class="form-input sp-s17" />
+            </div>
+
+            <div class="form-group sp-s18">
+              <label class="form-label sp-s19">اختر جولة المتابعة المراد تقييمها</label>
+              <select id="rev-round-select" class="form-select"></select>
+            </div>
+
+            <!-- Official Evaluation Criteria (إجمالي 100 نقطة) -->
+            <div class="card sp-s20">
+              <div class="sp-s21">
+                <strong class="sp-s22">
+                  <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+                  <span>معايير التقييم الرسمي (إجمالي 100 نقطة)</span>
+                </strong>
+                <span id="eval-live-total-badge" class="badge badge-success sp-s23">100 / 100 نقطة</span>
+              </div>
+
+              <div class="responsive-form-grid sp-s24">
+                <div class="form-group sp-s25">
+                  <label class="form-label sp-s26">
+                    <span>الأنشطة الجديدة المعتمدة</span>
+                    <strong class="sp-s27">(40 نقطة)</strong>
+                  </label>
+                  <input type="number" id="eval-score-new-act" class="form-input" min="0" max="40" step="1" value="40" required />
+                </div>
+
+                <div class="form-group sp-s25">
+                  <label class="form-label sp-s26">
+                    <span>جودة التنفيذ الميداني</span>
+                    <strong class="sp-s27">(20 نقطة)</strong>
+                  </label>
+                  <input type="number" id="eval-score-quality" class="form-input" min="0" max="20" step="1" value="18" required />
+                </div>
+
+                <div class="form-group sp-s25">
+                  <label class="form-label sp-s26">
+                    <span>مدة الاستمرارية المثبتة</span>
+                    <strong class="sp-s27">(25 نقطة)</strong>
+                  </label>
+                  <input type="number" id="eval-score-continuity" class="form-input" min="0" max="25" step="1" value="25" required />
+                </div>
+
+                <div class="form-group sp-s25">
+                  <label class="form-label sp-s26">
+                    <span>الالتزام بالتوثيق وصحة البيانات</span>
+                    <strong class="sp-s27">(15 نقطة)</strong>
+                  </label>
+                  <input type="number" id="eval-score-docs" class="form-input" min="0" max="15" step="1" value="15" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group sp-s18">
+              <label class="form-label">قرار الاعتماد</label>
+              <select id="rev-status" class="form-select" required>
+                <option value="Accepted">مقبول ومطابق للمواصفات (Accepted)</option>
+                <option value="Rejected">مرفوض - يتطلب إعادة تنسيق (Rejected)</option>
+                <option value="Under Review">إبقاء قيد المراجعة (Under Review)</option>
+              </select>
+            </div>
+
+            <div class="form-group sp-s28">
+              <label class="form-label">ملاحظات وتوجيهات المشرف للمنسق</label>
+              <textarea
+                id="rev-notes"
+                class="form-textarea"
+                rows="2"
+                placeholder="اكتب ملاحظاتك وتوجيهاتك للمنسق..."
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary sp-s29">
+              <img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" />
+              <span>حفظ التقييم وتحديث التقييم العام</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Left Column (In RTL this is the left side): Photo + Metadata + Location + Timestamp + History Button -->
+        <div class="review-col-left sp-s30">
+          <!-- 1. The Photo Box -->
+          <div class="rev-photo-box">
+            <div class="sp-s31">
+              <strong class="sp-s32">
+                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span id="rev-photo-title">صورة العرض الميداني</span>
+              </strong>
+            </div>
+
+            <div class="rev-photo-img-wrapper" id="rev-photo-click-area" title="اضغط للتكبير والفحص عالي الدقة">
+              <img id="rev-photo-img" src="" alt="صورة العرض الميداني" />
+            </div>
+          </div>
+
+          <!-- 2. Metadata in front of photo data (Requirement 2) -->
+          <div class="card sp-s33">
+            <div class="sp-s34">
+              <span class="sp-s35">
+                <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>فحص وبصمة الصورة (Metadata)</span>
+              </span>
+              <span id="rev-photo-origin-badge" class="badge"></span>
+            </div>
+            <div class="sp-s36" id="rev-photo-origin-label"></div>
+            <div class="sp-s37">
+              <div>وقت الالتقاط الفعلي: <strong class="sp-s38" id="rev-photo-taken-time" dir="ltr"></strong> (توقيت مصر)</div>
+              <div>الجهاز والكاميرا: <strong class="sp-s39" id="rev-photo-device-model"></strong></div>
+            </div>
+          </div>
+
+          <!-- 3. Location & Timestamp Box -->
+          <div class="card sp-s40">
+            <!-- Location -->
+            <div class="sp-s41">
+              <div class="sp-s42">
+                <span class="sp-s43">
+                  <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <span>موقع الالتقاط الميداني (Live Phone GPS)</span>
+                </span>
+                <span class="badge badge-success sp-s44">GPS موثق</span>
+              </div>
+              <div class="sp-s45" id="rev-loc-coords" dir="ltr">31.21560&deg; N, 29.95530&deg; E</div>
+              <a class="sp-s46" id="rev-loc-map-link" href="#" target="_blank" rel="noopener noreferrer">
+                <span>عرض الموقع على خرائط Google</span>
+                <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-xs" alt="" />
+              </a>
+            </div>
+
+            <!-- Timestamp of submission -->
+            <div class="sp-s47">
+              <span class="sp-s48">
+                <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>وقت وتاريخ الرفع والتسليم (توقيت مصر)</span>
+              </span>
+              <div class="sp-s49" id="rev-timestamp" dir="ltr">2026-10-31 14:20:00</div>
+            </div>
+          </div>
+
+          <!-- 4. Down Button for History of the Activity -->
+          <button type="button" id="rev-view-history-btn" class="btn btn-secondary sp-s50">
+            <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-sm" alt="" />
+            <span>عرض سجل المتابعات والعمليات الكاملة</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Audit & Actions History Modal (Requirement 7) -->
+  <div id="activity-audit-modal" class="modal-overlay">
+    <div class="modal-sheet sp-s51">
+      <div class="modal-header">
+        <h3 class="sp-s11" id="audit-modal-title">
+          <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>سجل إجراءات ومتابعات النشاط الكاملة</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-audit-modal">&times;</button>
+      </div>
+      <div class="sp-s52" id="audit-modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal for Supervisor Photo Zoom Inspection -->
+  <div id="photo-lightbox" class="lightbox-overlay">
+    <div class="lightbox-box">
+      <div class="sp-s53">
+        <div>
+          <strong class="sp-s54" id="lb-round-title">معاينة الصورة الميدانية</strong>
+          <div class="sp-s55" id="lb-timestamp" dir="ltr">2026-10-31 14:20</div>
+        </div>
+        <button type="button" id="close-lightbox-btn" class="close-modal-btn sp-s56">&times;</button>
+      </div>
+      <img id="lb-image" src="" alt="High Resolution Inspection" />
+      <div class="sp-s57">
+        <span id="lb-uploader">المنسق الميداني</span>
+        <span id="lb-specs">1280&times;720 px</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/ui-helpers.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/activity-manager.js"></script>
+  <script src="../js/supervisor.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/pages/supervisor.page.js"></script>
+</body>
+</html>
