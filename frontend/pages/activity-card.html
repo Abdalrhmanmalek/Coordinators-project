@@ -21,7 +21,7 @@
 
   <main class="web-main-workspace">
     <!-- MODE B: DETAILED ACTIVITY CARD & FOLLOW-UP MODULE -->
-    <section class="is-hidden" id="detail-view-section">
+    <section class="is-hidden" id="detail-view-section" style="display: none;">
       <div class="ac-s1">
         <div>
           <h2>تفاصيل بطاقة النشاط والمتابعات</h2>
@@ -33,7 +33,7 @@
         </a>
       </div>
 
-      <input class="is-hidden" type="file" id="followup-camera-input" accept="image/*" capture="environment" multiple />
+      <input class="is-hidden" type="file" id="followup-camera-input" accept="image/*" capture="environment" multiple hidden style="display: none !important;" />
 
       <div id="detail-card-mount"></div>
     </section>
@@ -147,10 +147,10 @@
           <div class="card sticky-panel ac-s3">
             <h4 class="ac-s17">
               <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-md" alt="" />
-              <span>صورة العرض الميداني (720p معالجة)</span>
+              <span>صورة العرض الميداني</span>
             </h4>
 
-            <input class="is-hidden" type="file" id="camera-input" accept="image/*" capture="environment" multiple />
+            <input class="is-hidden" type="file" id="camera-input" accept="image/*" capture="environment" multiple hidden style="display: none !important;" />
 
             <div class="camera-dropzone-box" id="camera-preview-box">
               <div class="ac-s18">

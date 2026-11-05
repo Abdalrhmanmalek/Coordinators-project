@@ -772,13 +772,13 @@ const user = AuthManager.checkAuthGuard();
                 <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-sm" alt="" />
                 <span>توثيق العرض الميداني</span>
               </h4>
-              <span class="badge badge-mint" style="font-size: 0.72rem;">صورة العرض الميداني المعتمدة (720p)</span>
+              <span class="badge badge-mint" style="font-size: 0.72rem;">صورة العرض الميداني المعتمدة</span>
             </div>
 
             <img src="${act.photoUrl}" alt="${act.client}" class="camera-preview-thumb" id="main-card-hero-img" style="cursor: pointer;" title="اضغط للتكبير والفحص" />
             <div style="font-size: 0.75rem; color: var(--adco-green-dark); margin-top: 6px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
               <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
-              <span>صورة العرض الميداني (720p) — اضغط للتكبير والمعاينة</span>
+              <span>صورة العرض الميداني — اضغط للتكبير والمعاينة</span>
             </div>
 
             <!-- GPS Location & DateTime Box (Requirement 2) -->
@@ -943,6 +943,11 @@ const user = AuthManager.checkAuthGuard();
 
     if (activityId) {
       renderActivityDetailView(activityId);
+    } else {
+      const detailSec = document.getElementById('detail-view-section');
+      const createSec = document.getElementById('create-form-section');
+      if (detailSec) detailSec.style.display = 'none';
+      if (createSec) createSec.style.display = 'block';
     }
 
     let currentDeviceLocation = null;
