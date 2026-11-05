@@ -33,7 +33,10 @@ body {
 
 /* Visibility & Utility Classes */
 .is-hidden,
-.hidden,
+.hidden {
+  display: none;
+}
+
 [hidden] {
   display: none !important;
 }

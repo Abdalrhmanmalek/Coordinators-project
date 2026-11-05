@@ -586,10 +586,23 @@ const user = AuthManager.checkAuthGuard();
 
     function renderActivityDetailView(id) {
       const act = ActivityManager.getActivityById(id);
-      if (!act) return;
+      if (!act) {
+        if (typeof showToast === 'function') {
+          showToast('عذراً، لم يتم العثور على بطاقة النشاط المطلوبة', 'warning');
+        }
+        return;
+      }
 
-      document.getElementById('detail-view-section').style.display = 'block';
-      document.getElementById('create-form-section').style.display = 'none';
+      const detailSec = document.getElementById('detail-view-section');
+      const createSec = document.getElementById('create-form-section');
+      if (detailSec) {
+        detailSec.classList.remove('is-hidden');
+        detailSec.style.display = 'block';
+      }
+      if (createSec) {
+        createSec.classList.add('is-hidden');
+        createSec.style.display = 'none';
+      }
 
       const roundsCount = act.followUpHistory ? act.followUpHistory.length : 1;
       const ratingStats = ActivityManager.computeOverallRating(act);
