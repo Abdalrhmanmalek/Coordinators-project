@@ -1,7 +1,8 @@
-# ADCO Field Operations Platform — Master Architecture & Data Flow Blueprint
+# (ADCO) شركة الاسكندريه للكيماويات و المنظفات — Master Architecture & Data Flow Blueprint
 
-> **System Version:** 2.0.0 Modern Web Architecture  
-> **Target Framework:** Clean Vanilla ES Modules + Modern CSS Variables Design System  
+> **System Version:** 2.5.0 Enterprise Modern Web Architecture  
+> **Official Corporate Entity:** (ADCO) شركة الاسكندريه للكيماويات و المنظفات  
+> **Target Framework:** Clean Modular Vanilla ES Modules & Modern CSS Variables Design System  
 > **Backend Integration:** RESTful JSON API v1 / PostgreSQL 16 / S3-Compatible Media Store  
 > **Timezone Requirement:** `Africa/Cairo` (UTC+2)  
 
@@ -13,86 +14,54 @@
 adco-field-app/
 ├── SYSTEM_ARCHITECTURE_AND_BACKEND_DATA_FLOW.md  # Master Architecture, Data Flow & Type Matrix Blueprint
 ├── UI_UX_DESIGN_AND_FRONTEND_STYLE_GUIDE.md      # UI/UX Specifications, Design Tokens & SVG Assets Guide
-├── index.html                       # Seamless Root Entry & Vercel Redirect Gateway
-├── manifest.json                    # PWA Web App Manifest
-├── sw.js                            # Offline Service Worker (Cache First for Static Assets)
-├── run-app.bat                      # Windows Desktop Local Launcher
-├── vercel.json                      # Vercel Production Routing & Clean URL Rewrites
-└── frontend/
-    ├── index.html                   # Authenticated Landing Shell & Session Resume Gate
-    ├── manifest.json                # PWA Manifest (Scoped to /frontend/)
-    ├── sw.js                        # PWA Service Worker (Scoped to /frontend/)
-    ├── assets/
-    │   ├── icons/                   # 29 Production Feather/Lucide SVG UI Icons
-    │   └── images/                  # Transparent Brand Logo, Avatars, Medals & Ambient Art
-    │       ├── ADCO-logo.png        # Transparent 32-bit ARGB Alpha Channel Brand Logo
-    │       ├── auth-hero-bg.svg     # Ambient SVG Mesh Gradient for Split Auth View
-    │       ├── avatar-coordinator.svg # Default Coordinator SVG Avatar
-    │       ├── avatar-supervisor.svg  # Default Supervisor SVG Avatar
-    │       ├── medal-gold.svg       # Rank 1 Leaderboard Trophy Badge
-    │       ├── medal-silver.svg     # Rank 2 Leaderboard Trophy Badge
-    │       └── medal-bronze.svg     # Rank 3 Leaderboard Trophy Badge
-    ├── css/
-    │   ├── variables.css            # Design tokens: ADCO green palette, typography, radii, z-indices
-    │   ├── base.css                 # CSS resets, RTL bidirectional rules, desktop 100vw layout
-    │   ├── layout.css               # Sticky website navbar, split-screen auth, multi-column responsive grids
-    │   └── components.css           # Modern button variants, searchable comboboxes, data tables, modals, toast
-    ├── js/
-    │   ├── config/
-    │   │   ├── constants.js         # Immutable global enums: ROLES, ACTIVITY_STATUS, EVALUATION_CRITERIA
-    │   │   ├── catalogs.js          # ADCO master catalog (Clients, Branches, Activities, Brands, SKUs)
-    │   │   └── endpoints.js         # Standardized API endpoint dictionary for backend routes
-    │   ├── api/
-    │   │   └── http-client.js       # Fetch client: JWT Bearer injection, Idempotency-Key UUID, 401 refresh
-    │   ├── services/
-    │   │   ├── auth.service.js      # Login, 3-step signup, token persistence, role switcher & session guard
-    │   │   ├── activity.service.js  # Activity CRUD, 1/N brand multiplication, follow-up photos, closure workflow
-    │   │   ├── media.service.js     # Strict hardware GPS geolocation verification, EXIF parsing, camera compression
-    │   │   ├── evaluation.service.js# Supervisor 100-pt review, tier badge scoring, activity date adjustments
-    │   │   ├── profile.service.js   # Change password & contact info updates
-    │   │   └── reporting.service.js # CSV export with start/end date ranges, analytics metrics & leaderboard rank
-    │   ├── components/
-    │   │   ├── navbar.js            # Sticky modern top navbar with role-aware switcher (hides rank in supervisor mode)
-    │   │   ├── profile-modal.js     # Floating modal for password unlock gate, credential updates & profile card
-    │   │   ├── combobox.js          # Searchable single-select and multi-select combobox component
-    │   │   └── toast.js             # SVG-powered non-blocking notification toast queue
-    │   ├── utils/
-    │   │   ├── validators.js        # Egyptian phone, national ID, employee code, email, password strength validators
-    │   │   ├── camera-compressor.js # 720p client canvas compression, SHA-256 byte hashing, EXIF parser, Cairo time
-    │   │   ├── offline-queue.js     # IndexedDB offline store with auto-sync on browser 'online' event
-    │   │   └── score-calculator.js  # 100-point formula (40 New, 20 Quality, 25 Continuity, 15 Documentation)
-    │   └── pages/
-    │       ├── login.page.js        # Split-screen auth controller with show-password toggle
-    │       ├── signup.page.js       # 3-step employee wizard controller with validation & error handling
-    │       ├── dashboard.page.js    # Metric summary badges, fast-action launcher & coordinator cards feed
-    │       ├── activity-card.page.js# Activity creation, live GPS camera capture, follow-up timeline & completion
-    │       ├── supervisor.page.js   # 100-point evaluation workspace, date editor, session approval & reject flow
-    │       ├── sheets.page.js       # Enterprise data grid with date range filters, multi-column search & CSV export
-    │       ├── analytics.page.js    # Chart-ready metrics (brand share, branch execution, completion velocity)
-    │       └── leaderboard.page.js  # Ranked coordinator standings, score tier badges & performance medals
-    └── pages/
-        ├── login.html               # Split-screen Login View
-        ├── signup-wizard.html       # 3-Step Coordinator/Supervisor Registration View
-        ├── dashboard.html           # Main Operational Hub View
-        ├── activity-card.html       # Activity Card View (Create, Follow-Up, Complete)
-        ├── supervisor-panel.html    # Supervisor Evaluation & Review Workspace
-        ├── sheets-view.html         # Tabular Operational Data Grid & Export
-        ├── analytics.html           # KPI & Analytical Performance Reports
-        └── leaderboard.html         # Performance Standings & Honor Board
+├── index.html                                    # Landing Shell & Session Resume Gate
+├── manifest.json                                 # PWA Web App Manifest
+├── sw.js                                         # Offline Service Worker (Cache First for Static Assets)
+├── run-app.bat                                   # Windows Desktop Local Launcher
+├── assets/
+│   ├── icons/                                    # 29 Production Lucide/Feather SVG UI Icons
+│   └── images/                                   # Transparent Brand Logo, Avatars, Medals & Ambient Art
+│       ├── ADCO-logo.png                         # Transparent 32-bit ARGB Alpha Channel Brand Logo
+│       ├── auth-hero-bg.webp                     # Ambient WebP Mesh Gradient for Split Auth View
+│       ├── avatar-coordinator.svg                # Default Coordinator SVG Avatar
+│       ├── avatar-supervisor.svg                 # Default Supervisor SVG Avatar
+│       ├── medal-gold.svg                        # Rank 1 Leaderboard Trophy Badge
+│       ├── medal-silver.svg                      # Rank 2 Leaderboard Trophy Badge
+│       └── medal-bronze.svg                      # Rank 3 Leaderboard Trophy Badge
+├── css/
+│   ├── styles.css                                # Design tokens, typography, grid layouts, forms & components
+│   └── mobile-pwa.css                            # Mobile responsive overrides (< 768px) & PWA optimizations
+├── js/
+│   ├── app.js                                    # Global router, sticky website navbar & session hydration
+│   ├── auth.js                                   # JWT credentials management, role switching & session guard
+│   ├── activity-manager.js                       # 4-Level product catalog, multi-brand share ($1/N$), DynamoDB/REST adapter
+│   ├── camera-compressor.js                      # 720p client canvas compression, SHA-256 byte hashing, EXIF parser
+│   ├── supervisor.js                             # 100-pt evaluation engine, date modifications & CSV export
+│   └── ui-helpers.js                             # Searchable comboboxes, modal backdrops & SVG toast notifications
+└── pages/
+    ├── login.html                                # Split-screen Login View ("منظومة ادارة العمليات")
+    ├── signup-wizard.html                        # 3-Step Coordinator/Supervisor Registration View
+    ├── dashboard.html                            # Main Operational Hub ("الانشطه المقبوله", "منسق ميداني")
+    ├── activity-card.html                        # Activity Card (4-Level Product Modal, Magazine Date Range)
+    ├── supervisor-panel.html                     # Supervisor Evaluation & Review Workspace
+    ├── sheets-view.html                          # Tabular Operational Data Grid & CSV Export
+    ├── analytics.html                            # KPI & Analytical Performance Reports
+    └── leaderboard.html                          # Ranked Leaderboard Standings (Mobile Vertical Order: #1, #2, #3)
 ```
 
 ---
 
 ## 2. Screen-by-Screen Data Inputs & Validation Rules
 
-### 2.1 Authentication: Login (`login.html`)
+### 2.1 Authentication: Login (`pages/login.html`)
+* **Header Layout:** Company logo (`ADCO-logo.png`), pill badge (`بوابة العمليات الميدانية المعتمدة`), and main heading (`منظومة ادارة العمليات`) are stacked vertically and centered directly underneath each other (`display: flex; flex-direction: column; align-items: center; text-align: center;`).
 * **Inputs:**
   * `employeeId` (Text, trimmed): Required, 3–20 alphanumeric chars (`/^[A-Za-z0-9_-]{3,20}$/`).
   * `password` (Password with show/hide toggle): Required, minimum 6 chars.
   * `rememberMe` (Checkbox): Persists session token in `localStorage` vs. `sessionStorage`.
 * **Actions:** Validates credentials via `POST /api/v1/auth/login`. On success, stores JWT `{accessToken, refreshToken, user}` and redirects to `dashboard.html`.
 
-### 2.2 Registration: 3-Step Wizard (`signup-wizard.html`)
+### 2.2 Registration: 3-Step Wizard (`pages/signup-wizard.html`)
 * **Step 1: Identity & Credentials:**
   * `fullName` (Text): 3–100 chars, Arabic or English full name.
   * `employeeId` (Text): 3–20 alphanumeric characters, must be unique.
@@ -108,50 +77,66 @@ adco-field-app/
   * `identityCardPhoto` (File, Optional): National ID / Employee badge image.
 * **Actions:** Submits `POST /api/v1/auth/signup`. Auto-logs in on HTTP 201.
 
-### 2.3 Activity Card: Creation (`activity-card.html`)
-* **Fields & Rules:**
-  * `client` (Combobox): Selected from `ADCO_CATALOGS.clients` (e.g. كارفور, لولو ماركت, فتح الله).
-  * `branch` (Combobox): Dependent on `client`, selected from `ADCO_CATALOGS.branches[client]`.
-  * `coordinatorBranch` (Combobox): Base distribution center (e.g. فرع الإسكندرية, فرع برج العرب).
-  * `activity` (Select): Main activity catalog (e.g. فرشة مجلة, رأس جزيرة, ستاند خاص, أندكاب, كورنر).
-  * `activityType` (Select): `نشاط جديد` (New Activity) or `امتداد لنشاط قائم` (Continuation).
-  * `activityCount` (Number): Integer $\ge 1$.
-  * `brands` (Multi-Select Combobox): At least 1 brand selected. Automatically allocates $1/N$ brand weight share per selected brand.
-  * `skuVariant` (Select): Dependent on selected brands.
-  * `activityDate` (Datetime-Local): Defaults to current Egypt timestamp (`Africa/Cairo`). Editable by coordinator at creation time.
-  * `magazineDate` (Date): **Mandatory condition:** Required IF AND ONLY IF `activity === 'فرشة مجلة'`. Otherwise omitted or null.
-  * `initialPhoto` (File / Live Camera Capture): Mandatory live capture. Requires browser Geolocation API access; if location is denied, photo submission is blocked. Compressed to max 720p and 1MB size, SHA-256 byte digest computed, EXIF metadata extracted and verified against Egypt timezone.
-* **Actions:** Dispatches `POST /api/v1/activities` with multipart form/JSON payload.
+### 2.3 3-Tier Role-Based Access Control (RBAC) Architecture
+The system enforces 3 distinct operational tiers with strict data scoping and authorization:
 
-### 2.4 Activity Card: Follow-Up Sessions & Completion (`activity-card.html?id=:id`)
-* **Follow-up Photo Upload:**
-  * Requires live camera capture with device GPS lock.
-  * Appends photo session to activity timeline with timestamp, geographic coordinates, and client SHA-256 hash.
-* **Request Activity Completion (طلب إنهاء النشاط):**
-  * `closingNote` (Textarea, Optional): Notes from coordinator.
-  * `finalPhoto` (Camera Capture, Required): Proof of activity status at conclusion.
-  * Triggers transition to `pending_closure` status.
+| Tier | Role Key | Arabic Display | Data Visibility Scope | Operational Permissions |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tier 1** | `COORDINATOR` | منسق ميداني | **Single assigned client branch only** (`assignedClientName` + `assignedBranchName`). Cannot view other branches. | Create activities, upload follow-up photo rounds, submit "Request Activity Completion" (`طلب انهاء النشاط`), view Leaderboard & personal rank. |
+| **Tier 2** | `COORDINATOR_SUPERVISOR` | مشرف منسق | **All branches of assigned retail client in the region** (e.g. all branches of *فتح الله جملة ماركت* in Alexandria). | Operational capabilities identical to Coordinator + dedicated branch and coordinator filtering toolbar over all activities of that retail client. |
+| **Tier 3** | `MARKETING_MANAGER` | مسؤول التسويق | **Unrestricted global visibility** across all retail clients, all branches, all coordinators, and supervisors. | 100-point criteria scoring, approval/rejection of activities and closure requests, multi-brand Google Sheets ($1/N$), and Power BI analytics. |
 
-### 2.5 Supervisor Panel (`supervisor-panel.html`)
-* **100-Point Evaluation Matrix Inputs:**
-  * `approvedNewActivities` (Number, 0–40): Points for new location initiative and compliance.
-  * `executionQuality` (Number, 0–20): Visual branding, SKU arrangement, and shelf hygiene.
-  * `provenContinuityDuration` (Number, 0–25): Duration and maintenance across follow-up sessions.
-  * `documentationAccuracy` (Number, 0–15): Exact location metadata, timely uploads, and photo clarity.
-  * `supervisorNotes` (Textarea, Optional): Qualitative feedback.
-  * `editActivityDate` (Datetime-Local, Optional): Supervisor can adjust activity date anytime.
-* **Actions:**
-  * `POST /api/v1/supervisor/evaluations` (Approves card, updates score, sets status to `approved`).
-  * `POST /api/v1/activities/:id/reject` (Returns card to coordinator with required modifications).
-  * `POST /api/v1/activities/:id/close` (Approves completion, stamps `activityEndDate` with Egypt timestamp).
+### 2.4 Dashboard Views & Filtering (`pages/dashboard.html`)
+* **Welcome Subtitles by Tier:**
+  * **COORDINATOR:** `منسق ميداني — [اسم الفرع، مثال: فرع سموحة - الإسكندرية]`
+  * **COORDINATOR_SUPERVISOR:** `مشرف منسق — مسؤول فروع [اسم العميل، مثال: فتح الله جملة ماركت (Fathalla)] - [المنطقة، مثال: الإسكندرية]`
+  * **MARKETING_MANAGER:** `مسؤول التسويق — استعراض كافة السجلات الميدانية للجمهورية`
+* **Dedicated Coordinator Supervisor Toolbar (`#sup-filter-toolbar`):**
+  * Displays client badge tag and two live dropdown filters:
+    1. **فرع العميل (`filter-sup-branch`):** Lists all branches of that assigned client, defaulting to "كل فروع العميل".
+    2. **المنسق الميداني (`filter-sup-coord`):** Lists all coordinators assigned to this client in the region, defaulting to "كل المنسقين".
+  * Changing either dropdown instantly re-filters the feed and recalculates all 3 KPI cards.
+* **KPI Metrics:**
+  * **إجمالي الأنشطة المسجلة:** Total activity cards within user's data scope.
+  * **الانشطه المقبوله:** Total approved activity cards.
+  * **متوسط التقييم الشامل:** Weighted score out of 100 points across follow-up rounds.
 
-### 2.6 Enterprise Sheets View (`sheets-view.html`)
-* **Filters:**
-  * `startDate` & `endDate` (Date Range Filter): Filters rows by `activityDate` or creation timestamp.
-  * `clientFilter` & `branchFilter` (Select): Filter by store chains.
-  * `statusFilter` (Select): All, Pending, Approved, Rejected, Pending Closure, Closed.
-  * `searchQuery` (Text): Instant text filtering on coordinator name, ID, or activity code.
-* **Actions:** `GET /api/v1/supervisor/sheets-view`, CSV Export with Start & End timestamps.
+### 2.5 Activity Card: Creation (`pages/activity-card.html`)
+* **Standardized Form Fields & Labels:**
+  * `client`: Client store chain from `ADCO_CATALOGS.clients` (e.g. كارفور, لولو ماركت, فتح الله).
+  * `branch`: Retail store branch labeled strictly **"فرع العميل *"**.
+  * `coordinatorBranch`: Logistics hub labeled strictly **"فرع الشركة (Branch) *"**.
+  * `activity`: Activity type from catalog (e.g. `عقد`, `فرشة مجلة`, `إضافي`, `افتتاح فرع جديد`, `مهرجان`, `موسمي`).
+  * `activityType` (`activityCategory`): Category options include `جندولة`, `دريس اب`, `سايد جندولة`, `ستاند`, `بوديوم`, `بيلر`, **`كات مان`**, `سي ثرو`, **`لايت بوكس`**, `عرض أرضي`.
+  * `activityCount`: Integer from 1 to 10 (stepper control).
+  * `activityDate`: Datetime-Local. Defaults to current Egypt timestamp (`Africa/Cairo`), editable at creation time.
+
+* **Conditional Magazine Date Range (`فرشة مجلة`):**
+  * When `activity === 'فرشة مجلة'`, displays two mandatory date inputs inside `#magazine-date-group`:
+    1. **تاريخ البداية (`magazineStartDate`)**: Required `DATE`.
+    2. **تاريخ النهاية (`magazineEndDate`)**: Required `DATE`. Validation enforces `magazineEndDate >= magazineStartDate`.
+  * When any other activity is selected, both fields are hidden, made non-required, and cleared (`null`).
+
+* **4-Level Cascading Product Picker Modal (`+ إضافة منتج`):**
+  * Users click **"+ إضافة منتج"** to launch `#product-picker-modal`.
+  * Dropdowns dynamically cascade based on parent selections:
+    1. **اسم البراند (`brandName`)**: Selected from master brand catalog.
+    2. **مجموعة رئيسية (`mainGroup`)**: Filtered dynamically by selected Brand.
+    3. **مجموعة فرعية (`subGroup`)**: Filtered dynamically by selected Main Group.
+    4. **الصنف (`skuItem`)**: Specific packaging/SKU filtered by selected Sub Group.
+  * Clicking **"إضافة الصنف"** appends the product to `selectedProducts` array, renders a badge entry in the card with a delete button, and recalculates the $1/N$ brand share across distinct brands.
+  * Multiple products across different brands can be added to the same activity card.
+
+* **Camera Capture & Geolocation:**
+  * Live camera shutter capture with mandatory GPS location check.
+  * Canvas compression to 720p, progressive JPEG targeting $< 1\text{MB}$, SHA-256 byte integrity hashing, and EXIF timestamp extraction validated against Egypt timezone (`Africa/Cairo`).
+
+### 2.5 Leaderboard & Podium Stacking (`pages/leaderboard.html`)
+* **Desktop View (`> 768px`):** Horizontal podium displaying `#2` (Silver) on the left/right, `#1` (Gold) elevated in the center, and `#3` (Bronze).
+* **Mobile View (`<= 768px`):** Explicit CSS flexbox `order` rules ensure the podium stacks in true vertical ranking:
+  1. **Top (`order: 1`):** 1st Place (Gold `#1`).
+  2. **Middle (`order: 2`):** 2nd Place (Silver `#2`).
+  3. **Bottom (`order: 3`):** 3rd Place (Bronze `#3`).
 
 ---
 
@@ -160,91 +145,95 @@ adco-field-app/
 ```mermaid
 sequenceDiagram
   autonumber
-  actor Coordinator as Coordinator (Browser)
-  participant Page as activity-card.page.js
+  actor Coord as Coordinator (Browser)
+  participant UI as activity-card.html
+  participant Modal as Product Picker Modal (4-Level)
   participant Comp as camera-compressor.js
-  participant Svc as activity.service.js
-  participant HTTP as http-client.js
+  participant Mgr as activity-manager.js
   participant API as Backend Gateway (/api/v1)
-  participant S3 as Media Object Store
   participant DB as PostgreSQL 16 DB
 
-  Coordinator->>Page: Select Client, Branch, Brands & Click "التقاط الصورة واعتماد النشاط"
-  Page->>Comp: Request Device Geolocation & Capture Photo
-  Note over Comp: Strict GPS Guard:<br/>If Denied -> Abort with Error Toast
-  Comp->>Comp: 720p Canvas Resize, SHA-256 Digest & Egypt Timezone Check
-  Comp-->>Page: { blob, photoHash, exifTimestamp, coords: { lat, lng } }
-  Page->>Svc: submitActivity(payload)
-  Note over Svc: Allocates 1/N brand share<br/>Constructs DTO Payload
-  Svc->>HTTP: post('/activities', payload)
-  Note over HTTP: Injects Bearer Token<br/>Generates Idempotency-Key: UUIDv4
-  HTTP->>API: POST /api/v1/activities (Headers: Auth, Idempotency-Key)
-  API->>S3: Upload Compressed Photo Buffer
-  S3-->>API: Returns https://s3.adco.eg/photos/act_abc123.jpg
-  API->>DB: INSERT INTO activities (..., photo_url, photo_hash, location_lat, location_lng)
-  API->>DB: INSERT INTO activity_brands (activity_id, brand_id, share_weight) [1/N rows]
-  DB-->>API: Row Created (ID: UUIDv4, Status: 'pending')
-  API-->>HTTP: HTTP 201 Created { success: true, record: { ... } }
-  HTTP-->>Svc: Response JSON
-  Svc-->>Page: Activity Created
-  Page->>Coordinator: Display Success Toast & Navigate to Activity Card Workspace
+  Coord->>UI: Selects Client, فرع العميل, فرع الشركة (Branch), النشاط & نوع النشاط
+  alt Activity === 'فرشة مجلة'
+    UI->>Coord: Displays Mandatory تاريخ البداية (magazineStartDate) & تاريخ النهاية (magazineEndDate)
+    Coord->>UI: Inputs Start Date & End Date (End >= Start)
+  end
+  Coord->>Modal: Clicks "+ إضافة منتج"
+  Modal->>Coord: 1. Brand -> 2. Main Group -> 3. Sub Group -> 4. SKU Item
+  Coord->>Modal: Clicks "إضافة الصنف"
+  Modal->>UI: Appends to selectedProducts & Recalculates 1/N Brand Share
+  Coord->>Comp: Clicks "التقاط الصورة واعتماد النشاط"
+  Comp->>Comp: Enforces GPS Lock, Compresses 720p Canvas, Computes SHA-256 & Validates Cairo Time
+  Comp-->>UI: { photoUrl, photoHash, coords: { lat, lng } }
+  Coord->>Mgr: Submits Activity Card
+  Mgr->>API: POST /api/v1/activities (Payload with products[], brands[], magazine dates)
+  API->>DB: INSERT INTO activities (...)
+  API->>DB: INSERT INTO activity_products (activity_id, brand_name, main_group, sub_group, sku_item)
+  API->>DB: INSERT INTO activity_brands (activity_id, brand_name, share_weight) [1/N rows]
+  DB-->>API: Transaction Committed (UUIDv4)
+  API-->>UI: HTTP 201 Created
+  UI-->>Coord: Success Toast & Redirect to Activity Workspace
 ```
 
 ---
 
-## 4. Strict Data Type Matrix for Every System Attribute
+## 4. Strict Data Type Matrix & Database Constraints
 
-| Attribute / Field Name | UI Input Type | Frontend JS Type | API JSON Schema / Zod Rule | PostgreSQL 16 Column Type | Nullable | Notes / Validation Constraints |
+| Field / Column Name | UI Input Type | Frontend JS Type | API JSON Zod Schema | PostgreSQL 16 Column Type | Nullable | Validation Rules & Constraints |
 |:---|:---|:---|:---|:---|:---:|:---|
-| **`id`** | Hidden / URL Param | `string` | `z.string().uuid()` | `UUID PRIMARY KEY` | No | RFC 4122 v4 Unique Identifier |
-| **`coordinatorId`** | Hidden (from session) | `string` | `z.string().min(3).max(20)` | `VARCHAR(20)` | No | FK referencing `users(employee_id)` |
-| **`coordinatorName`** | Readonly Text | `string` | `z.string().min(3).max(100)` | `VARCHAR(100)` | No | Snapshot of coordinator full name |
-| **`client`** | Combobox Single | `string` | `z.string().min(2).max(80)` | `VARCHAR(80)` | No | Client store chain from catalog |
-| **`branch`** | Combobox Single | `string` | `z.string().min(2).max(100)` | `VARCHAR(100)` | No | Client retail store branch |
-| **`coordinatorBranch`** | Select Single | `string` | `z.string().min(2).max(100)` | `VARCHAR(100)` | No | ADCO regional logistics center |
-| **`activity`** | Select Single | `string` | `z.string().min(2).max(80)` | `VARCHAR(80)` | No | Main activity type (e.g. فرشة مجلة) |
-| **`activityType`** | Radio / Select | `string` | `z.enum(['نشاط جديد', 'امتداد لنشاط قائم'])` | `VARCHAR(40)` | No | Determines 40-pt scoring baseline |
-| **`activityCount`** | Number Input | `number` | `z.number().int().min(1).max(100)` | `SMALLINT DEFAULT 1` | No | Quantity of displays installed |
-| **`brands`** | Combobox Multiple | `string[]` | `z.array(z.string()).min(1)` | `TEXT[]` or relation table | No | Selected brands (allocates $1/N$ share) |
-| **`brandShareSplit`** | Computed Display | `number` | `z.number().min(0.01).max(1.0)` | `NUMERIC(5, 4)` | No | Mathematical calculation: $1 / \text{brands.length}$ |
-| **`skuVariant`** | Select Single | `string` | `z.string().min(2).max(100)` | `VARCHAR(100)` | No | Master SKU variant |
-| **`activityDate`** | Datetime-Local | `string` | `z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/))` | `TIMESTAMPTZ` | No | Defaults to current Cairo timestamp |
-| **`activityEndDate`** | Display / Auto-set | `string \| null` | `z.string().datetime().nullable()` | `TIMESTAMPTZ` | Yes | Set upon closure approval |
-| **`magazineDate`** | Date Input | `string \| null` | `z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable()` | `DATE` | Yes | **Mandatory only if** `activity === 'فرشة مجلة'` |
-| **`status`** | Status Badge | `string` | `z.enum(['pending', 'approved', 'rejected', 'pending_closure', 'closed'])` | `VARCHAR(24) DEFAULT 'pending'` | No | Controlled by lifecycle state machine |
-| **`photoUrl`** | File / Live Image | `string` | `z.string().url()` | `VARCHAR(512)` | No | S3 HTTPS CDN storage URL |
-| **`photoHash`** | Cryptographic Digest | `string` | `z.string().length(64).regex(/^[a-f0-9]{64}$/)` | `CHAR(64)` | No | Client SHA-256 byte integrity hash |
-| **`latitude`** | Geolocation Sensor | `number` | `z.number().min(-90).max(90)` | `NUMERIC(10, 7)` | No | Hardware GPS reading |
-| **`longitude`** | Geolocation Sensor | `number` | `z.number().min(-180).max(180)` | `NUMERIC(10, 7)` | No | Hardware GPS reading |
-| **`locationAccuracy`**| Geolocation Sensor | `number` | `z.number().min(0)` | `NUMERIC(6, 2)` | Yes | GPS margin of error in meters |
-| **`exifTimestamp`** | EXIF Parser | `string` | `z.string().datetime()` | `TIMESTAMPTZ` | Yes | Camera shutter capture timestamp |
-| **`evalScore`** | Metric Display | `number \| null` | `z.number().min(0).max(100).nullable()` | `SMALLINT` | Yes | Total 100-pt review score |
-| **`evalCriteriaNew`** | Number Input (0–40) | `number` | `z.number().min(0).max(40).default(0)` | `SMALLINT DEFAULT 0` | No | Approved New Activities criterion (40 pts) |
-| **`evalCriteriaQuality`**| Number Input (0–20) | `number` | `z.number().min(0).max(20).default(0)` | `SMALLINT DEFAULT 0` | No | Execution Quality criterion (20 pts) |
-| **`evalCriteriaContinuity`**| Number Input (0–25)| `number` | `z.number().min(0).max(25).default(0)` | `SMALLINT DEFAULT 0` | No | Proven Continuity criterion (25 pts) |
-| **`evalCriteriaDocs`**| Number Input (0–15) | `number` | `z.number().min(0).max(15).default(0)` | `SMALLINT DEFAULT 0` | No | Documentation Accuracy criterion (15 pts) |
-| **`evalNotes`** | Textarea | `string \| null` | `z.string().max(500).nullable()` | `VARCHAR(500)` | Yes | Supervisor qualitative assessment notes |
-| **`evaluatedAt`** | System Timestamp | `string \| null` | `z.string().datetime().nullable()` | `TIMESTAMPTZ` | Yes | Evaluation decision timestamp |
-| **`evaluatedBy`** | Hidden (from session) | `string \| null` | `z.string().min(3).max(20).nullable()`| `VARCHAR(20)` | Yes | FK referencing `users(employee_id)` |
-| **`createdAt`** | System Timestamp | `string` | `z.string().datetime()` | `TIMESTAMPTZ DEFAULT NOW()` | No | Record creation timestamp |
-| **`updatedAt`** | System Timestamp | `string` | `z.string().datetime()` | `TIMESTAMPTZ DEFAULT NOW()` | No | Last record update timestamp |
+| **`id`** | Hidden / URL Param | `string` | `z.string().uuid()` | `UUID PRIMARY KEY` | No | RFC 4122 v4 Identifier |
+| **`coordinator_id`** | Session Token | `string` | `z.string().min(3).max(20)` | `VARCHAR(20)` | No | FK to `users(employee_id)` |
+| **`coordinator_name`** | Readonly Text | `string` | `z.string().min(3).max(100)` | `VARCHAR(100)` | No | Snapshot of coordinator full name |
+| **`client_name`** | Combobox Single | `string` | `z.string().min(2).max(80)` | `VARCHAR(80)` | No | Client retail store chain |
+| **`branch_name`** | Combobox Single | `string` | `z.string().min(2).max(100)` | `VARCHAR(100)` | No | UI Label: **"فرع العميل *"** |
+| **`coordinator_branch`**| Combobox Single | `string` | `z.string().min(2).max(100)` | `VARCHAR(100)` | No | UI Label: **"فرع الشركة (Branch) *"** |
+| **`activity`** | Select Single | `string` | `z.string().min(2).max(80)` | `VARCHAR(80)` | No | E.g. `عقد`, `فرشة مجلة`, `إضافي`, `مهرجان` |
+| **`activity_type`** | Select Single | `string` | `z.enum(['جندولة','دريس اب','سايد جندولة','ستاند','بوديوم','بيلر','كات مان','سي ثرو','لايت بوكس','عرض أرضي'])` | `VARCHAR(40)` | No | `CHECK (activity_type IN ('جندولة','دريس اب','سايد جندولة','ستاند','بوديوم','بيلر','كات مان','سي ثرو','لايت بوكس','عرض أرضي'))` |
+| **`activity_count`** | Number Stepper | `number` | `z.number().int().min(1).max(10)` | `SMALLINT DEFAULT 1` | No | Quantity installed (1 to 10) |
+| **`magazine_start_date`**| Date Input | `string \| null` | `z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable()` | `DATE` | Yes | Mandatory when `activity = 'فرشة مجلة'` |
+| **`magazine_end_date`** | Date Input | `string \| null` | `z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable()` | `DATE` | Yes | Mandatory when `activity = 'فرشة مجلة'` (`end >= start`) |
+| **`activity_date`** | Datetime-Local | `string` | `z.string().datetime({ offset: true })` | `TIMESTAMPTZ` | No | Defaults to creation timestamp in Cairo |
+| **`activity_end_date`** | Display / System | `string \| null` | `z.string().datetime().nullable()` | `TIMESTAMPTZ` | Yes | Stamped on activity closure approval |
+| **`status`** | Status Badge | `string` | `z.enum(['Under Review', 'Accepted', 'Rejected', 'pending_closure', 'closed'])` | `VARCHAR(24) DEFAULT 'Under Review'` | No | Controlled by supervisor state machine |
+| **`photo_url`** | File / Live Image | `string` | `z.string().url()` | `VARCHAR(512)` | No | S3 HTTPS CDN storage URL |
+| **`photo_hash`** | Digest String | `string` | `z.string().length(64)` | `CHAR(64)` | No | Client SHA-256 byte integrity hash |
+| **`latitude`** | GPS Sensor | `number` | `z.number().min(-90).max(90)` | `NUMERIC(10, 7)` | No | Hardware GPS reading |
+| **`longitude`** | GPS Sensor | `number` | `z.number().min(-180).max(180)` | `NUMERIC(10, 7)` | No | Hardware GPS reading |
 
----
+### 4.1 Relational Schema: 4-Level Products Table (`activity_products`)
+```sql
+CREATE TABLE activity_products (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    activity_id UUID NOT NULL REFERENCES activities(id) ON DELETE CASCADE,
+    brand_name VARCHAR(80) NOT NULL,
+    main_group VARCHAR(100) NOT NULL,
+    sub_group VARCHAR(100) NOT NULL,
+    sku_item VARCHAR(200) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-## 5. Security, Idempotency & Offline Synchronization
+CREATE INDEX idx_act_prod_activity ON activity_products(activity_id);
+CREATE INDEX idx_act_prod_brand ON activity_products(brand_name);
+```
 
-1. **Authorization Token Lifecycle:**
-   * Short-lived JWT `accessToken` (15 min) stored in browser memory/session.
-   * Long-lived `refreshToken` (7 days) stored in HttpOnly secure cookie or partitioned local storage.
-   * Automatic interceptor in `frontend/js/api/http-client.js` transparently executes token renewal upon receiving HTTP `401 Unauthorized`.
-2. **Idempotent Write Operations:**
-   * Every state-mutating request (`POST`, `PUT`, `PATCH`, `DELETE`) automatically generates an RFC 4122 v4 UUID attached in the `Idempotency-Key` header.
-   * Backend caches request keys in Redis for 120 seconds to prevent double-billing, duplicate activity creation, or concurrent supervisor reviews under unstable network conditions.
-3. **Strict Hardware Geolocation & Image Integrity:**
-   * Coordinator camera capture enforces browser `navigator.geolocation.getCurrentPosition({ enableHighAccuracy: true })`.
-   * If permission is revoked or denied, activity card submission is blocked immediately with an explicit prompt.
-   * Images are downscaled to 720p using an offscreen `<canvas>` with progressive JPEG compression target `< 1MB`.
-   * A cryptographic SHA-256 byte digest is computed client-side before upload to prevent image tampering in transit.
-4. **Offline Resilience (IndexedDB Queue):**
-   * If the mobile device loses connectivity during field audits, submissions are persisted locally in IndexedDB store `adco_offline_db.pending_actions`.
-   * The app listens to the browser `window.addEventListener('online', ...)` event to automatically replay queued submissions in FIFO sequence with exponential backoff.
+### 4.2 Relational Schema: Brand Share Table (`activity_brands`)
+```sql
+CREATE TABLE activity_brands (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    activity_id UUID NOT NULL REFERENCES activities(id) ON DELETE CASCADE,
+    brand_name VARCHAR(80) NOT NULL,
+    share_weight NUMERIC(5, 4) NOT NULL CHECK (share_weight > 0 AND share_weight <= 1.0),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT uq_activity_brand UNIQUE (activity_id, brand_name)
+);
+```
+
+### 4.3 Database Integrity Constraints
+```sql
+ALTER TABLE activities ADD CONSTRAINT chk_magazine_date_conditional
+CHECK (
+    (activity = 'فرشة مجلة' AND magazine_start_date IS NOT NULL AND magazine_end_date IS NOT NULL AND magazine_end_date >= magazine_start_date)
+    OR
+    (activity <> 'فرشة مجلة' AND magazine_start_date IS NULL AND magazine_end_date IS NULL)
+);
+```

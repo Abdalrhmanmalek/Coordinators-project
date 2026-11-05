@@ -147,12 +147,12 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">فرع العميل (Branch) *</label>
+                <label class="form-label">فرع العميل *</label>
                 <div id="combo-branch"></div>
               </div>
 
               <div class="form-group">
-                <label class="form-label">قطاع المنسق *</label>
+                <label class="form-label">فرع الشركة (Branch) *</label>
                 <div id="combo-coord-branch"></div>
               </div>
 
@@ -187,37 +187,47 @@
               </div>
             </div>
 
-            <!-- Conditional Magazine Date Box -->
-            <div class="form-group" id="magazine-date-group" style="display: none; background: #fffbeb; padding: 14px; border-radius: var(--radius-sm); border: 1.5px solid #f59e0b; margin-top: 10px;">
-              <label class="form-label" style="color: #92400e;">
-                <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-sm" alt="" />
-                <span>تاريخ إصدار المجلة * (مطلوب لفرشة المجلة)</span>
-              </label>
-              <input type="date" id="f-magazine-date" class="form-input" />
-            </div>
-
-            <!-- Multi-Select Brands Combobox -->
-            <div class="form-group" style="margin-top: 14px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
-                <label class="form-label" style="margin-bottom: 0;">العلامات التجارية المشاركة *</label>
-                <span class="badge badge-mint" id="live-brand-share-badge">حصة البراند: 0.50 (50%)</span>
+            <!-- Conditional Magazine Date Range Box -->
+            <div class="form-group" id="magazine-date-group" style="display: none; background: #fffbeb; padding: 16px; border-radius: var(--radius-md); border: 1.5px solid #f59e0b; margin-top: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-md" alt="" />
+                <strong style="color: #92400e; font-size: 0.9rem;">فترة إصدار المجلة * (إلزامي لفرشة المجلة)</strong>
               </div>
-              <div id="combo-brands"></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <label class="form-label" for="f-magazine-start-date" style="color: #92400e; font-size: 0.82rem; margin-bottom: 4px;">تاريخ البداية (Start Date) *</label>
+                  <input type="date" id="f-magazine-start-date" class="form-input" style="border-color: #fcd34d; background: #ffffff;" />
+                </div>
+                <div>
+                  <label class="form-label" for="f-magazine-end-date" style="color: #92400e; font-size: 0.82rem; margin-bottom: 4px;">تاريخ النهاية (End Date) *</label>
+                  <input type="date" id="f-magazine-end-date" class="form-input" style="border-color: #fcd34d; background: #ffffff;" />
+                </div>
+              </div>
             </div>
 
-            <!-- Activity Start Date Input (Requirement 1: Default to creation time, editable by coordinator) -->
-            <div class="form-group" style="margin-top: 14px;">
-              <label class="form-label" for="f-activity-date" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <span>تاريخ وتوقيت بدء النشاط *</span>
-                <span class="badge badge-mint" style="font-size: 0.7rem;">افتراضياً: وقت إنشاء البطاقة</span>
-              </label>
-              <input type="datetime-local" id="f-activity-date" class="form-input" style="min-height: 40px; font-weight: 600;" required />
-            </div>
+            <!-- 4-Level Cascading Product Selection Section -->
+            <div class="form-group" style="margin-top: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                <div>
+                  <label class="form-label" style="margin-bottom: 2px; font-weight: 800; font-size: 0.95rem;">قائمة المنتجات والأصناف المشاركة *</label>
+                  <span style="font-size: 0.78rem; color: var(--adco-gray-600);">اختر الأصناف عبر المستويات الأربعة (البراند &larr; رئيسية &larr; فرعية &larr; الصنف)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge badge-mint" id="live-brand-share-badge">حصة البراند: 1.00 (100%)</span>
+                  <button type="button" class="btn btn-primary btn-sm" id="btn-open-product-modal" onclick="openProductModal()" style="padding: 7px 14px; font-size: 0.85rem; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 6px;">
+                    <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+                    <span>+ إضافة منتج</span>
+                  </button>
+                </div>
+              </div>
 
-            <!-- SKU Combobox -->
-            <div class="form-group">
-              <label class="form-label">المنتج والأحجام المحددة (SKU Variant) *</label>
-              <div id="combo-sku"></div>
+              <!-- Selected Products Container -->
+              <div id="selected-products-container" style="background: var(--adco-gray-50); border: 1px dashed var(--adco-gray-300); border-radius: var(--radius-md); padding: 12px; min-height: 80px;">
+                <div id="selected-products-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                <div id="no-products-placeholder" style="text-align: center; color: var(--adco-gray-500); font-size: 0.85rem; padding: 12px 0;">
+                  لم يتم إضافة أي منتجات بعد. اضغط على <strong>(+ إضافة منتج)</strong> لاختيار الصنف عبر المستويات الأربعة.
+                </div>
+              </div>
             </div>
           </div>
 
@@ -441,6 +451,78 @@
     </div>
   </div>
 
+
+  <!-- 4-Level Cascading Product Picker Modal -->
+  <div class="modal-overlay custom-modal-backdrop" id="product-picker-modal" onclick="if(event.target === this) { if(window.closeProductModal) window.closeProductModal(); else { this.style.display='none'; this.classList.remove('active'); } }" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px;">
+    <div class="modal-sheet custom-modal-card" onclick="event.stopPropagation()" style="background: #ffffff; border-radius: var(--radius-lg); max-width: 540px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; padding: 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--adco-gray-200); background: #f8fafc;">
+        <h3 style="margin: 0; font-size: 1.05rem; color: var(--adco-green-deep); display: flex; align-items: center; gap: 8px;">
+          <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>إضافة منتج عبر الهيكل الرباعي</span>
+        </h3>
+        <button type="button" id="close-product-modal-btn" onclick="if(window.closeProductModal) window.closeProductModal(); else { const m = document.getElementById('product-picker-modal'); if(m){ m.style.display='none'; m.classList.remove('active'); } }" style="background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--adco-gray-500); line-height: 1; padding: 4px 8px;" title="إغلاق">&times;</button>
+      </div>
+      <div style="padding: 20px;">
+        <p style="font-size: 0.82rem; color: var(--adco-gray-600); margin: 0 0 16px 0;">
+          حدد البراند والمجموعات للوصول للصنف بدقة، وسيتم إدراجه تلقائياً وتحديث حصة البراند ($1/N):
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <!-- 1. Brand -->
+          <div class="form-group">
+            <label class="form-label" for="picker-brand" style="font-weight: 700; font-size: 0.86rem; margin-bottom: 4px;">1. اسم البراند (Brand Name) *</label>
+            <select id="picker-brand" class="form-select" onchange="if(window.syncCascade) window.syncCascade(this.value);" style="font-size: 0.9rem; padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--adco-gray-300);">
+              <option value="Persil (برسيل)" selected>Persil (برسيل)</option>
+              <option value="Velveta (فلفيتا)">Velveta (فلفيتا)</option>
+              <option value="Fairy (فيري)">Fairy (فيري)</option>
+              <option value="Clorox (كلوركس)">Clorox (كلوركس)</option>
+              <option value="Downy (داوني)">Downy (داوني)</option>
+              <option value="Pril (بريل)">Pril (بريل)</option>
+              <option value="Harpic (هاربيك)">Harpic (هاربيك)</option>
+              <option value="Oxi (أوكسي)">Oxi (أوكسي)</option>
+              <option value="Dettol (ديتول)">Dettol (ديتول)</option>
+              <option value="Finish (فينيش)">Finish (فينيش)</option>
+            </select>
+          </div>
+
+          <!-- 2. Main Group -->
+          <div class="form-group">
+            <label class="form-label" for="picker-main-group" style="font-weight: 700; font-size: 0.86rem; margin-bottom: 4px;">2. مجموعة رئيسية (Main Group) *</label>
+            <select id="picker-main-group" class="form-select" onchange="if(window.syncCascade) window.syncCascade(document.getElementById('picker-brand').value, this.value);" style="font-size: 0.9rem; padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--adco-gray-300);">
+              <option value="منظفات الملابس السائلة (جل)" selected>منظفات الملابس السائلة (جل)</option>
+              <option value="مساحيق غسيل بودرة">مساحيق غسيل بودرة</option>
+            </select>
+          </div>
+
+          <!-- 3. Sub Group -->
+          <div class="form-group">
+            <label class="form-label" for="picker-sub-group" style="font-weight: 700; font-size: 0.86rem; margin-bottom: 4px;">3. مجموعة فرعية (Sub Group) *</label>
+            <select id="picker-sub-group" class="form-select" onchange="if(window.syncCascade) window.syncCascade(document.getElementById('picker-brand').value, document.getElementById('picker-main-group').value, this.value);" style="font-size: 0.9rem; padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--adco-gray-300);">
+              <option value="برسيل جل أوتوماتيك" selected>برسيل جل أوتوماتيك</option>
+              <option value="برسيل بلاك للأقمشة الداكنة">برسيل بلاك للأقمشة الداكنة</option>
+            </select>
+          </div>
+
+          <!-- 4. Item / SKU -->
+          <div class="form-group">
+            <label class="form-label" for="picker-sku" style="font-weight: 700; font-size: 0.86rem; margin-bottom: 4px;">4. الصنف (Item / SKU) *</label>
+            <select id="picker-sku" class="form-select" style="font-size: 0.9rem; padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--adco-gray-300);">
+              <option value="برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية" selected>برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية</option>
+              <option value="برسيل جل حماية الألوان كولور 2.6 لتر">برسيل جل حماية الألوان كولور 2.6 لتر</option>
+              <option value="برسيل جل باور كلين الأبيض الناصع 3.9 لتر">برسيل جل باور كلين الأبيض الناصع 3.9 لتر</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--adco-gray-200); background: #f8fafc;">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-product-modal" onclick="if(window.closeProductModal) window.closeProductModal(); else { const m = document.getElementById('product-picker-modal'); if(m){ m.style.display='none'; m.classList.remove('active'); } }">إلغاء</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-confirm-add-product" onclick="confirmAddProduct()">
+          <img src="../assets/icons/plus.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>إضافة الصنف</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="../js/ui-helpers.js"></script>
   <script src="../js/camera-compressor.js"></script>
   <script src="../js/auth.js"></script>
@@ -450,21 +532,48 @@
     const user = AuthManager.checkAuthGuard();
     AppRouter.init();
 
-    // Comboboxes
+    // 3-Tier Scoped Comboboxes (Coordinator vs Coordinator Supervisor vs Coordination Manager)
+    const isCoordSup = user && user.role === 'coordinator_supervisor';
+    const isCoord = user && user.role === 'coordinator';
+
+    let defaultClient = ADCO_CATALOGS.clients[0];
+    let defaultBranch = ADCO_CATALOGS.branches[0];
+    let clientOptions = ADCO_CATALOGS.clients;
+    let branchOptions = ADCO_CATALOGS.branches;
+
+    if (isCoordSup) {
+      defaultClient = user.assignedClientName || 'فتح الله جملة ماركت (Fathalla)';
+      // Pre-locked client; any branch belonging to that client
+      clientOptions = [defaultClient];
+      branchOptions = ActivityManager.getBranchesForClient ? ActivityManager.getBranchesForClient(defaultClient) : [
+        'فرع سموحة - الإسكندرية',
+        'فرع لوران - الكورنيش',
+        'فرع المنتزه - شيراتون',
+        'فرع ميامي - جمال عبد الناصر',
+        'فرع محرم بك - قناة السويس'
+      ];
+      defaultBranch = branchOptions[0] || ADCO_CATALOGS.branches[0];
+    } else if (isCoord) {
+      if (user.assignedClientName) defaultClient = user.assignedClientName;
+      if (user.assignedBranchName) defaultBranch = user.assignedBranchName;
+      clientOptions = [defaultClient];
+      branchOptions = [defaultBranch];
+    }
+
     const clientCombo = createSearchableCombobox({
       mountId: 'combo-client',
-      options: ADCO_CATALOGS.clients,
+      options: clientOptions,
       placeholder: 'ابحث عن العميل (مثال: فتح الله، زهران)...',
-      defaultValue: ADCO_CATALOGS.clients[0],
-      allowCustomText: true
+      defaultValue: defaultClient,
+      allowCustomText: !isCoordSup && !isCoord
     });
 
     const branchCombo = createSearchableCombobox({
       mountId: 'combo-branch',
-      options: ADCO_CATALOGS.branches,
-      placeholder: 'ابحث عن الفرع (مثال: سموحة، رشدي)...',
-      defaultValue: ADCO_CATALOGS.branches[0],
-      allowCustomText: true
+      options: branchOptions,
+      placeholder: 'ابحث عن الفرع (مثال: سموحة، لوران)...',
+      defaultValue: defaultBranch,
+      allowCustomText: !isCoord
     });
 
     const coordBranchCombo = createSearchableCombobox({
@@ -475,18 +584,20 @@
       allowCustomText: true
     });
 
-    const magGroup = document.getElementById('magazine-date-group');
-    const magInput = document.getElementById('f-magazine-date');
+        const magGroup = document.getElementById('magazine-date-group');
+    const magStartInput = document.getElementById('f-magazine-start-date');
+    const magEndInput = document.getElementById('f-magazine-end-date');
 
     function handleActivitySelection(val) {
       const isMagazine = (val || '').trim() === 'فرشة مجلة';
-      if (isMagazine) {
-        magGroup.style.display = 'block';
-        magInput.required = true;
-      } else {
-        magGroup.style.display = 'none';
-        magInput.required = false;
-        magInput.value = '';
+      if (magGroup) magGroup.style.display = isMagazine ? 'block' : 'none';
+      if (magStartInput) {
+        magStartInput.required = isMagazine;
+        if (!isMagazine) magStartInput.value = '';
+      }
+      if (magEndInput) {
+        magEndInput.required = isMagazine;
+        if (!isMagazine) magEndInput.value = '';
       }
     }
 
@@ -517,33 +628,351 @@
       if (current < 10) countSelect.value = String(current + 1);
     });
 
+        // --- 4-Level Product Picker & Brand Share Manager ---
     const shareBadgeEl = document.getElementById('live-brand-share-badge');
-    function updateBrandShareBadge(selectedList) {
-      const n = (selectedList || []).length;
+    const selectedProductsListEl = document.getElementById('selected-products-list');
+    const noProductsPlaceholder = document.getElementById('no-products-placeholder');
+
+    // State of selected products: [{ brand, mainGroup, subGroup, sku }]
+    let selectedProducts = [
+      {
+        brand: 'Velveta (فلفيتا)',
+        mainGroup: 'معطرات الأقمشة',
+        subGroup: 'معطر مركز',
+        sku: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر'
+      },
+      {
+        brand: 'Fairy (فيري)',
+        mainGroup: 'سائل غسيل الأطباق',
+        subGroup: 'بلاتينيوم بلس',
+        sku: 'فيري بلاتينيوم بلس ليمون 650 مل'
+      }
+    ];
+
+    function recalculateBrandShare() {
+      const distinctBrands = [...new Set(selectedProducts.map((p) => p.brand).filter(Boolean))];
+      const n = distinctBrands.length;
       if (n === 0) {
-        shareBadgeEl.textContent = 'اختر براند واحد على الأقل';
+        shareBadgeEl.textContent = 'أضف منتجاً واحداً على الأقل';
+        shareBadgeEl.className = 'badge badge-warning';
         return;
       }
       const share = (1 / n).toFixed(2);
       const pct = Math.round((1 / n) * 100);
-      shareBadgeEl.textContent = `حصة كل براند: ${share} (${pct}%) | ${n} صفوف بالتقارير`;
+      shareBadgeEl.className = 'badge badge-mint';
+      shareBadgeEl.textContent = `حصة البراند: ${share} (${pct}%) | ${n} براند (${selectedProducts.length} صنف)`;
     }
 
-    const brandsMultiCombo = createMultiSelectCombobox({
-      mountId: 'combo-brands',
-      options: ADCO_CATALOGS.brands,
-      defaultSelected: ['Velveta (فلفيتا)', 'Fairy (فيري)'],
-      placeholder: 'اكتب اسم العلامة التجارية للبحث والإضافة...',
-      onChange: updateBrandShareBadge
+    function renderSelectedProducts() {
+      if (!selectedProductsListEl) return;
+      if (selectedProducts.length === 0) {
+        selectedProductsListEl.innerHTML = '';
+        if (noProductsPlaceholder) noProductsPlaceholder.style.display = 'block';
+        recalculateBrandShare();
+        return;
+      }
+      if (noProductsPlaceholder) noProductsPlaceholder.style.display = 'none';
+
+      selectedProductsListEl.innerHTML = selectedProducts
+        .map((p, index) => `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; border: 1px solid var(--adco-gray-200); border-radius: var(--radius-sm); padding: 10px 14px; gap: 10px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span class="badge badge-mint" style="font-weight: 700;">${p.brand}</span>
+                <span style="font-size: 0.76rem; color: var(--adco-gray-600); background: var(--adco-gray-100); padding: 2px 8px; border-radius: var(--radius-full);">${p.mainGroup} &rsaquo; ${p.subGroup}</span>
+              </div>
+              <strong style="font-size: 0.88rem; color: var(--adco-green-deep);">${p.sku}</strong>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="removeProductItem(${index})" style="padding: 4px 8px; color: #dc2626; border-color: #fca5a5; background: #fef2f2;" title="حذف هذا الصنف">
+              <img src="../assets/icons/circle-x.svg" class="ui-icon ui-icon-sm" alt="" />
+              <span>حذف</span>
+            </button>
+          </div>
+        `)
+        .join('');
+
+      recalculateBrandShare();
+    }
+
+    window.removeProductItem = function(index) {
+      selectedProducts.splice(index, 1);
+      renderSelectedProducts();
+    };
+
+    // --- 4-Level Cascading Product Picker with Full Dummy Data ---
+    const prodModal = document.getElementById('product-picker-modal');
+    const openProdModalBtn = document.getElementById('btn-open-product-modal');
+    const closeProdModalBtn = document.getElementById('close-product-modal-btn');
+    const cancelProdModalBtn = document.getElementById('btn-cancel-product-modal');
+    const confirmAddProdBtn = document.getElementById('btn-confirm-add-product');
+
+    const pickerBrand = document.getElementById('picker-brand');
+    const pickerMain = document.getElementById('picker-main-group');
+    const pickerSub = document.getElementById('picker-sub-group');
+    const pickerSku = document.getElementById('picker-sku');
+
+    const fullHierarchy = {
+      'Persil (برسيل)': {
+        'منظفات الملابس السائلة (جل)': {
+          'برسيل جل أوتوماتيك': [
+            'برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية',
+            'برسيل جل حماية الألوان كولور 2.6 لتر',
+            'برسيل جل باور كلين الأبيض الناصع 3.9 لتر'
+          ],
+          'برسيل بلاك للأقمشة الداكنة': [
+            'برسيل بلاك جل حماية العبايات والأقمشة السوداء 2.5 لتر',
+            'برسيل بلاك معطر العود الفاخر 3 لتر'
+          ]
+        },
+        'مساحيق غسيل بودرة': {
+          'مسحوق أوتوماتيك باور': [
+            'برسيل مسحوق أوتوماتيك لافندر 4 كجم + 1 كجم مجاناً',
+            'برسيل مسحوق أوتوماتيك بتقنية التنظيف العميق 6 كجم'
+          ]
+        }
+      },
+      'Velveta (فلفيتا)': {
+        'معطرات الأقمشة': {
+          'معطر مركز': [
+            'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر',
+            'فلفيتا معطر أقمشة مركز لافندر 1 لتر',
+            'فلفيتا معطر أقمشة مركز عبير الشرق 1 لتر',
+            'فلفيتا معطر أقمشة مركز مسك أبيض 1 لتر'
+          ],
+          'معطر عادي': [
+            'فلفيتا معطر أقمشة رقيق نسيم البحر 2 لتر',
+            'فلفيتا معطر أقمشة رقيق ياسمين 2 لتر',
+            'فلفيتا معطر أقمشة رقيق بينك روز 3 لتر'
+          ]
+        },
+        'منظفات الملابس': {
+          'جل غسيل أوتوماتيك': [
+            'فلفيتا جل غسيل أوتوماتيك وايت باور 2.5 لتر',
+            'فلفيتا جل غسيل أوتوماتيك حماية الألوان 2.5 لتر',
+            'فلفيتا جل غسيل أوتوماتيك نسيم الشرق 3 لتر'
+          ],
+          'مسحوق غسيل': [
+            'فلفيتا مسحوق يدوي رغوة غنية 1 كجم',
+            'فلفيتا مسحوق غسيل أوتوماتيك 3 كجم'
+          ]
+        }
+      },
+      'Fairy (فيري)': {
+        'سائل غسيل الأطباق': {
+          'بلاتينيوم بلس': [
+            'فيري بلاتينيوم بلس ليمون 650 مل',
+            'فيري بلاتينيوم بلس برتقال 650 مل',
+            'فيري بلاتينيوم بلس توت أزرق 650 مل'
+          ],
+          'أصلي ومركز': [
+            'فيري ليمون أخضر مركز 1 لتر',
+            'فيري تفاح مضاد للبكتيريا 1 لتر',
+            'فيري رغوة تدوم طويلاً 2.5 لتر'
+          ]
+        },
+        'أقراص غسالات الأطباق': {
+          'كبسولات أوتوماتيك الكل في واحد': [
+            'فيري كبسولات أوتوماتيك ليمون 42 قرص',
+            'فيري بلاتينيوم بلس أقراص غسالات 30 قرص'
+          ]
+        }
+      },
+      'Clorox (كلوركس)': {
+        'مبيضات ومطهرات ملابس': {
+          'كلوركس ألوان': [
+            'كلوركس ألوان جل 750 مل برائحة اللافندر',
+            'كلوركس ألوان سائل 1.8 لتر عرض مزدوج'
+          ],
+          'كلوركس مبيض تقليدي': [
+            'كلوركس مبيض أقمشة بيضاء 950 مل'
+          ]
+        },
+        'منظفات ومطهرات الأسطح': {
+          'بخاخات تعقيم وتطهير': [
+            'كلوركس بخاخ تعقيم أسطح 750 مل',
+            'كلوركس جل تنظيف التواليت 700 مل صنوبر'
+          ]
+        }
+      },
+      'Downy (داوني)': {
+        'مركزات منعم ومعطر أقمشة': {
+          'عطور منعشة': [
+            'داوني مركز أزهار منعشة 1 لتر',
+            'داوني مركز نسيم الوادي 880 مل'
+          ],
+          'عطور فاخرة': [
+            'داوني دريم جولد عطور فرنسية 1 لتر',
+            'داوني باشن أحمر عطور ملكية 1 لتر'
+          ]
+        }
+      },
+      'Pril (بريل)': {
+        'سائل تنظيف الأطباق': {
+          'بريل قوة الليمون المركز': [
+            'بريل سائل أطباق بالليمون الأخضر عبوة 1 لتر',
+            'بريل سائل أطباق مضاد للدهون 2.5 لتر عرض التوفير'
+          ],
+          'بريل بالخل وبيكربونات الصوديوم': [
+            'بريل برودكت الخل وبيكربونات 1.25 لتر'
+          ]
+        }
+      },
+      'Harpic (هاربيك)': {
+        'منظفات ومطهرات التواليت': {
+          'هاربيك باور بلس 10x': [
+            'هاربيك باور بلس أوريجينال 750 مل عبوة مزدوجة',
+            'هاربيك باور بلس ليمون 750 مل'
+          ],
+          'أقراص حافة التواليت': [
+            'هاربيك أقراص نشطة للحافة برائحة اللافندر 35 جم'
+          ]
+        }
+      },
+      'Oxi (أوكسي)': {
+        'مساحيق غسيل أوتوماتيك': {
+          'أوكسي بودرة': [
+            'أوكسي مسحوق أوتوماتيك 4 كجم نسيم الشرق',
+            'أوكسي مسحوق أوتوماتيك 2.5 كجم لافندر'
+          ],
+          'أوكسي جل سائل': [
+            'أوكسي جل غسيل مركز 2.5 لتر'
+          ]
+        }
+      },
+      'Dettol (ديتول)': {
+        'مطهرات ومعقمات': {
+          'سائل مطهر متعدد الأغراض': [
+            'ديتول سائل معقم ومطهر 725 مل',
+            'ديتول بخاخ معقم أسطح وأثاث 500 مل'
+          ]
+        }
+      },
+      'Finish (فينيش)': {
+        'مستلزمات غسالات الأطباق': {
+          'كبسولات وأقراص': [
+            'فينيش كوانتم ألتيميت ليمون 30 كبسولة',
+            'فينيش الكل في واحد أقراص 40 قرص'
+          ],
+          'إضافات غسالات': [
+            'فينيش مساعد شطف وتلميع 400 مل',
+            'فينيش ملح غسالات أطباق عالي النقاوة 2 كجم'
+          ]
+        }
+      }
+    };
+
+    const activeHierarchy = (window.ADCO_CATALOGS && window.ADCO_CATALOGS.productHierarchy) || fullHierarchy;
+
+    function syncCascade(chosenBrand, chosenMain, chosenSub, chosenSku) {
+      const bEl = document.getElementById('picker-brand');
+      const mEl = document.getElementById('picker-main-group');
+      const sEl = document.getElementById('picker-sub-group');
+      const kEl = document.getElementById('picker-sku');
+      const btn = document.getElementById('btn-confirm-add-product');
+
+      if (!bEl || !mEl || !sEl || !kEl) return;
+
+      const brandsList = Object.keys(activeHierarchy);
+      const b = (chosenBrand && brandsList.includes(chosenBrand)) ? chosenBrand : (bEl.value || brandsList[0]);
+
+      // 1. Populate Brand
+      bEl.innerHTML = brandsList.map(item => `<option value="${item}" ${item === b ? 'selected' : ''}>${item}</option>`).join('');
+
+      // 2. Populate Main Group
+      const brandData = activeHierarchy[b] || {};
+      const mainGroups = Object.keys(brandData);
+      const mg = (chosenMain && mainGroups.includes(chosenMain)) ? chosenMain : (mainGroups[0] || 'عام');
+      mEl.disabled = false;
+      mEl.innerHTML = mainGroups.map(item => `<option value="${item}" ${item === mg ? 'selected' : ''}>${item}</option>`).join('');
+
+      // 3. Populate Sub Group
+      const subData = brandData[mg] || {};
+      const subGroups = Object.keys(subData);
+      const sg = (chosenSub && subGroups.includes(chosenSub)) ? chosenSub : (subGroups[0] || 'افتراضي');
+      sEl.disabled = false;
+      sEl.innerHTML = subGroups.map(item => `<option value="${item}" ${item === sg ? 'selected' : ''}>${item}</option>`).join('');
+
+      // 4. Populate SKU / Item
+      const itemsList = subData[sg] || [`${b} - عبوة مميزة 1 لتر`];
+      const sk = (chosenSku && itemsList.includes(chosenSku)) ? chosenSku : (itemsList[0] || '');
+      kEl.disabled = false;
+      kEl.innerHTML = itemsList.map(item => `<option value="${item}" ${item === sk ? 'selected' : ''}>${item}</option>`).join('');
+
+      if (btn) btn.disabled = !sk;
+    }
+
+    window.syncCascade = syncCascade;
+
+    window.openProductModal = function() {
+      const modal = document.getElementById('product-picker-modal');
+      if (!modal) return;
+      const bEl = document.getElementById('picker-brand');
+      syncCascade(bEl && bEl.value ? bEl.value : 'Persil (برسيل)');
+      modal.classList.add('active');
+      modal.style.display = 'flex';
+    };
+
+    window.closeProductModal = function() {
+      const modal = document.getElementById('product-picker-modal');
+      if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+      }
+    };
+
+    // Keyboard ESC listener
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') window.closeProductModal();
     });
 
-    const skuCombo = createSearchableCombobox({
-      mountId: 'combo-sku',
-      options: ADCO_CATALOGS.skus,
-      placeholder: 'ابحث عن المنتج (SKU) أو اكتب وصف العبوة...',
-      defaultValue: ADCO_CATALOGS.skus[0],
-      allowCustomText: true
+    // Initial population so lists are NEVER empty
+    setTimeout(() => {
+      syncCascade('Persil (برسيل)');
+    }, 50);
+
+    window.confirmAddProduct = function() {
+      const bEl = document.getElementById('picker-brand');
+      const mEl = document.getElementById('picker-main-group');
+      const sEl = document.getElementById('picker-sub-group');
+      const kEl = document.getElementById('picker-sku');
+
+      const brand = bEl ? bEl.value : '';
+      const mainGroup = mEl ? mEl.value : '';
+      const subGroup = sEl ? sEl.value : '';
+      const sku = kEl ? kEl.value : '';
+
+      if (!brand || !mainGroup || !subGroup || !sku) {
+        return showToast('يرجى اختيار جميع مستويات المنتج', 'warning');
+      }
+
+      selectedProducts.push({ brand, mainGroup, subGroup, sku });
+      renderSelectedProducts();
+      window.closeProductModal();
+      showToast(`تمت إضافة صنف ${sku} بنجاح`, 'success');
+    };
+
+    // Modal listeners
+    const modalEl = document.getElementById('product-picker-modal');
+    if (modalEl) {
+      modalEl.addEventListener('click', (e) => {
+        if (e.target === modalEl) window.closeProductModal();
+      });
+    }
+
+    const brandSelectEl = document.getElementById('picker-brand');
+    const mainSelectEl = document.getElementById('picker-main-group');
+    const subSelectEl = document.getElementById('picker-sub-group');
+    const skuSelectEl = document.getElementById('picker-sku');
+
+    if (brandSelectEl) brandSelectEl.addEventListener('change', () => syncCascade(brandSelectEl.value));
+    if (mainSelectEl) mainSelectEl.addEventListener('change', () => syncCascade(brandSelectEl.value, mainSelectEl.value));
+    if (subSelectEl) subSelectEl.addEventListener('change', () => syncCascade(brandSelectEl.value, mainSelectEl.value, subSelectEl.value));
+    if (skuSelectEl) skuSelectEl.addEventListener('change', () => {
+      const btn = document.getElementById('btn-confirm-add-product');
+      if (btn) btn.disabled = !skuSelectEl.value;
     });
+
+    renderSelectedProducts();
 
     // Requirement 1: Initialize activity date with current Egypt time
     const initialActDateInput = document.getElementById('f-activity-date');
@@ -728,7 +1157,7 @@
             <div class="meta-row"><span>عدد النشاط:</span><strong>${act.activityCount || 1}</strong></div>
             <div class="meta-row"><span>العلامات التجارية (${brandCount}):</span><strong>${(act.brands || []).join(' ، ')} (حصة: ${brandShareVal})</strong></div>
             <div class="meta-row"><span>المنتج:</span><strong>${act.skuVariant}</strong></div>
-            ${act.magazineDate ? `<div class="meta-row"><span>تاريخ إصدار المجلة:</span><strong>${act.magazineDate}</strong></div>` : ''}
+            ${act.magazineDate ? `<div class="meta-row"><span>تاريخ إصدار المجلة:</span><strong></strong></div>` : ''}
             <div class="meta-row"><span>تاريخ إنشاء البطاقة:</span><strong dir="ltr">${formatDateTime(act.createdAt || act.timestamp)}</strong></div>
             <div class="meta-row" style="background: #f0fdf4; padding: 6px 10px; border-radius: 6px; border: 1px solid #bbf7d0;">
               <span>تاريخ وتوقيت بدء النشاط:</span>
@@ -1261,20 +1690,26 @@
       const activityVal = activityCombo.getValue();
       const activityTypeVal = activityTypeCombo.getValue();
       const activityCountVal = Number(countSelect.value) || 1;
-      const selectedBrands = brandsMultiCombo.getSelected();
-      const skuVal = skuCombo.getValue();
-      const magDateVal = magInput.value;
+      const distinctBrands = [...new Set(selectedProducts.map((p) => p.brand).filter(Boolean))];
+      const skuVal = selectedProducts.map((p) => p.sku).join(' | ');
+      const magStartVal = magStartInput ? magStartInput.value : '';
+      const magEndVal = magEndInput ? magEndInput.value : '';
 
       if (!clientVal || !branchVal || !coordBranchVal || !activityVal || !activityTypeVal || !skuVal) {
         return showToast('يرجى استكمال جميع الحقول الإلزامية', 'warning');
       }
 
-      if (activityVal === 'فرشة مجلة' && !magDateVal) {
-        return showToast('يرجى تحديد تاريخ إصدار المجلة عند اختيار "فرشة مجلة"', 'warning');
+      if (activityVal === 'فرشة مجلة') {
+        if (!magStartVal || !magEndVal) {
+          return showToast('يرجى تحديد تاريخي البداية والنهاية للمجلة عند اختيار "فرشة مجلة"', 'warning');
+        }
+        if (magEndVal < magStartVal) {
+          return showToast('تاريخ نهاية المجلة يجب أن يكون لاحقاً أو مساوياً لتاريخ البداية', 'warning');
+        }
       }
 
-      if (selectedBrands.length === 0) {
-        return showToast('يرجى اختيار علامة تجارية واحدة على الأقل', 'warning');
+      if (selectedProducts.length === 0) {
+        return showToast('يرجى إضافة منتج واحد على الأقل عبر زر (+ إضافة منتج)', 'warning');
       }
 
       const actDateEl = document.getElementById('f-activity-date');
@@ -1289,10 +1724,13 @@
         activity: activityVal,
         activityType: activityTypeVal,
         activityCount: activityCountVal,
-        brands: selectedBrands,
+        brands: distinctBrands,
+        products: selectedProducts,
         skuVariant: skuVal,
         activityDate: actDateVal || undefined,
-        magazineDate: activityVal === 'فرشة مجلة' ? magDateVal : '',
+        magazineDate: activityVal === 'فرشة مجلة' ? (magStartVal + (magEndVal ? ' إلى ' + magEndVal : '')) : '',
+        magazineStartDate: activityVal === 'فرشة مجلة' ? magStartVal : null,
+        magazineEndDate: activityVal === 'فرشة مجلة' ? magEndVal : null,
         photoUrl: initialProcessedPhotos[0].photoUrl,
         photoHash: initialProcessedPhotos[0].photoHash,
         initialPhotos: initialProcessedPhotos,
@@ -1315,6 +1753,5 @@
         btn.innerHTML = `<img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" /><span>اعتماد وإرسال بطاقة النشاط</span>`;
       }
     });
-  </script>
-</body>
+  </script></body>
 </html>

@@ -81,11 +81,160 @@
       'ستاند',
       'بوديوم',
       'بيلر',
-      'كاتمان',
+      'كات مان',
       'سي ثرو',
-      'جيفت بوكس',
+      'لايت بوكس',
       'عرض أرضي'
-    ]
+    ],
+    productHierarchy: {
+      'Velveta (فلفيتا)': {
+        'معطرات الأقمشة': {
+          'معطر مركز': [
+            'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر',
+            'فلفيتا معطر أقمشة مركز لافندر 1 لتر',
+            'فلفيتا معطر أقمشة مركز عبير الشرق 1 لتر',
+            'فلفيتا معطر أقمشة مركز مسك أبيض 1 لتر'
+          ],
+          'معطر عادي': [
+            'فلفيتا معطر أقمشة رقيق نسيم البحر 2 لتر',
+            'فلفيتا معطر أقمشة رقيق ياسمين 2 لتر',
+            'فلفيتا معطر أقمشة رقيق بينك روز 3 لتر'
+          ]
+        },
+        'منظفات الملابس': {
+          'جل غسيل أوتوماتيك': [
+            'فلفيتا جل غسيل أوتوماتيك وايت باور 2.5 لتر',
+            'فلفيتا جل غسيل أوتوماتيك حماية الألوان 2.5 لتر',
+            'فلفيتا جل غسيل أوتوماتيك نسيم الشرق 3 لتر'
+          ],
+          'مسحوق غسيل': [
+            'فلفيتا مسحوق يدوي رغوة غنية 1 كجم',
+            'فلفيتا مسحوق غسيل أوتوماتيك 3 كجم'
+          ]
+        }
+      },
+      'Fairy (فيري)': {
+        'سائل غسيل الأطباق': {
+          'بلاتينيوم بلس': [
+            'فيري بلاتينيوم بلس ليمون 650 مل',
+            'فيري بلاتينيوم بلس برتقال 650 مل',
+            'فيري بلاتينيوم بلس توت أزرق 650 مل'
+          ],
+          'أصلي ومركز': [
+            'فيري ليمون أخضر مركز 1 لتر',
+            'فيري تفاح مضاد للبكتيريا 1 لتر',
+            'فيري رغوة تدوم طويلاً 2.5 لتر'
+          ]
+        },
+        'أقراص غسالات الأطباق': {
+          'كبسولات أوتوماتيك الكل في واحد': [
+            'فيري كبسولات أوتوماتيك ليمون 42 قرص',
+            'فيري بلاتينيوم بلس أقراص غسالات 30 قرص'
+          ]
+        }
+      },
+      'Persil (برسيل)': {
+        'منظفات الملابس السائلة (جل)': {
+          'برسيل جل أوتوماتيك': [
+            'برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية',
+            'برسيل جل حماية الألوان كولور 2.6 لتر',
+            'برسيل جل باور كلين الأبيض الناصع 3.9 لتر'
+          ],
+          'برسيل بلاك للأقمشة الداكنة': [
+            'برسيل بلاك جل حماية العبايات والأقمشة السوداء 2.5 لتر',
+            'برسيل بلاك معطر العود الفاخر 3 لتر'
+          ]
+        },
+        'مساحيق غسيل بودرة': {
+          'مسحوق أوتوماتيك باور': [
+            'برسيل مسحوق أوتوماتيك لافندر 4 كجم + 1 كجم مجاناً',
+            'برسيل مسحوق أوتوماتيك بتقنية التنظيف العميق 6 كجم'
+          ]
+        }
+      },
+      'Pril (بريل)': {
+        'سائل تنظيف الأطباق': {
+          'بريل قوة الليمون المركز': [
+            'بريل سائل أطباق بالليمون الأخضر عبوة 1 لتر',
+            'بريل سائل أطباق مضاد للدهون 2.5 لتر عرض التوفير'
+          ],
+          'بريل بالخل وبيكربونات الصوديوم': [
+            'بريل برودكت الخل وبيكربونات 1.25 لتر'
+          ]
+        }
+      },
+      'Clorox (كلوركس)': {
+        'مبيضات ومطهرات ملابس': {
+          'كلوركس ألوان': [
+            'كلوركس ألوان جل 750 مل برائحة اللافندر',
+            'كلوركس ألوان سائل 1.8 لتر عرض مزدوج'
+          ],
+          'كلوركس مبيض تقليدي': [
+            'كلوركس مبيض أقمشة بيضاء 950 مل'
+          ]
+        },
+        'منظفات ومطهرات الأسطح': {
+          'بخاخات تعقيم وتطهير': [
+            'كلوركس بخاخ تعقيم أسطح 750 مل',
+            'كلوركس جل تنظيف التواليت 700 مل صنوبر'
+          ]
+        }
+      },
+      'Downy (داوني)': {
+        'مركزات منعم ومعطر أقمشة': {
+          'عطور منعشة': [
+            'داوني مركز أزهار منعشة 1 لتر',
+            'داوني مركز نسيم الوادي 880 مل'
+          ],
+          'عطور فاخرة': [
+            'داوني دريم جولد عطور فرنسية 1 لتر',
+            'داوني باشن أحمر عطور ملكية 1 لتر'
+          ]
+        }
+      },
+      'Harpic (هاربيك)': {
+        'منظفات ومطهرات التواليت': {
+          'هاربيك باور بلس 10x': [
+            'هاربيك باور بلس أوريجينال 750 مل عبوة مزدوجة',
+            'هاربيك باور بلس ليمون 750 مل'
+          ],
+          'أقراص حافة التواليت': [
+            'هاربيك أقراص نشطة للحافة برائحة اللافندر 35 جم'
+          ]
+        }
+      },
+      'Oxi (أوكسي)': {
+        'مساحيق غسيل أوتوماتيك': {
+          'أوكسي بودرة': [
+            'أوكسي مسحوق أوتوماتيك 4 كجم نسيم الشرق',
+            'أوكسي مسحوق أوتوماتيك 2.5 كجم لافندر'
+          ],
+          'أوكسي جل سائل': [
+            'أوكسي جل غسيل مركز 2.5 لتر'
+          ]
+        }
+      },
+      'Dettol (ديتول)': {
+        'مطهرات ومعقمات': {
+          'سائل مطهر متعدد الأغراض': [
+            'ديتول سائل معقم ومطهر 725 مل',
+            'ديتول بخاخ معقم أسطح وأثاث 500 مل'
+          ]
+        }
+      },
+      'Finish (فينيش)': {
+        'مستلزمات غسالات الأطباق': {
+          'كبسولات وأقراص': [
+            'فينيش كوانتم ألتيميت ليمون 30 كبسولة',
+            'فينيش الكل في واحد أقراص 40 قرص'
+          ],
+          'إضافات غسالات': [
+            'فينيش مساعد شطف وتلميع 400 مل',
+            'فينيش ملح غسالات أطباق عالي النقاوة 2 كجم'
+          ]
+        }
+      }
+    },
   };
 
   const SEED_ACTIVITIES = [
@@ -286,6 +435,106 @@
           ]
         }
       ]
+    },
+    {
+      id: 'ACT-2026-004',
+      coordinatorId: 'ADCO-102',
+      coordinatorName: 'سارة طارق إبراهيم',
+      client: 'فتح الله جملة ماركت (Fathalla)',
+      branch: 'فرع لوران - الكورنيش',
+      coordinatorBranch: 'الإسكندرية - قطاع شرق',
+      brands: ['Persil (برسيل)', 'Downy (داوني)'],
+      skuVariant: 'برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية',
+      activity: 'عقد',
+      activityType: 'سايد جندولة',
+      activityCount: 2,
+      displayType: 'عقد - سايد جندولة',
+      magazineDate: '',
+      photoUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=720&q=80',
+      photoHash: '5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f',
+      location: { latitude: 31.2421, longitude: 29.9654, accuracy: 7, address: 'فرع لوران - الكورنيش', capturedAt: '2026-11-01 11:30' },
+      status: 'Accepted',
+      supervisorScore: 9.0,
+      overallRating: 9.0,
+      ratedSessionsCount: 1,
+      supervisorNotes: 'تنسيق عرض رائع وتوزيع مثالي على السايد جندولة.',
+      reviewerName: 'م. حسام الدين غانم',
+      reviewedAt: '2026-11-02T10:00:00.000Z',
+      timestamp: '2026-11-01T11:30:00.000Z',
+      roundsCount: 1,
+      totalPhotos: 2,
+      followUpHistory: [
+        {
+          roundNumber: 1,
+          roundTitle: 'التوثيق التأسيسي (جولة 1)',
+          timestamp: '2026-11-01 11:30',
+          uploadedBy: 'سارة طارق إبراهيم',
+          uploadedById: 'ADCO-102',
+          reviewStatus: 'Accepted',
+          sessionScore: 9,
+          sessionNotes: 'تنسيق ممتاز وعرض وافي للعلامات.',
+          photos: [
+            {
+              photoUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=720&q=80',
+              photoHash: '5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f',
+              sizeKb: 180,
+              width: 1280,
+              height: 720,
+              capturedAt: '2026-11-01 11:30'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'ACT-2026-005',
+      coordinatorId: 'ADCO-103',
+      coordinatorName: 'محمد سمير رضوان',
+      client: 'فتح الله جملة ماركت (Fathalla)',
+      branch: 'فرع المنتزه - شيراتون',
+      coordinatorBranch: 'الإسكندرية - قطاع شرق',
+      brands: ['Velveta (فلفيتا)', 'Fairy (فيري)'],
+      skuVariant: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر',
+      activity: 'إضافي',
+      activityType: 'ستاند',
+      activityCount: 1,
+      displayType: 'إضافي - ستاند',
+      magazineDate: '',
+      photoUrl: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=720&q=80',
+      photoHash: '7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b',
+      location: { latitude: 31.2854, longitude: 30.0123, accuracy: 9, address: 'فرع المنتزه - شيراتون', capturedAt: '2026-11-02 14:15' },
+      status: 'Under Review',
+      supervisorScore: null,
+      overallRating: null,
+      ratedSessionsCount: 0,
+      supervisorNotes: '',
+      reviewerName: null,
+      reviewedAt: null,
+      timestamp: '2026-11-02T14:15:00.000Z',
+      roundsCount: 1,
+      totalPhotos: 1,
+      followUpHistory: [
+        {
+          roundNumber: 1,
+          roundTitle: 'التوثيق التأسيسي (جولة 1)',
+          timestamp: '2026-11-02 14:15',
+          uploadedBy: 'محمد سمير رضوان',
+          uploadedById: 'ADCO-103',
+          reviewStatus: 'Under Review',
+          sessionScore: null,
+          sessionNotes: '',
+          photos: [
+            {
+              photoUrl: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=720&q=80',
+              photoHash: '7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b',
+              sizeKb: 175,
+              width: 1280,
+              height: 720,
+              capturedAt: '2026-11-02 14:15'
+            }
+          ]
+        }
+      ]
     }
   ];
 
@@ -297,7 +546,21 @@
           localStorage.setItem(STORAGE_KEY_ACTIVITIES, JSON.stringify(SEED_ACTIVITIES));
           return SEED_ACTIVITIES;
         }
-        return JSON.parse(raw);
+        let list = JSON.parse(raw);
+        if (!Array.isArray(list)) list = SEED_ACTIVITIES;
+
+        // Auto-merge new seed activities (ACT-2026-004, ACT-2026-005)
+        let updated = false;
+        SEED_ACTIVITIES.forEach((seed) => {
+          if (!list.some((a) => a.id === seed.id)) {
+            list.push(seed);
+            updated = true;
+          }
+        });
+        if (updated) {
+          localStorage.setItem(STORAGE_KEY_ACTIVITIES, JSON.stringify(list));
+        }
+        return list;
       } catch {
         return SEED_ACTIVITIES;
       }
@@ -314,9 +577,75 @@
       return all.find((a) => a.id === id) || null;
     }
 
-    static getActivitiesForUser(coordinatorId) {
+    static getActivitiesForUser(userOrId) {
       const all = this.getAllActivities();
-      return all.filter((a) => a.coordinatorId === coordinatorId);
+      if (!userOrId) return all;
+
+      if (typeof userOrId === 'object') {
+        const user = userOrId;
+        const role = user.role;
+
+        // Tier 3: Coordination Manager (Global Visibility)
+        if (role === 'marketing_manager' || role === 'coordination_manager' || role === 'supervisor') {
+          return all;
+        }
+
+        // Tier 2: Coordinator Supervisor (Responsible for all branches of assigned client)
+        if (role === 'coordinator_supervisor') {
+          const clientName = (user.assignedClientName || 'فتح الله جملة ماركت (Fathalla)').trim();
+          return all.filter((a) => {
+            const actClient = (a.client || '').trim();
+            return actClient.includes(clientName) || clientName.includes(actClient);
+          });
+        }
+
+        // Tier 1: Coordinator (Strictly restricted to single assigned client branch)
+        if (user.assignedClientName && user.assignedBranchName) {
+          const cName = user.assignedClientName.trim();
+          const bName = user.assignedBranchName.trim();
+          return all.filter((a) => {
+            const matchClient = (a.client || '').includes(cName) || cName.includes(a.client || '');
+            const matchBranch = (a.branch || '').includes(bName) || bName.includes(a.branch || '');
+            return matchClient && matchBranch;
+          });
+        }
+
+        // Fallback to employeeId match
+        return all.filter((a) => a.coordinatorId === user.employeeId);
+      }
+
+      // String ID passed
+      return all.filter((a) => a.coordinatorId === userOrId);
+    }
+
+    static getBranchesForClient(clientName) {
+      const all = this.getAllActivities();
+      const filtered = all.filter((a) => (a.client || '').includes(clientName) || clientName.includes(a.client || ''));
+      const branches = [...new Set(filtered.map((a) => a.branch).filter(Boolean))];
+      return branches.length > 0 ? branches : [
+        'فرع سموحة - الإسكندرية',
+        'فرع لوران - الكورنيش',
+        'فرع المنتزه - شيراتون',
+        'فرع ميامي - جمال عبد الناصر',
+        'فرع محرم بك - قناة السويس'
+      ];
+    }
+
+    static getCoordinatorsForClient(clientName) {
+      const all = this.getAllActivities();
+      const filtered = all.filter((a) => (a.client || '').includes(clientName) || clientName.includes(a.client || ''));
+      const coords = [];
+      const seen = new Set();
+      filtered.forEach((a) => {
+        if (a.coordinatorId && !seen.has(a.coordinatorId)) {
+          seen.add(a.coordinatorId);
+          coords.push({ id: a.coordinatorId, name: a.coordinatorName || a.coordinatorId });
+        }
+      });
+      if (coords.length === 0) {
+        coords.push({ id: 'ADCO-101', name: 'أحمد محمود العبد' }, { id: 'ADCO-102', name: 'سارة طارق إبراهيم' });
+      }
+      return coords;
     }
 
     /**
@@ -459,7 +788,9 @@
       const activityVal = payload.activity || 'عقد';
       const activityTypeVal = payload.activityType || 'جندولة';
       const activityCountVal = Math.max(1, Math.min(10, Number(payload.activityCount) || 1));
-      const magazineDateVal = activityVal === 'فرشة مجلة' ? payload.magazineDate || '' : '';
+      const magStartVal = activityVal === 'فرشة مجلة' ? (payload.magazineStartDate || payload.magazineDate || '') : '';
+      const magEndVal = activityVal === 'فرشة مجلة' ? (payload.magazineEndDate || '') : '';
+      const magazineDateVal = magStartVal ? (magEndVal ? `${magStartVal} إلى ${magEndVal}` : magStartVal) : '';
       const actDate = payload.activityDate ? payload.activityDate : nowIso;
       const formattedActDate = global.formatDateTime ? global.formatDateTime(actDate) : actDate;
 
@@ -486,6 +817,9 @@
         activityCount: activityCountVal,
         displayType: `${activityVal} - ${activityTypeVal}`,
         magazineDate: magazineDateVal,
+        magazineStartDate: magStartVal,
+        magazineEndDate: magEndVal,
+        products: Array.isArray(payload.products) ? payload.products : [],
         activityDate: actDate,
         startDate: actDate,
         activityDateFormatted: formattedActDate,

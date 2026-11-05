@@ -60,7 +60,9 @@
       }
 
       const user = global.AuthManager ? global.AuthManager.getCurrentUser() : null;
-      const isSupervisor = user && user.role === 'supervisor';
+      const isManager = user && (user.role === 'coordination_manager' || user.role === 'supervisor');
+      const isCoordSupervisor = user && user.role === 'coordinator_supervisor';
+      const isSupervisor = isManager;
       const isSubPage = window.location.pathname.includes('/pages/');
       const prefix = isSubPage ? './' : './pages/';
       const assetsPrefix = isSubPage ? '../assets/' : './assets/';
@@ -97,7 +99,7 @@
             <a href="${dashUrl}" class="web-brand-group">
               <img src="${assetsPrefix}images/ADCO-logo.png" alt="ADCO Logo" class="web-brand-logo" />
               <div class="web-brand-text">
-                <span class="web-brand-title">شركة الإسكندرية للكيماويات (ADCO)</span>
+                <span class="web-brand-title">(ADCO) شركة الاسكندريه للكيماويات و المنظفات</span>
                 <span class="web-brand-sub">منظومة إدارة العمليات الميدانية والتقارير</span>
               </div>
             </a>
@@ -119,7 +121,7 @@
 
             <!-- Center Mobile Brand: Company Name in the middle space -->
             <div class="web-mobile-center-title">
-              <span class="wmct-name">شركة الإسكندرية للكيماويات</span>
+              <span class="wmct-name">(ADCO) شركة الاسكندريه للكيماويات و المنظفات</span>
               <span class="wmct-sub"><i class="wmct-dot"></i>ADCO</span>
             </div>
 
@@ -143,7 +145,7 @@
                   <img src="${avatarSrc}" alt="Avatar" class="web-profile-avatar" />
                   <div class="web-profile-meta">
                     <span class="web-profile-name">${user.fullName}</span>
-                    <span class="web-profile-role">${isSupervisor ? 'مشرف عمليات' : 'منسق ميداني'}</span>
+                    <span class="web-profile-role">${isManager ? 'مسؤول التسويق' : isCoordSupervisor ? 'مشرف منسق' : 'منسق ميداني'}</span>
                   </div>
                 </div>
 
@@ -280,8 +282,8 @@
           <div class="card" style="background: var(--adco-green-mint); text-align: center; padding: 20px; border: 1.5px solid var(--adco-green-border); margin-bottom: 16px;">
             <img src="${avatarSrc}" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 8px; display: block; border: 2px solid var(--adco-green-primary);" />
             <h2 style="margin-bottom: 4px; font-size: 1.15rem;">${user.fullName}</h2>
-            <span class="badge ${isSup ? 'badge-success' : 'badge-mint'}" style="margin-bottom: 8px;">
-              ${isSup ? 'مشرف عام العمليات (Supervisor)' : 'منسق عروض ميداني (Coordinator)'}
+            <span class="badge ${isSup ? 'badge-success' : (user.role === 'coordinator_supervisor' ? 'badge-warning' : 'badge-mint')}" style="margin-bottom: 8px;">
+              ${isSup ? 'مسؤول التسويق (Marketing Manager)' : (user.role === 'coordinator_supervisor' ? 'مشرف منسق فروع (Coordinator Supervisor)' : 'منسق ميداني (Coordinator)')}
             </span>
             <div style="display: flex; justify-content: center; gap: 16px; font-size: 0.84rem; color: var(--adco-gray-700); flex-wrap: wrap;">
               <span>الرقم الوظيفي: <strong>${user.employeeId}</strong></span>
@@ -386,14 +388,18 @@
               <img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
               <span>تبديل الصلاحية (للمعاينة الفورية)</span>
             </h4>
-            <div class="responsive-form-grid" style="gap: 10px;">
-              <button type="button" class="btn ${!isSup ? 'btn-primary' : 'btn-secondary'} btn-sm" id="switch-to-coord">
+            <div class="responsive-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px;">
+              <button type="button" class="btn ${user.role === 'coordinator' ? 'btn-primary' : 'btn-secondary'} btn-sm" id="switch-to-coord">
                 <img src="${assetsPrefix}images/avatar-coordinator.svg" class="ui-icon ui-icon-sm" alt="" />
-                <span>وضع المنسق (ADCO-101)</span>
+                <span>1. منسق ميداني (ADCO-101)</span>
+              </button>
+              <button type="button" class="btn ${user.role === 'coordinator_supervisor' ? 'btn-primary' : 'btn-secondary'} btn-sm" id="switch-to-coord-sup">
+                <img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+                <span>2. مشرف منسق (ADCO-501)</span>
               </button>
               <button type="button" class="btn ${isSup ? 'btn-primary' : 'btn-secondary'} btn-sm" id="switch-to-sup">
                 <img src="${assetsPrefix}images/avatar-supervisor.svg" class="ui-icon ui-icon-sm" alt="" />
-                <span>وضع المشرف (ADCO-901)</span>
+                <span>3. مسؤول التسويق (ADCO-901)</span>
               </button>
             </div>
           </div>
@@ -503,23 +509,41 @@
         }
       });
 
-      document.getElementById('switch-to-coord').addEventListener('click', async () => {
-        await global.AuthManager.login('ADCO-101', 'Pass@1234');
-        modal.classList.remove('active');
-        if (typeof global.showToast === 'function') {
-          global.showToast('تم التبديل إلى حساب المنسق وتحديث الشريط العلوي', 'success');
-        }
-        window.location.href = isSubPage ? './dashboard.html' : './pages/dashboard.html';
-      });
+      const coordBtn = document.getElementById('switch-to-coord');
+      if (coordBtn) {
+        coordBtn.addEventListener('click', async () => {
+          await global.AuthManager.login('ADCO-101', 'Pass@1234');
+          modal.classList.remove('active');
+          if (typeof global.showToast === 'function') {
+            global.showToast('تم التبديل إلى حساب المنسق الميداني (أحمد محمود - سموحة)', 'success');
+          }
+          window.location.href = isSubPage ? './dashboard.html' : './pages/dashboard.html';
+        });
+      }
 
-      document.getElementById('switch-to-sup').addEventListener('click', async () => {
-        await global.AuthManager.login('ADCO-901', 'Admin@2026');
-        modal.classList.remove('active');
-        if (typeof global.showToast === 'function') {
-          global.showToast('تم التبديل إلى حساب المشرف وتفعيل أدوات الإشراف', 'success');
-        }
-        window.location.href = isSubPage ? './supervisor-panel.html' : './pages/supervisor-panel.html';
-      });
+      const coordSupBtn = document.getElementById('switch-to-coord-sup');
+      if (coordSupBtn) {
+        coordSupBtn.addEventListener('click', async () => {
+          await global.AuthManager.login('ADCO-501', 'Super@2026');
+          modal.classList.remove('active');
+          if (typeof global.showToast === 'function') {
+            global.showToast('تم التبديل إلى حساب مشرف المنسق (أيمن الروبي - فتح الله الإسكندرية)', 'success');
+          }
+          window.location.href = isSubPage ? './dashboard.html' : './pages/dashboard.html';
+        });
+      }
+
+      const supBtn = document.getElementById('switch-to-sup');
+      if (supBtn) {
+        supBtn.addEventListener('click', async () => {
+          await global.AuthManager.login('ADCO-901', 'Admin@2026');
+          modal.classList.remove('active');
+          if (typeof global.showToast === 'function') {
+            global.showToast('تم التبديل إلى حساب مسؤول التسويق (م. حسام الدين غانم)', 'success');
+          }
+          window.location.href = isSubPage ? './supervisor-panel.html' : './pages/supervisor-panel.html';
+        });
+      }
 
       document.getElementById('modal-logout-btn').addEventListener('click', () => {
         global.AuthManager.logout();
