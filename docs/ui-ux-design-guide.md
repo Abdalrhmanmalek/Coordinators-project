@@ -33,7 +33,7 @@ This master design guide defines the enterprise visual standards, responsive lay
   * Coordinator Rank Badge (e.g. `#1`, `#2`, `#3` — automatically hidden in Supervisor mode).
   * User profile card trigger and clean logout button.
 
-### 2.2 Authentication Screen (`pages/login.html`)
+### 2.2 Authentication Screen (`frontend/pages/login.html`)
 * **Page Title & Heading:** `منظومة ادارة العمليات` (Management of Operations System).
 * **Vertical Centering & Stacking:**
   * The auth box header is aligned vertically in a centered flex column (`display: flex; flex-direction: column; align-items: center; text-align: center;`).
@@ -44,7 +44,7 @@ This master design guide defines the enterprise visual standards, responsive lay
     4. **Subtitle:** `أدخل الرقم الوظيفي وكلمة المرور المسجلة بسجلات أدكو`.
 * Password input features an eye toggle button (`show/hide password`).
 
-### 2.3 Coordinator Dashboard (`pages/dashboard.html`)
+### 2.3 Coordinator Dashboard (`frontend/pages/dashboard.html`)
 * **Welcome Heading:** `أهلاً، <اسم الموظف>`
 * **Role Subtitle:** Labeled strictly **"منسق ميداني"** for field coordinators.
 * **KPI Metrics:**
@@ -52,7 +52,7 @@ This master design guide defines the enterprise visual standards, responsive lay
   * `الانشطه المقبوله`: Approved activities count.
   * `متوسط التقييم الشامل`: Average weighted score out of 100 points.
 
-### 2.4 Activity Creation Form (`pages/activity-card.html`)
+### 2.4 Activity Creation Form (`frontend/pages/activity-card.html`)
 * **Branch Labels:**
   * Client retail branch labeled strictly: **"فرع العميل *"**.
   * Coordinator logistic sector labeled strictly: **"فرع الشركة (Branch) *"**.
@@ -71,7 +71,7 @@ This master design guide defines the enterprise visual standards, responsive lay
     4. **الصنف** (Item / SKU — filtered by Sub Group)
   * Clicking **"إضافة الصنف"** appends the product to the active card list and updates the $1/N$ brand share badge.
 
-### 2.5 Leaderboard & Mobile Podium Order (`pages/leaderboard.html`)
+### 2.5 Leaderboard & Mobile Podium Order (`frontend/pages/leaderboard.html`)
 * **Desktop View (`> 768px`):** Horizontal podium (#2 Silver, #1 Gold centered and elevated, #3 Bronze).
 * **Mobile View (`<= 768px`):** Explicit CSS flexbox `order` rules ensure the podium stacks in true vertical ranking:
   * **Top (`order: 1`):** 1st Place (Gold `#1`).

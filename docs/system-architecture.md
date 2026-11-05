@@ -32,7 +32,7 @@ adco-field-app/
 
 ## 2. Screen-by-Screen Data Inputs & Validation Rules
 
-### 2.1 Authentication: Login (`pages/login.html`)
+### 2.1 Authentication: Login (`frontend/pages/login.html`)
 * **Header Layout:** Company logo (`ADCO-logo.png`), pill badge (`بوابة العمليات الميدانية المعتمدة`), and main heading (`منظومة ادارة العمليات`) are stacked vertically and centered directly underneath each other (`display: flex; flex-direction: column; align-items: center; text-align: center;`).
 * **Inputs:**
   * `employeeId` (Text, trimmed): Required, 3–20 alphanumeric chars (`/^[A-Za-z0-9_-]{3,20}$/`).
@@ -40,7 +40,7 @@ adco-field-app/
   * `rememberMe` (Checkbox): Persists session token in `localStorage` vs. `sessionStorage`.
 * **Actions:** Validates credentials via `POST /api/v1/auth/login`. On success, stores JWT `{accessToken, refreshToken, user}` and redirects to `dashboard.html`.
 
-### 2.2 Registration: 3-Step Wizard (`pages/signup-wizard.html`)
+### 2.2 Registration: 3-Step Wizard (`frontend/pages/signup-wizard.html`)
 * **Step 1: Identity & Credentials:**
   * `fullName` (Text): 3–100 chars, Arabic or English full name.
   * `employeeId` (Text): 3–20 alphanumeric characters, must be unique.
@@ -65,7 +65,7 @@ The system enforces 3 distinct operational tiers with strict data scoping and au
 | **Tier 2** | `COORDINATOR_SUPERVISOR` | مشرف منسق | **All branches of assigned retail client in the region** (e.g. all branches of *فتح الله جملة ماركت* in Alexandria). | Operational capabilities identical to Coordinator + dedicated branch and coordinator filtering toolbar over all activities of that retail client. |
 | **Tier 3** | `MARKETING_MANAGER` | مسؤول التسويق | **Unrestricted global visibility** across all retail clients, all branches, all coordinators, and supervisors. | 100-point criteria scoring, approval/rejection of activities and closure requests, multi-brand Google Sheets ($1/N$), and Power BI analytics. |
 
-### 2.4 Dashboard Views & Filtering (`pages/dashboard.html`)
+### 2.4 Dashboard Views & Filtering (`frontend/pages/dashboard.html`)
 * **Welcome Subtitles by Tier:**
   * **COORDINATOR:** `منسق ميداني — [اسم الفرع، مثال: فرع سموحة - الإسكندرية]`
   * **COORDINATOR_SUPERVISOR:** `مشرف منسق — مسؤول فروع [اسم العميل، مثال: فتح الله جملة ماركت (Fathalla)] - [المنطقة، مثال: الإسكندرية]`
@@ -80,7 +80,7 @@ The system enforces 3 distinct operational tiers with strict data scoping and au
   * **الانشطه المقبوله:** Total approved activity cards.
   * **متوسط التقييم الشامل:** Weighted score out of 100 points across follow-up rounds.
 
-### 2.5 Activity Card: Creation (`pages/activity-card.html`)
+### 2.5 Activity Card: Creation (`frontend/pages/activity-card.html`)
 * **Standardized Form Fields & Labels:**
   * `client`: Client store chain from `ADCO_CATALOGS.clients` (e.g. كارفور, لولو ماركت, فتح الله).
   * `branch`: Retail store branch labeled strictly **"فرع العميل *"**.
@@ -110,7 +110,7 @@ The system enforces 3 distinct operational tiers with strict data scoping and au
   * Live camera shutter capture with mandatory GPS location check.
   * Canvas compression to 720p, progressive JPEG targeting $< 1\text{MB}$, SHA-256 byte integrity hashing, and EXIF timestamp extraction validated against Egypt timezone (`Africa/Cairo`).
 
-### 2.5 Leaderboard & Podium Stacking (`pages/leaderboard.html`)
+### 2.6 Leaderboard & Podium Stacking (`frontend/pages/leaderboard.html`)
 * **Desktop View (`> 768px`):** Horizontal podium displaying `#2` (Silver) on the left/right, `#1` (Gold) elevated in the center, and `#3` (Bronze).
 * **Mobile View (`<= 768px`):** Explicit CSS flexbox `order` rules ensure the podium stacks in true vertical ranking:
   1. **Top (`order: 1`):** 1st Place (Gold `#1`).
