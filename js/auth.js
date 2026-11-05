@@ -8,6 +8,14 @@
   const STORAGE_KEY_AUTH = 'ADCO_SESSION';
   const STORAGE_KEY_REGISTRY = 'ADCO_EMPLOYEE_REGISTRY';
 
+  const ROLES = {
+    COORDINATOR: 'coordinator',
+    COORDINATOR_SUPERVISOR: 'coordinator_supervisor',
+    MARKETING_MANAGER: 'marketing_manager',
+    COORDINATION_MANAGER: 'marketing_manager',
+    SUPERVISOR: 'supervisor' // Backward compatibility alias
+  };
+
   const DEFAULT_REGISTRY = [
     {
       employeeId: 'ADCO-101',
@@ -17,7 +25,10 @@
       role: 'coordinator',
       rank: '#3',
       score: 88,
-      branch: 'الإسكندرية - سموحة',
+      assignedClientName: 'فتح الله جملة ماركت (Fathalla)',
+      assignedBranchName: 'فرع سموحة - الإسكندرية',
+      branch: 'فرع سموحة - الإسكندرية',
+      region: 'الإسكندرية',
       passwordHash: 'Pass@1234'
     },
     {
@@ -28,17 +39,37 @@
       role: 'coordinator',
       rank: '#1',
       score: 96,
-      branch: 'الإسكندرية - لوران',
+      assignedClientName: 'فتح الله جملة ماركت (Fathalla)',
+      assignedBranchName: 'فرع لوران - الكورنيش',
+      branch: 'فرع لوران - الكورنيش',
+      region: 'الإسكندرية',
       passwordHash: 'Pass@1234'
+    },
+    {
+      employeeId: 'ADCO-501',
+      fullName: 'أيمن عبد الرحمن الروبي',
+      mobile: '01055566677',
+      email: 'ayman.r@adco.com.eg',
+      role: 'coordinator_supervisor',
+      rank: '#2',
+      score: 92,
+      assignedClientName: 'فتح الله جملة ماركت (Fathalla)',
+      assignedBranchName: null,
+      region: 'الإسكندرية',
+      branch: 'مسؤول فروع فتح الله جملة ماركت - الإسكندرية',
+      passwordHash: 'Super@2026'
     },
     {
       employeeId: 'ADCO-901',
       fullName: 'م. حسام الدين غانم',
       mobile: '01234567890',
       email: 'hossam.g@adco.com.eg',
-      role: 'supervisor',
-      rank: 'مشرف عام العمليات',
+      role: 'marketing_manager',
+      rank: 'مسؤول التسويق',
       score: 100,
+      assignedClientName: null,
+      assignedBranchName: null,
+      region: 'الجمهورية (إشراف عام)',
       branch: 'المقر الرئيسي - برج العرب',
       passwordHash: 'Admin@2026'
     }
@@ -52,7 +83,37 @@
           localStorage.setItem(STORAGE_KEY_REGISTRY, JSON.stringify(DEFAULT_REGISTRY));
           return DEFAULT_REGISTRY;
         }
-        return JSON.parse(raw);
+        let list = JSON.parse(raw);
+        if (!Array.isArray(list)) list = DEFAULT_REGISTRY;
+
+        // Auto-merge newly added default accounts (e.g. ADCO-501) and keep defaults up-to-date
+        let updated = false;
+        DEFAULT_REGISTRY.forEach((defEmp) => {
+          const idx = list.findIndex(
+            (e) => e.employeeId && e.employeeId.toUpperCase() === defEmp.employeeId.toUpperCase()
+          );
+          if (idx === -1) {
+            list.push(defEmp);
+            updated = true;
+          } else {
+            // Keep role, assignedClientName, branch, rank and default credentials in sync
+            const current = list[idx];
+            if (
+              current.role !== defEmp.role ||
+              current.assignedClientName !== defEmp.assignedClientName ||
+              current.rank !== defEmp.rank ||
+              current.passwordHash !== defEmp.passwordHash
+            ) {
+              list[idx] = { ...defEmp, ...current, role: defEmp.role, rank: defEmp.rank, assignedClientName: defEmp.assignedClientName, assignedBranchName: defEmp.assignedBranchName, passwordHash: defEmp.passwordHash };
+              updated = true;
+            }
+          }
+        });
+
+        if (updated) {
+          localStorage.setItem(STORAGE_KEY_REGISTRY, JSON.stringify(list));
+        }
+        return list;
       } catch {
         return DEFAULT_REGISTRY;
       }
@@ -127,7 +188,15 @@
       const registry = this.getRegistry();
       const cleanId = employeeId.trim().toUpperCase();
 
-      const emp = registry.find((e) => e.employeeId.toUpperCase() === cleanId);
+      let emp = registry.find((e) => e.employeeId.toUpperCase() === cleanId);
+      if (!emp) {
+        // Fallback to DEFAULT_REGISTRY in case of cached registry
+        emp = DEFAULT_REGISTRY.find((e) => e.employeeId.toUpperCase() === cleanId);
+        if (emp) {
+          registry.push(emp);
+          this.saveRegistry(registry);
+        }
+      }
       if (!emp) {
         throw new Error('الرقم الوظيفي غير مسجل في منظومة أدكو.');
       }
@@ -193,6 +262,9 @@
           fullName: employee.fullName,
           role: employee.role,
           branch: employee.branch,
+          assignedClientName: employee.assignedClientName || null,
+          assignedBranchName: employee.assignedBranchName || null,
+          region: employee.region || null,
           rank: (employee.rank || '#3').replace('بين المنسقين', '').trim(),
           score: employee.score || 88,
           email: employee.email,
@@ -236,24 +308,29 @@
      */
     static checkAuthGuard(requiredRole = null) {
       let user = this.getCurrentUser();
+      const registry = this.getRegistry();
       if (!user) {
-        const registry = this.getRegistry();
-        const fallbackEmp =
-          requiredRole === 'supervisor'
-            ? registry.find((e) => e.role === 'supervisor') || DEFAULT_REGISTRY[2]
-            : registry[0] || DEFAULT_REGISTRY[0];
+        let fallbackEmp = registry[0] || DEFAULT_REGISTRY[0];
+        if (requiredRole === 'supervisor' || requiredRole === 'coordination_manager') {
+          fallbackEmp = registry.find((e) => e.role === 'marketing_manager' || e.role === 'coordination_manager' || e.role === 'supervisor') || DEFAULT_REGISTRY[3];
+        } else if (requiredRole === 'coordinator_supervisor') {
+          fallbackEmp = registry.find((e) => e.role === 'coordinator_supervisor') || DEFAULT_REGISTRY[2];
+        }
         user = this.createSession(fallbackEmp).user;
       }
 
-      if (requiredRole === 'supervisor' && user.role !== 'supervisor') {
-        // Auto-elevate or redirect cleanly
-        const registry = this.getRegistry();
-        const supEmp = registry.find((e) => e.role === 'supervisor') || DEFAULT_REGISTRY[2];
+      const isManager = user.role === 'marketing_manager' || user.role === 'coordination_manager' || user.role === 'supervisor';
+      if ((requiredRole === 'supervisor' || requiredRole === 'coordination_manager') && !isManager) {
+        // Auto-elevate for supervisor panel pages
+        const supEmp = registry.find((e) => e.role === 'coordination_manager' || e.role === 'supervisor') || DEFAULT_REGISTRY[3];
         user = this.createSession(supEmp).user;
       }
       return user;
     }
   }
 
+  global.ROLES = ROLES;
+  global.ADCO_ROLES = ROLES;
+  AuthManager.ROLES = ROLES;
   global.AuthManager = AuthManager;
 })(window);

@@ -313,7 +313,7 @@
             <td style="font-size:0.8rem; white-space:nowrap;" dir="ltr">
               ${r.activityEndDate ? r.activityEndDate : (r.isClosed ? 'منتهي ومفكك' : '<span class="badge badge-mint" style="font-size:0.7rem;">نشط ومستمر</span>')}
             </td>
-            <td style="text-align:center;" dir="ltr">${r.magazineDate || '-'}</td>
+            <td style="text-align:center;" dir="ltr">${r.magazineStartDate && r.magazineEndDate ? `${r.magazineStartDate} إلى ${r.magazineEndDate}` : (r.magazineDate || '-')}</td>
             <td style="font-weight:800; color:#92400e; background:#fffbeb;">
               <img src="../assets/icons/star.svg" class="ui-icon ui-icon-sm" alt="" style="vertical-align:middle;" />
               ${r.overallRatingBadge}

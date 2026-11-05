@@ -151,7 +151,7 @@
         </div>
         <div>
           <div class="kpi-num" id="kpi-accepted" style="color: var(--adco-green-primary);">0</div>
-          <div class="kpi-title">الأنشطة المعتمدة والمقبولة</div>
+          <div class="kpi-title">الانشطه المقبوله</div>
         </div>
       </div>
 
@@ -162,6 +162,31 @@
         <div>
           <div class="kpi-num" id="kpi-avg-score" style="color: #d97706;">0/100</div>
           <div class="kpi-title">متوسط التقييم الشامل (من 100)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dedicated Filter Bar for Coordinator Supervisor (Tier 2 RBAC) -->
+    <div id="sup-filter-toolbar" class="card" style="display: none; padding: 14px 18px; margin-bottom: 16px; background: #ffffff; border: 1.5px solid var(--adco-green-border); box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <div style="font-weight: 700; color: var(--adco-green-deep); display: flex; align-items: center; gap: 8px; font-size: 0.92rem;">
+          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>تصفية الفروع والمنسقين التابعين للمشرف: <strong id="sup-client-tag">فتح الله جملة ماركت (Fathalla)</strong></span>
+        </div>
+        <span class="badge badge-mint" id="sup-branch-count-badge">كل فروع العميل</span>
+      </div>
+      <div class="responsive-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="filter-sup-branch" style="font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">فرع العميل</label>
+          <select id="filter-sup-branch" class="form-select" style="font-size: 0.86rem; padding: 8px 12px;">
+            <option value="ALL">كل فروع العميل</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="filter-sup-coord" style="font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">المنسق الميداني</label>
+          <select id="filter-sup-coord" class="form-select" style="font-size: 0.86rem; padding: 8px 12px;">
+            <option value="ALL">كل المنسقين</option>
+          </select>
         </div>
       </div>
     </div>
@@ -202,19 +227,71 @@
     const user = AuthManager.checkAuthGuard();
     AppRouter.init();
 
+    const isCoordSup = user && user.role === 'coordinator_supervisor';
+    const isManager = user && (user.role === 'coordination_manager' || user.role === 'supervisor');
+
     if (user) {
       document.getElementById('welcome-title').textContent = `أهلاً، ${user.fullName}`;
-      document.getElementById('welcome-role').textContent =
-        user.role === 'supervisor' ? 'صلاحية المشرف العام - استعراض كافة السجلات الميدانية' : 'منسق عروض ميداني معتمد';
+      if (isCoordSup) {
+        const clientName = user.assignedClientName || 'فتح الله جملة ماركت (Fathalla)';
+        const region = user.region || 'الإسكندرية';
+        document.getElementById('welcome-role').textContent = `مشرف منسق — مسؤول فروع ${clientName} - ${region}`;
+      } else if (isManager) {
+        document.getElementById('welcome-role').textContent = 'مسؤول التسويق — استعراض كافة السجلات الميدانية للجمهورية';
+      } else {
+        const branchLabel = user.assignedBranchName || user.branch || 'الإسكندرية';
+        document.getElementById('welcome-role').textContent = `منسق ميداني — ${branchLabel}`;
+      }
+    }
+
+    // Setup Supervisor Toolbar if active
+    const supToolbar = document.getElementById('sup-filter-toolbar');
+    const supBranchSelect = document.getElementById('filter-sup-branch');
+    const supCoordSelect = document.getElementById('filter-sup-coord');
+
+    if (isCoordSup && supToolbar) {
+      supToolbar.style.display = 'block';
+      const assignedClient = user.assignedClientName || 'فتح الله جملة ماركت (Fathalla)';
+      document.getElementById('sup-client-tag').textContent = assignedClient;
+
+      // Populate branches
+      const branches = ActivityManager.getBranchesForClient(assignedClient);
+      supBranchSelect.innerHTML = '<option value="ALL">كل فروع العميل</option>' +
+        branches.map((b) => `<option value="${b}">${b}</option>`).join('');
+
+      // Populate coordinators
+      const coords = ActivityManager.getCoordinatorsForClient(assignedClient);
+      supCoordSelect.innerHTML = '<option value="ALL">كل المنسقين</option>' +
+        coords.map((c) => `<option value="${c.id}">${c.name}</option>`).join('');
+
+      supBranchSelect.addEventListener('change', () => {
+        const badge = document.getElementById('sup-branch-count-badge');
+        badge.textContent = supBranchSelect.value === 'ALL' ? 'كل فروع العميل' : supBranchSelect.value;
+        renderDashboard();
+      });
+
+      supCoordSelect.addEventListener('change', () => {
+        renderDashboard();
+      });
     }
 
     let currentFilter = 'ALL';
 
     function renderDashboard() {
-      const allActivities =
-        user && user.role === 'supervisor'
-          ? ActivityManager.getAllActivities()
-          : ActivityManager.getActivitiesForUser(user.employeeId);
+      // 3-Tier Scoped Activities Base
+      let allActivities = ActivityManager.getActivitiesForUser(user);
+
+      // Coordinator Supervisor dynamic branch & coordinator dropdown filters
+      if (isCoordSup) {
+        const bVal = supBranchSelect ? supBranchSelect.value : 'ALL';
+        const cVal = supCoordSelect ? supCoordSelect.value : 'ALL';
+        if (bVal && bVal !== 'ALL') {
+          allActivities = allActivities.filter((a) => (a.branch || '').includes(bVal));
+        }
+        if (cVal && cVal !== 'ALL') {
+          allActivities = allActivities.filter((a) => a.coordinatorId === cVal);
+        }
+      }
 
       const accepted = allActivities.filter((a) => a.status === 'Accepted');
       const ratings = allActivities.map((a) => ActivityManager.computeWeightedEvaluation(a));

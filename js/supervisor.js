@@ -143,7 +143,7 @@
           `"${r.activity || '-'}"`,
           `"${r.activityType || '-'}"`,
           `"${r.activityCount || 1}"`,
-          `"${r.magazineDate || '-'}"`,
+          `"${r.magazineStartDate && r.magazineEndDate ? `${r.magazineStartDate} إلى ${r.magazineEndDate}` : (r.magazineDate || '-')}"`,
           `"${evalStats.totalWeightedScore}/100"`,
           `"${r.overallRating !== null ? `${r.overallRating} / 10` : '-'}"`,
           `"${r.ratedSessionsCount || 0} من ${r.roundsCount || 1}"`,

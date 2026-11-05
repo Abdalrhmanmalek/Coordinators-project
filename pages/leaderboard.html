@@ -20,16 +20,26 @@
       border: 1px solid var(--adco-gray-200);
       box-shadow: var(--shadow-sm);
     }
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       .podium-wrap {
-        flex-direction: column;
-        align-items: stretch;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
         gap: 14px;
         padding: 20px 14px;
       }
       .podium-col {
         max-width: 100% !important;
         transform: none !important;
+      }
+      .podium-col.rank-1, .podium-col.first {
+        order: 1 !important;
+      }
+      .podium-col.rank-2, .podium-col.second {
+        order: 2 !important;
+      }
+      .podium-col.rank-3, .podium-col.third {
+        order: 3 !important;
       }
     }
     .podium-col {
@@ -134,7 +144,7 @@
         else if (p.rank === '#2') medalImg = 'medal-silver.svg';
 
         return `
-          <div class="podium-col ${p.rank === '#1' ? 'first' : ''}">
+          <div class="podium-col ${p.rank === '#1' ? 'rank-1 first' : p.rank === '#2' ? 'rank-2 second' : 'rank-3 third'}">
             <img src="../assets/images/${medalImg}" alt="${p.rank}" class="podium-medal-img" />
             <strong style="font-size: 0.95rem; margin: 4px 0; color: var(--adco-green-deep);">${p.name}</strong>
             <span style="font-size: 0.78rem; color: var(--adco-gray-600); margin-bottom: 8px;">${p.branch}</span>
