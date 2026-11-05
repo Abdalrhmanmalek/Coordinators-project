@@ -1,7 +1,7 @@
 # ADCO Field Operations Platform — File Structure & Inventory
 
 > **Version:** 2.5.0  
-> **Company:** (ADCO) شركة الإسكندرية للكيماويات والمنظفات  
+> **Company:** Alexandria Company for Chemicals and Detergents (ADCO)  
 > **Status:** Production-Ready Modularized Frontend & API Contract
 
 ---

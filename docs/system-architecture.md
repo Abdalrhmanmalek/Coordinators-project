@@ -1,7 +1,7 @@
-# (ADCO) شركة الاسكندريه للكيماويات و المنظفات — Master Architecture & Data Flow Blueprint
+# Alexandria Company for Chemicals and Detergents (ADCO) — Master Architecture & Data Flow Blueprint
 
 > **System Version:** 2.5.0 Enterprise Modern Web Architecture  
-> **Official Corporate Entity:** (ADCO) شركة الاسكندريه للكيماويات و المنظفات  
+> **Official Corporate Entity:** Alexandria Company for Chemicals and Detergents (ADCO)  
 > **Target Framework:** Clean Modular Vanilla ES Modules & Modern CSS Variables Design System  
 > **Backend Integration:** RESTful JSON API v1 / PostgreSQL 16 / S3-Compatible Media Store  
 > **Timezone Requirement:** `Africa/Cairo` (UTC+2)  
@@ -32,19 +32,19 @@ adco-field-app/
 
 ## 2. Screen-by-Screen Data Inputs & Validation Rules
 
-### 2.1 Authentication: Login (`pages/login.html`)
-* **Header Layout:** Company logo (`ADCO-logo.png`), pill badge (`بوابة العمليات الميدانية المعتمدة`), and main heading (`منظومة ادارة العمليات`) are stacked vertically and centered directly underneath each other (`display: flex; flex-direction: column; align-items: center; text-align: center;`).
+### 2.1 Authentication: Login (`frontend/pages/login.html`)
+* **Header Layout:** Company logo (`ADCO-logo.png`), pill badge (`Certified Field Operations Portal`), and main heading (`Operations Management System`) are stacked vertically and centered directly underneath each other (`display: flex; flex-direction: column; align-items: center; text-align: center;`).
 * **Inputs:**
   * `employeeId` (Text, trimmed): Required, 3–20 alphanumeric chars (`/^[A-Za-z0-9_-]{3,20}$/`).
   * `password` (Password with show/hide toggle): Required, minimum 6 chars.
   * `rememberMe` (Checkbox): Persists session token in `localStorage` vs. `sessionStorage`.
 * **Actions:** Validates credentials via `POST /api/v1/auth/login`. On success, stores JWT `{accessToken, refreshToken, user}` and redirects to `dashboard.html`.
 
-### 2.2 Registration: 3-Step Wizard (`pages/signup-wizard.html`)
+### 2.2 Registration: 3-Step Wizard (`frontend/pages/signup-wizard.html`)
 * **Step 1: Identity & Credentials:**
   * `fullName` (Text): 3–100 chars, Arabic or English full name.
   * `employeeId` (Text): 3–20 alphanumeric characters, must be unique.
-  * `role` (Select): `coordinator` (منسق ميداني) or `supervisor` (مشرف عمليات).
+  * `role` (Select): `coordinator` (Field Coordinator) or `supervisor` (Coordinator Supervisor / Operations Supervisor).
   * `password` (Password): Min 8 chars, at least 1 uppercase, 1 lowercase, 1 number.
   * `confirmPassword` (Password): Must match `password` identically.
 * **Step 2: Contact & Regional Assignment:**
@@ -59,58 +59,58 @@ adco-field-app/
 ### 2.3 3-Tier Role-Based Access Control (RBAC) Architecture
 The system enforces 3 distinct operational tiers with strict data scoping and authorization:
 
-| Tier | Role Key | Arabic Display | Data Visibility Scope | Operational Permissions |
+| Tier | Role Key | Role Title | Data Visibility Scope | Operational Permissions |
 | :--- | :--- | :--- | :--- | :--- |
-| **Tier 1** | `COORDINATOR` | منسق ميداني | **Single assigned client branch only** (`assignedClientName` + `assignedBranchName`). Cannot view other branches. | Create activities, upload follow-up photo rounds, submit "Request Activity Completion" (`طلب انهاء النشاط`), view Leaderboard & personal rank. |
-| **Tier 2** | `COORDINATOR_SUPERVISOR` | مشرف منسق | **All branches of assigned retail client in the region** (e.g. all branches of *فتح الله جملة ماركت* in Alexandria). | Operational capabilities identical to Coordinator + dedicated branch and coordinator filtering toolbar over all activities of that retail client. |
-| **Tier 3** | `MARKETING_MANAGER` | مسؤول التسويق | **Unrestricted global visibility** across all retail clients, all branches, all coordinators, and supervisors. | 100-point criteria scoring, approval/rejection of activities and closure requests, multi-brand Google Sheets ($1/N$), and Power BI analytics. |
+| **Tier 1** | `COORDINATOR` | Field Coordinator | **Single assigned client branch only** (`assignedClientName` + `assignedBranchName`). Cannot view other branches. | Create activities, upload follow-up photo rounds, submit "Request Activity Completion" (`request_closure`), view Leaderboard & personal rank. |
+| **Tier 2** | `COORDINATOR_SUPERVISOR` | Coordinator Supervisor | **All branches of assigned retail client in the region** (e.g. all branches of *Fathalla Wholesale Market* in Alexandria). | Operational capabilities identical to Coordinator + dedicated branch and coordinator filtering toolbar over all activities of that retail client. |
+| **Tier 3** | `MARKETING_MANAGER` | Marketing Manager | **Unrestricted global visibility** across all retail clients, all branches, all coordinators, and supervisors. | 100-point criteria scoring, approval/rejection of activities and closure requests, multi-brand Google Sheets ($1/N$), and Power BI analytics. |
 
-### 2.4 Dashboard Views & Filtering (`pages/dashboard.html`)
+### 2.4 Dashboard Views & Filtering (`frontend/pages/dashboard.html`)
 * **Welcome Subtitles by Tier:**
-  * **COORDINATOR:** `منسق ميداني — [اسم الفرع، مثال: فرع سموحة - الإسكندرية]`
-  * **COORDINATOR_SUPERVISOR:** `مشرف منسق — مسؤول فروع [اسم العميل، مثال: فتح الله جملة ماركت (Fathalla)] - [المنطقة، مثال: الإسكندرية]`
-  * **MARKETING_MANAGER:** `مسؤول التسويق — استعراض كافة السجلات الميدانية للجمهورية`
+  * **COORDINATOR:** `Field Coordinator — [Branch Name, e.g. Smouha Branch - Alexandria]`
+  * **COORDINATOR_SUPERVISOR:** `Coordinator Supervisor — Branch Manager for [Client Name, e.g. Fathalla Wholesale Market] - [Region, e.g. Alexandria]`
+  * **MARKETING_MANAGER:** `Marketing Manager — Nationwide Field Operations Overview`
 * **Dedicated Coordinator Supervisor Toolbar (`#sup-filter-toolbar`):**
   * Displays client badge tag and two live dropdown filters:
-    1. **فرع العميل (`filter-sup-branch`):** Lists all branches of that assigned client, defaulting to "كل فروع العميل".
-    2. **المنسق الميداني (`filter-sup-coord`):** Lists all coordinators assigned to this client in the region, defaulting to "كل المنسقين".
+    1. **Client Branch (`filter-sup-branch`):** Lists all branches of that assigned client, defaulting to "All Client Branches".
+    2. **Field Coordinator (`filter-sup-coord`):** Lists all coordinators assigned to this client in the region, defaulting to "All Coordinators".
   * Changing either dropdown instantly re-filters the feed and recalculates all 3 KPI cards.
 * **KPI Metrics:**
-  * **إجمالي الأنشطة المسجلة:** Total activity cards within user's data scope.
-  * **الانشطه المقبوله:** Total approved activity cards.
-  * **متوسط التقييم الشامل:** Weighted score out of 100 points across follow-up rounds.
+  * **Total Registered Activities:** Total activity cards within user's data scope.
+  * **Approved Activities:** Total approved activity cards.
+  * **Average Comprehensive Evaluation:** Weighted score out of 100 points across follow-up rounds.
 
-### 2.5 Activity Card: Creation (`pages/activity-card.html`)
+### 2.5 Activity Card: Creation (`frontend/pages/activity-card.html`)
 * **Standardized Form Fields & Labels:**
-  * `client`: Client store chain from `ADCO_CATALOGS.clients` (e.g. كارفور, لولو ماركت, فتح الله).
-  * `branch`: Retail store branch labeled strictly **"فرع العميل *"**.
-  * `coordinatorBranch`: Logistics hub labeled strictly **"فرع الشركة (Branch) *"**.
-  * `activity`: Activity type from catalog (e.g. `عقد`, `فرشة مجلة`, `إضافي`, `افتتاح فرع جديد`, `مهرجان`, `موسمي`).
-  * `activityType` (`activityCategory`): Category options include `جندولة`, `دريس اب`, `سايد جندولة`, `ستاند`, `بوديوم`, `بيلر`, **`كات مان`**, `سي ثرو`, **`لايت بوكس`**, `عرض أرضي`.
+  * `client`: Client store chain from `ADCO_CATALOGS.clients` (e.g. Carrefour, LuLu Hypermarket, Fathalla).
+  * `branch`: Retail store branch labeled strictly **"Client Branch *"**.
+  * `coordinatorBranch`: Logistics hub labeled strictly **"Company Branch *"**.
+  * `activity`: Activity type from catalog (e.g. `Contract`, `Magazine Feature`, `Additional`, `New Branch Opening`, `Festival`, `Seasonal`).
+  * `activityType` (`activityCategory`): Category options include `Gondola`, `Dress Up`, `Side Gondola`, `Stand`, `Podium`, `Pillar`, `Cut Man`, `See-Through`, `Light Box`, `Floor Display`.
   * `activityCount`: Integer from 1 to 10 (stepper control).
   * `activityDate`: Datetime-Local. Defaults to current Egypt timestamp (`Africa/Cairo`), editable at creation time.
 
-* **Conditional Magazine Date Range (`فرشة مجلة`):**
-  * When `activity === 'فرشة مجلة'`, displays two mandatory date inputs inside `#magazine-date-group`:
-    1. **تاريخ البداية (`magazineStartDate`)**: Required `DATE`.
-    2. **تاريخ النهاية (`magazineEndDate`)**: Required `DATE`. Validation enforces `magazineEndDate >= magazineStartDate`.
+* **Conditional Magazine Date Range (`Magazine Feature`):**
+  * When `activity === 'Magazine Feature'`, displays two mandatory date inputs inside `#magazine-date-group`:
+    1. **Start Date (`magazineStartDate`)**: Required `DATE`.
+    2. **End Date (`magazineEndDate`)**: Required `DATE`. Validation enforces `magazineEndDate >= magazineStartDate`.
   * When any other activity is selected, both fields are hidden, made non-required, and cleared (`null`).
 
-* **4-Level Cascading Product Picker Modal (`+ إضافة منتج`):**
-  * Users click **"+ إضافة منتج"** to launch `#product-picker-modal`.
+* **4-Level Cascading Product Picker Modal (`+ Add Product`):**
+  * Users click **"+ Add Product"** to launch `#product-picker-modal`.
   * Dropdowns dynamically cascade based on parent selections:
-    1. **اسم البراند (`brandName`)**: Selected from master brand catalog.
-    2. **مجموعة رئيسية (`mainGroup`)**: Filtered dynamically by selected Brand.
-    3. **مجموعة فرعية (`subGroup`)**: Filtered dynamically by selected Main Group.
-    4. **الصنف (`skuItem`)**: Specific packaging/SKU filtered by selected Sub Group.
-  * Clicking **"إضافة الصنف"** appends the product to `selectedProducts` array, renders a badge entry in the card with a delete button, and recalculates the $1/N$ brand share across distinct brands.
+    1. **Brand Name (`brandName`)**: Selected from master brand catalog.
+    2. **Main Group (`mainGroup`)**: Filtered dynamically by selected Brand.
+    3. **Sub Group (`subGroup`)**: Filtered dynamically by selected Main Group.
+    4. **Item / SKU (`skuItem`)**: Specific packaging/SKU filtered by selected Sub Group.
+  * Clicking **"Add Item"** appends the product to `selectedProducts` array, renders a badge entry in the card with a delete button, and recalculates the $1/N$ brand share across distinct brands.
   * Multiple products across different brands can be added to the same activity card.
 
 * **Camera Capture & Geolocation:**
   * Live camera shutter capture with mandatory GPS location check.
   * Canvas compression to 720p, progressive JPEG targeting $< 1\text{MB}$, SHA-256 byte integrity hashing, and EXIF timestamp extraction validated against Egypt timezone (`Africa/Cairo`).
 
-### 2.5 Leaderboard & Podium Stacking (`pages/leaderboard.html`)
+### 2.6 Leaderboard & Podium Stacking (`frontend/pages/leaderboard.html`)
 * **Desktop View (`> 768px`):** Horizontal podium displaying `#2` (Silver) on the left/right, `#1` (Gold) elevated in the center, and `#3` (Bronze).
 * **Mobile View (`<= 768px`):** Explicit CSS flexbox `order` rules ensure the podium stacks in true vertical ranking:
   1. **Top (`order: 1`):** 1st Place (Gold `#1`).
@@ -132,16 +132,16 @@ sequenceDiagram
   participant API as Backend Gateway (/api/v1)
   participant DB as PostgreSQL 16 DB
 
-  Coord->>UI: Selects Client, فرع العميل, فرع الشركة (Branch), النشاط & نوع النشاط
-  alt Activity === 'فرشة مجلة'
-    UI->>Coord: Displays Mandatory تاريخ البداية (magazineStartDate) & تاريخ النهاية (magazineEndDate)
+  Coord->>UI: Selects Client, Client Branch, Company Branch, Activity & Activity Type
+  alt Activity === 'Magazine Feature'
+    UI->>Coord: Displays Mandatory Start Date (magazineStartDate) & End Date (magazineEndDate)
     Coord->>UI: Inputs Start Date & End Date (End >= Start)
   end
-  Coord->>Modal: Clicks "+ إضافة منتج"
+  Coord->>Modal: Clicks "+ Add Product"
   Modal->>Coord: 1. Brand -> 2. Main Group -> 3. Sub Group -> 4. SKU Item
-  Coord->>Modal: Clicks "إضافة الصنف"
+  Coord->>Modal: Clicks "Add Item"
   Modal->>UI: Appends to selectedProducts & Recalculates 1/N Brand Share
-  Coord->>Comp: Clicks "التقاط الصورة واعتماد النشاط"
+  Coord->>Comp: Clicks "Capture Photo & Submit Activity"
   Comp->>Comp: Enforces GPS Lock, Compresses 720p Canvas, Computes SHA-256 & Validates Cairo Time
   Comp-->>UI: { photoUrl, photoHash, coords: { lat, lng } }
   Coord->>Mgr: Submits Activity Card
@@ -164,13 +164,13 @@ sequenceDiagram
 | **`coordinator_id`** | Session Token | `string` | `z.string().min(3).max(20)` | `VARCHAR(20)` | No | FK to `users(employee_id)` |
 | **`coordinator_name`** | Readonly Text | `string` | `z.string().min(3).max(100)` | `VARCHAR(100)` | No | Snapshot of coordinator full name |
 | **`client_name`** | Combobox Single | `string` | `z.string().min(2).max(80)` | `VARCHAR(80)` | No | Client retail store chain |
-| **`branch_name`** | Combobox Single | `string` | `z.string().min(2).max(100)` | `VARCHAR(100)` | No | UI Label: **"فرع العميل *"** |
-| **`coordinator_branch`**| Combobox Single | `string` | `z.string().min(2).max(100)` | `VARCHAR(100)` | No | UI Label: **"فرع الشركة (Branch) *"** |
-| **`activity`** | Select Single | `string` | `z.string().min(2).max(80)` | `VARCHAR(80)` | No | E.g. `عقد`, `فرشة مجلة`, `إضافي`, `مهرجان` |
-| **`activity_type`** | Select Single | `string` | `z.enum(['جندولة','دريس اب','سايد جندولة','ستاند','بوديوم','بيلر','كات مان','سي ثرو','لايت بوكس','عرض أرضي'])` | `VARCHAR(40)` | No | `CHECK (activity_type IN ('جندولة','دريس اب','سايد جندولة','ستاند','بوديوم','بيلر','كات مان','سي ثرو','لايت بوكس','عرض أرضي'))` |
+| **`branch_name`** | Combobox Single | `string` | `z.string().min(2).max(100)` | `VARCHAR(100)` | No | UI Label: **"Client Branch *"** |
+| **`coordinator_branch`**| Combobox Single | `string` | `z.string().min(2).max(100)` | `VARCHAR(100)` | No | UI Label: **"Company Branch *"** |
+| **`activity`** | Select Single | `string` | `z.string().min(2).max(80)` | `VARCHAR(80)` | No | E.g. `Contract`, `Magazine Feature`, `Additional`, `Festival` |
+| **`activity_type`** | Select Single | `string` | `z.enum(['Gondola','Dress Up','Side Gondola','Stand','Podium','Pillar','Cut Man','See-Through','Light Box','Floor Display'])` | `VARCHAR(40)` | No | `CHECK (activity_type IN ('Gondola','Dress Up','Side Gondola','Stand','Podium','Pillar','Cut Man','See-Through','Light Box','Floor Display'))` |
 | **`activity_count`** | Number Stepper | `number` | `z.number().int().min(1).max(10)` | `SMALLINT DEFAULT 1` | No | Quantity installed (1 to 10) |
-| **`magazine_start_date`**| Date Input | `string \| null` | `z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable()` | `DATE` | Yes | Mandatory when `activity = 'فرشة مجلة'` |
-| **`magazine_end_date`** | Date Input | `string \| null` | `z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable()` | `DATE` | Yes | Mandatory when `activity = 'فرشة مجلة'` (`end >= start`) |
+| **`magazine_start_date`**| Date Input | `string \| null` | `z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable()` | `DATE` | Yes | Mandatory when `activity = 'Magazine Feature'` |
+| **`magazine_end_date`** | Date Input | `string \| null` | `z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable()` | `DATE` | Yes | Mandatory when `activity = 'Magazine Feature'` (`end >= start`) |
 | **`activity_date`** | Datetime-Local | `string` | `z.string().datetime({ offset: true })` | `TIMESTAMPTZ` | No | Defaults to creation timestamp in Cairo |
 | **`activity_end_date`** | Display / System | `string \| null` | `z.string().datetime().nullable()` | `TIMESTAMPTZ` | Yes | Stamped on activity closure approval |
 | **`status`** | Status Badge | `string` | `z.enum(['Under Review', 'Accepted', 'Rejected', 'pending_closure', 'closed'])` | `VARCHAR(24) DEFAULT 'Under Review'` | No | Controlled by supervisor state machine |
@@ -211,8 +211,8 @@ CREATE TABLE activity_brands (
 ```sql
 ALTER TABLE activities ADD CONSTRAINT chk_magazine_date_conditional
 CHECK (
-    (activity = 'فرشة مجلة' AND magazine_start_date IS NOT NULL AND magazine_end_date IS NOT NULL AND magazine_end_date >= magazine_start_date)
+    (activity = 'Magazine Feature' AND magazine_start_date IS NOT NULL AND magazine_end_date IS NOT NULL AND magazine_end_date >= magazine_start_date)
     OR
-    (activity <> 'فرشة مجلة' AND magazine_start_date IS NULL AND magazine_end_date IS NULL)
+    (activity <> 'Magazine Feature' AND magazine_start_date IS NULL AND magazine_end_date IS NULL)
 );
 ```
