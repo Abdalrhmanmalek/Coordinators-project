@@ -9,7 +9,7 @@
  */
 
 (function (global) {
-  const STORAGE_KEY_ACTIVITIES = 'ADCO_ACTIVITIES_DATA_V3';
+  const STORAGE_KEY_ACTIVITIES = 'ADCO_ACTIVITIES_DATA_V4';
 
   const ADCO_CATALOGS = {
     clients: [
@@ -41,28 +41,96 @@
       'الإسكندرية - قطاع شرق',
       'الإسكندرية - قطاع غرب',
       'برج العرب والساحل الشمالي',
-      'قطاع الدلتا والبحيرة'
+      'قطاع الدلتا والبحيرة',
+      'قطاع القاهرة الكبرى (مدينة نصر / التجمع)',
+      'قطاع الجيزة وأكتوبر (الشيخ زايد / الدقي)'
+    ],
+    supplyingBranchMap: {
+      'فرع سموحة - الإسكندرية': 'الإسكندرية - قطاع وسط',
+      'فرع محرم بك - قناة السويس': 'الإسكندرية - قطاع غرب',
+      'فرع المنشية - الإسكندرية': 'الإسكندرية - قطاع وسط',
+      'فرع رشدي - كفر عبده': 'الإسكندرية - قطاع شرق',
+      'فرع رشدي - الإسكندرية': 'الإسكندرية - قطاع شرق',
+      'فرع كفر عبده - الإسكندرية': 'الإسكندرية - قطاع شرق',
+      'فرع سيدي جابر - طريق الحرية': 'الإسكندرية - قطاع شرق',
+      'فرع لوران - الكورنيش': 'الإسكندرية - قطاع شرق',
+      'فرع المنتزه - شيراتون': 'الإسكندرية - قطاع شرق',
+      'فرع ميامي - جمال عبد الناصر': 'الإسكندرية - قطاع شرق',
+      'فرع جليم - سان ستيفانو': 'الإسكندرية - قطاع شرق',
+      'فرع ستانلي - الإسكندرية': 'الإسكندرية - قطاع شرق',
+      'فرع سيدي بشر - الإسكندرية': 'الإسكندرية - قطاع شرق',
+      'فرع العجمي - الهانوفيل': 'الإسكندرية - قطاع غرب',
+      'فرع العجمي - الإسكندرية': 'الإسكندرية - قطاع غرب',
+      'فرع برج العرب الجديدة': 'برج العرب والساحل الشمالي',
+      'فرع المعادي - القاهرة': 'قطاع القاهرة الكبرى (مدينة نصر / التجمع)',
+      'فرع مدينة نصر - القاهرة': 'قطاع القاهرة الكبرى (مدينة نصر / التجمع)',
+      'فرع مصر الجديدة - القاهرة': 'قطاع القاهرة الكبرى (مدينة نصر / التجمع)',
+      'فرع التجمع الخامس - القاهرة': 'قطاع القاهرة الكبرى (مدينة نصر / التجمع)',
+      'فرع الشيخ زايد - الجيزة': 'قطاع الجيزة وأكتوبر (الشيخ زايد / الدقي)',
+      'فرع الدقي - الجيزة': 'قطاع الجيزة وأكتوبر (الشيخ زايد / الدقي)',
+      'فرع المهندسين - الجيزة': 'قطاع الجيزة وأكتوبر (الشيخ زايد / الدقي)',
+      'فرع طنطا - الغربية': 'قطاع الدلتا والبحيرة',
+      'فرع المنصورة - الدقهلية': 'قطاع الدلتا والبحيرة',
+      'فرع دمنهور - البحيرة': 'قطاع الدلتا والبحيرة'
+    },
+    branchCoordinatesMap: {
+      'فرع سموحة - الإسكندرية': { latitude: 31.2156, longitude: 29.9553 },
+      'فرع لوران - الكورنيش': { latitude: 31.2421, longitude: 29.9654 },
+      'فرع المنتزه - شيراتون': { latitude: 31.2854, longitude: 30.0123 },
+      'فرع ميامي - جمال عبد الناصر': { latitude: 31.2652, longitude: 29.9945 },
+      'فرع محرم بك - قناة السويس': { latitude: 31.1921, longitude: 29.9145 },
+      'فرع رشدي - كفر عبده': { latitude: 31.2284, longitude: 29.9482 },
+      'فرع رشدي - الإسكندرية': { latitude: 31.2284, longitude: 29.9482 },
+      'فرع سيدي جابر - طريق الحرية': { latitude: 31.2221, longitude: 29.9412 },
+      'فرع ستانلي - الإسكندرية': { latitude: 31.2351, longitude: 29.9511 },
+      'فرع سيدي بشر - الإسكندرية': { latitude: 31.2589, longitude: 29.9881 },
+      'فرع العجمي - الهانوفيل': { latitude: 31.1195, longitude: 29.7824 },
+      'فرع العجمي - الإسكندرية': { latitude: 31.1195, longitude: 29.7824 },
+      'فرع المنشية - الإسكندرية': { latitude: 31.1981, longitude: 29.8942 },
+      'فرع كفر عبده - الإسكندرية': { latitude: 31.2268, longitude: 29.9512 },
+      'فرع جليم - سان ستيفانو': { latitude: 31.2454, longitude: 29.9681 },
+      'فرع برج العرب الجديدة': { latitude: 30.8882, longitude: 29.5754 },
+      'فرع المعادي - القاهرة': { latitude: 29.9602, longitude: 31.2569 },
+      'فرع مدينة نصر - القاهرة': { latitude: 30.0561, longitude: 31.3301 },
+      'فرع مصر الجديدة - القاهرة': { latitude: 30.0909, longitude: 31.3227 },
+      'فرع التجمع الخامس - القاهرة': { latitude: 30.0074, longitude: 31.4913 },
+      'فرع الشيخ زايد - الجيزة': { latitude: 30.0444, longitude: 30.9756 },
+      'فرع الدقي - الجيزة': { latitude: 30.0385, longitude: 31.2122 },
+      'فرع المهندسين - الجيزة': { latitude: 30.0528, longitude: 31.2009 },
+      'فرع طنطا - الغربية': { latitude: 30.7865, longitude: 31.0004 },
+      'فرع المنصورة - الدقهلية': { latitude: 31.0409, longitude: 31.3785 },
+      'فرع دمنهور - البحيرة': { latitude: 31.0341, longitude: 30.4682 }
+    },
+    maxBranchProximityMeters: 150,
+    officialBrands: [
+      'جلاسي',
+      'ديفا',
+      'سبيد',
+      'فلفيتا',
+      'فما',
+      'فييا',
+      'كلوريل',
+      'ماكسيل ماجيك'
     ],
     brands: [
-      'Velveta (فلفيتا)',
-      'Fairy (فيري)',
-      'Persil (برسيل)',
-      'Pril (بريل)',
-      'Clorox (كلوركس)',
-      'Downy (داوني)',
-      'Harpic (هاربيك)',
-      'Oxi (أوكسي)',
-      'Dettol (ديتول)',
-      'Finish (فينيش)'
+      'جلاسي',
+      'ديفا',
+      'سبيد',
+      'فلفيتا',
+      'فما',
+      'فييا',
+      'كلوريل',
+      'ماكسيل ماجيك'
     ],
     skus: [
-      'فلفيتا معطر أقمشة مركز 1 لتر + فيري ليمون 650 مل',
-      'فلفيتا جل غسيل أوتوماتيك 2.5 لتر عرض التوفير',
-      'كلوركس جيل مطهر 750 مل برائحة اللافندر',
-      'برسيل جيل لافندر 3.9 لتر + داوني 1 لتر هدية',
-      'بريل سائل أطباق بالليمون الأخضر عبوة 1 لتر',
-      'هاربيك منظف ومطهر تواليت قوة 10x عبوة مزدوجة',
-      'أوكسي مسحوق أوتوماتيك 4 كجم نسيم الشرق'
+      'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر + فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر',
+      'فلفيتا جل غسيل أوتوماتيك وايت باور 2.5 لتر عرض التوفير',
+      'كلوريل مبيض ومطهر ملابس 1 لتر + كلوريل جل حماية الألوان 950 مل',
+      'فما مسحوق غسيل أوتوماتيك 3 كجم + فلفيتا معطر أقمشة مركز لافندر 1 لتر',
+      'فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر',
+      'ماكسيل ماجيك منظف أفران ودهون صعبة 500 مل + مطهر أرضيات 1 لتر',
+      'جلاسي ملمع زجاج ومرايا بالبخاخ 600 مل + ديفا شاور جل 500 مل',
+      'سبيد مبيد حشرات طائرة وزاحفة 400 مل'
     ],
     // 1. Renamed field "النشاط" options
     activities: [
@@ -79,6 +147,7 @@
       'دريس اب',
       'سايد جندولة',
       'ستاند',
+      'فلور',
       'بوديوم',
       'بيلر',
       'كات مان',
@@ -87,7 +156,46 @@
       'عرض أرضي'
     ],
     productHierarchy: {
-      'Velveta (فلفيتا)': {
+      'جلاسي': {
+        'منظفات الزجاج والأسطح': {
+          'ملمع زجاج ومرايا': [
+            'جلاسي ملمع زجاج ومرايا بالبخاخ 600 مل',
+            'جلاسي ملمع زجاج مضاد للضباب 750 مل',
+            'جلاسي بخاخ تلميع كريستال وأسطح 500 مل'
+          ],
+          'منظف أسطح متعدد الاستخدام': [
+            'جلاسي منظف أسطح ومكاتب برائحة الليمون 750 مل',
+            'جلاسي ملمع ستانلس وأخشاب 600 مل'
+          ]
+        }
+      },
+      'ديفا': {
+        'العناية الشخصية والجمال': {
+          'شاور جل وصابون سائل': [
+            'ديفا شاور جل برائحة التوت البري 500 مل',
+            'ديفا صابون سائل لليدين باللافندر 450 مل',
+            'ديفا شاور جل بالورد والمسك الأبيض 750 مل'
+          ],
+          'شامبو وبلسم العناية بالشعر': [
+            'ديفا شامبو بزيت الأرجان والكيراتين 400 مل',
+            'ديفا بلسم مرطب للشعر الجاف 400 مل'
+          ]
+        }
+      },
+      'سبيد': {
+        'مبيدات ومنتجات حماية المنزل': {
+          'سبيد إيروسول': [
+            'سبيد مبيد حشرات طائرة وزاحفة 400 مل',
+            'سبيد بدون رائحة حماية مضاعفة 600 مل',
+            'سبيد مبيد حشرات برائحة اللافندر 500 مل'
+          ],
+          'سبيد حماية مركزة': [
+            'سبيد مبيد للصراصير والنمل مفعول ممتد 400 مل',
+            'سبيد سائل طارد للناموس والحشرات 300 مل'
+          ]
+        }
+      },
+      'فلفيتا': {
         'معطرات الأقمشة': {
           'معطر مركز': [
             'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر',
@@ -106,131 +214,58 @@
             'فلفيتا جل غسيل أوتوماتيك وايت باور 2.5 لتر',
             'فلفيتا جل غسيل أوتوماتيك حماية الألوان 2.5 لتر',
             'فلفيتا جل غسيل أوتوماتيك نسيم الشرق 3 لتر'
-          ],
-          'مسحوق غسيل': [
-            'فلفيتا مسحوق يدوي رغوة غنية 1 كجم',
-            'فلفيتا مسحوق غسيل أوتوماتيك 3 كجم'
           ]
         }
       },
-      'Fairy (فيري)': {
+      'فما': {
+        'مساحيق ومنظفات الغسيل': {
+          'مسحوق غسيل فما أوتوماتيك': [
+            'فما مسحوق غسيل أوتوماتيك 3 كجم',
+            'فما مسحوق غسيل أوتوماتيك باللافندر 4 كجم',
+            'فما مسحوق غسيل أوتوماتيك توفير عائلي 6 كجم'
+          ],
+          'مسحوق غسيل فما يدوي': [
+            'فما مسحوق غسيل يدوي رغوة وفيرة 1.5 كجم',
+            'فما مسحوق غسيل يدوي نسيم الربيع 800 جم'
+          ]
+        }
+      },
+      'فييا': {
         'سائل غسيل الأطباق': {
-          'بلاتينيوم بلس': [
-            'فيري بلاتينيوم بلس ليمون 650 مل',
-            'فيري بلاتينيوم بلس برتقال 650 مل',
-            'فيري بلاتينيوم بلس توت أزرق 650 مل'
+          'فييا مركز بالليمون': [
+            'فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر',
+            'فييا سائل غسيل أطباق بالليمون المركز 2.5 لتر عرض التوفير',
+            'فييا سائل غسيل أطباق بالليمون والنعناع 650 مل'
           ],
-          'أصلي ومركز': [
-            'فيري ليمون أخضر مركز 1 لتر',
-            'فيري تفاح مضاد للبكتيريا 1 لتر',
-            'فيري رغوة تدوم طويلاً 2.5 لتر'
-          ]
-        },
-        'أقراص غسالات الأطباق': {
-          'كبسولات أوتوماتيك الكل في واحد': [
-            'فيري كبسولات أوتوماتيك ليمون 42 قرص',
-            'فيري بلاتينيوم بلس أقراص غسالات 30 قرص'
+          'فييا بالتفاح والخل': [
+            'فييا سائل غسيل أطباق بالتفاح الأخضر 750 مل',
+            'فييا سائل غسيل أطباق بقوة الخل لإزالة الدهون 1 لتر'
           ]
         }
       },
-      'Persil (برسيل)': {
-        'منظفات الملابس السائلة (جل)': {
-          'برسيل جل أوتوماتيك': [
-            'برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية',
-            'برسيل جل حماية الألوان كولور 2.6 لتر',
-            'برسيل جل باور كلين الأبيض الناصع 3.9 لتر'
-          ],
-          'برسيل بلاك للأقمشة الداكنة': [
-            'برسيل بلاك جل حماية العبايات والأقمشة السوداء 2.5 لتر',
-            'برسيل بلاك معطر العود الفاخر 3 لتر'
-          ]
-        },
-        'مساحيق غسيل بودرة': {
-          'مسحوق أوتوماتيك باور': [
-            'برسيل مسحوق أوتوماتيك لافندر 4 كجم + 1 كجم مجاناً',
-            'برسيل مسحوق أوتوماتيك بتقنية التنظيف العميق 6 كجم'
-          ]
-        }
-      },
-      'Pril (بريل)': {
-        'سائل تنظيف الأطباق': {
-          'بريل قوة الليمون المركز': [
-            'بريل سائل أطباق بالليمون الأخضر عبوة 1 لتر',
-            'بريل سائل أطباق مضاد للدهون 2.5 لتر عرض التوفير'
-          ],
-          'بريل بالخل وبيكربونات الصوديوم': [
-            'بريل برودكت الخل وبيكربونات 1.25 لتر'
-          ]
-        }
-      },
-      'Clorox (كلوركس)': {
+      'كلوريل': {
         'مبيضات ومطهرات ملابس': {
-          'كلوركس ألوان': [
-            'كلوركس ألوان جل 750 مل برائحة اللافندر',
-            'كلوركس ألوان سائل 1.8 لتر عرض مزدوج'
+          'كلوريل أبيض ناصع': [
+            'كلوريل مبيض ومطهر ملابس 1 لتر',
+            'كلوريل مبيض ملابس عبوة التوفير 2 لتر',
+            'كلوريل مبيض ومطهر برائحة الصنوبر 1 لتر'
           ],
-          'كلوركس مبيض تقليدي': [
-            'كلوركس مبيض أقمشة بيضاء 950 مل'
-          ]
-        },
-        'منظفات ومطهرات الأسطح': {
-          'بخاخات تعقيم وتطهير': [
-            'كلوركس بخاخ تعقيم أسطح 750 مل',
-            'كلوركس جل تنظيف التواليت 700 مل صنوبر'
+          'كلوريل جل للألوان': [
+            'كلوريل جل حماية الألوان 950 مل',
+            'كلوريل جل للألوان برائحة الزهور 1.8 لتر'
           ]
         }
       },
-      'Downy (داوني)': {
-        'مركزات منعم ومعطر أقمشة': {
-          'عطور منعشة': [
-            'داوني مركز أزهار منعشة 1 لتر',
-            'داوني مركز نسيم الوادي 880 مل'
+      'ماكسيل ماجيك': {
+        'منظفات ومطهرات متعددة الأغراض': {
+          'ماكسيل ماجيك باور للدهون': [
+            'ماكسيل ماجيك منظف أفران ودهون صعبة 500 مل',
+            'ماكسيل ماجيك مذيب شحوم ودهون المطبخ 750 مل'
           ],
-          'عطور فاخرة': [
-            'داوني دريم جولد عطور فرنسية 1 لتر',
-            'داوني باشن أحمر عطور ملكية 1 لتر'
-          ]
-        }
-      },
-      'Harpic (هاربيك)': {
-        'منظفات ومطهرات التواليت': {
-          'هاربيك باور بلس 10x': [
-            'هاربيك باور بلس أوريجينال 750 مل عبوة مزدوجة',
-            'هاربيك باور بلس ليمون 750 مل'
-          ],
-          'أقراص حافة التواليت': [
-            'هاربيك أقراص نشطة للحافة برائحة اللافندر 35 جم'
-          ]
-        }
-      },
-      'Oxi (أوكسي)': {
-        'مساحيق غسيل أوتوماتيك': {
-          'أوكسي بودرة': [
-            'أوكسي مسحوق أوتوماتيك 4 كجم نسيم الشرق',
-            'أوكسي مسحوق أوتوماتيك 2.5 كجم لافندر'
-          ],
-          'أوكسي جل سائل': [
-            'أوكسي جل غسيل مركز 2.5 لتر'
-          ]
-        }
-      },
-      'Dettol (ديتول)': {
-        'مطهرات ومعقمات': {
-          'سائل مطهر متعدد الأغراض': [
-            'ديتول سائل معقم ومطهر 725 مل',
-            'ديتول بخاخ معقم أسطح وأثاث 500 مل'
-          ]
-        }
-      },
-      'Finish (فينيش)': {
-        'مستلزمات غسالات الأطباق': {
-          'كبسولات وأقراص': [
-            'فينيش كوانتم ألتيميت ليمون 30 كبسولة',
-            'فينيش الكل في واحد أقراص 40 قرص'
-          ],
-          'إضافات غسالات': [
-            'فينيش مساعد شطف وتلميع 400 مل',
-            'فينيش ملح غسالات أطباق عالي النقاوة 2 كجم'
+          'ماكسيل ماجيك مطهر أرضيات وحمامات': [
+            'ماكسيل ماجيك مطهر أرضيات وحمامات 1 لتر',
+            'ماكسيل ماجيك جل منظف ومطهر تواليت 750 مل',
+            'ماكسيل ماجيك مطهر برائحة اللافندر 2 لتر'
           ]
         }
       }
@@ -245,8 +280,8 @@
       client: 'فتح الله جملة ماركت (Fathalla)',
       branch: 'فرع سموحة - الإسكندرية',
       coordinatorBranch: 'الإسكندرية - قطاع وسط',
-      brands: ['Fairy (فيري)', 'Velveta (فلفيتا)'],
-      skuVariant: 'فلفيتا معطر أقمشة مركز 1 لتر + فيري ليمون 650 مل',
+      brands: ['فلفيتا', 'فييا'],
+      skuVariant: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر + فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر',
       activity: 'فرشة مجلة',
       activityType: 'جندولة',
       activityCount: 3,
@@ -259,7 +294,7 @@
       supervisorScore: 8.5,
       overallRating: 8.5,
       ratedSessionsCount: 2,
-      supervisorNotes: 'تنفيذ ممتاز وتواجد بارز على الجندولة وتنسيق عبوات فلفيتا وفيري منظم جداً.',
+      supervisorNotes: 'تنفيذ ممتاز وتواجد بارز على الجندولة وتنسيق عبوات فلفيتا وفييا منظم جداً.',
       reviewerName: 'م. هاني شاكر عبد الله',
       reviewedAt: '2026-10-31T16:30:00.000Z',
       timestamp: '2026-10-30T10:15:00.000Z',
@@ -323,8 +358,8 @@
       client: 'سوبر ماركت زهران (Zahran)',
       branch: 'فرع رشدي - كفر عبده',
       coordinatorBranch: 'الإسكندرية - قطاع شرق',
-      brands: ['Clorox (كلوركس)', 'Harpic (هاربيك)', 'Pril (بريل)'],
-      skuVariant: 'كلوركس جيل مطهر 750 مل برائحة اللافندر',
+      brands: ['كلوريل', 'ماكسيل ماجيك', 'جلاسي'],
+      skuVariant: 'كلوريل مبيض ومطهر ملابس 1 لتر + ماكسيل ماجيك منظف أفران 500 مل + جلاسي ملمع زجاج 600 مل',
       activity: 'عقد',
       activityType: 'ستاند',
       activityCount: 2,
@@ -373,8 +408,8 @@
       client: 'كارفور هايبر ماركت (Carrefour)',
       branch: 'فرع محرم بك - قناة السويس',
       coordinatorBranch: 'الإسكندرية - قطاع غرب',
-      brands: ['Persil (برسيل)', 'Downy (داوني)', 'Velveta (فلفيتا)'],
-      skuVariant: 'برسيل جيل لافندر 3.9 لتر + داوني 1 لتر هدية',
+      brands: ['فما', 'ديفا', 'فلفيتا'],
+      skuVariant: 'فما مسحوق غسيل أوتوماتيك 3 كجم + ديفا شاور جل 500 مل + فلفيتا معطر أقمشة 1 لتر',
       activity: 'مهرجان',
       activityType: 'بوديوم',
       activityCount: 4,
@@ -443,8 +478,8 @@
       client: 'فتح الله جملة ماركت (Fathalla)',
       branch: 'فرع لوران - الكورنيش',
       coordinatorBranch: 'الإسكندرية - قطاع شرق',
-      brands: ['Persil (برسيل)', 'Downy (داوني)'],
-      skuVariant: 'برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية',
+      brands: ['سبيد', 'جلاسي'],
+      skuVariant: 'سبيد مبيد حشرات طائرة وزاحفة 400 مل + جلاسي ملمع زجاج ومرايا 600 مل',
       activity: 'عقد',
       activityType: 'سايد جندولة',
       activityCount: 2,
@@ -457,7 +492,7 @@
       supervisorScore: 9.0,
       overallRating: 9.0,
       ratedSessionsCount: 1,
-      supervisorNotes: 'تنسيق عرض رائع وتوزيع مثالي على السايد جندولة.',
+      supervisorNotes: 'تنسيق عرض رائع وتوزيع مثالي لعلامات سبيد وجلاسي على السايد جندولة.',
       reviewerName: 'م. حسام الدين غانم',
       reviewedAt: '2026-11-02T10:00:00.000Z',
       timestamp: '2026-11-01T11:30:00.000Z',
@@ -493,8 +528,8 @@
       client: 'فتح الله جملة ماركت (Fathalla)',
       branch: 'فرع المنتزه - شيراتون',
       coordinatorBranch: 'الإسكندرية - قطاع شرق',
-      brands: ['Velveta (فلفيتا)', 'Fairy (فيري)'],
-      skuVariant: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر',
+      brands: ['فلفيتا', 'ديفا'],
+      skuVariant: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر + ديفا شاور جل برائحة التوت البري 500 مل',
       activity: 'إضافي',
       activityType: 'ستاند',
       activityCount: 1,
@@ -543,8 +578,8 @@
       client: 'فتح الله جملة ماركت (Fathalla)',
       branch: 'فرع لوران - الكورنيش',
       coordinatorBranch: 'مسؤول فروع فتح الله جملة ماركت - الإسكندرية',
-      brands: ['Velveta (فلفيتا)', 'Persil (برسيل)'],
-      skuVariant: 'فلفيتا معطر أقمشة مركز 1 لتر',
+      brands: ['فلفيتا', 'فما'],
+      skuVariant: 'فلفيتا معطر أقمشة مركز 1 لتر + فما مسحوق غسيل أوتوماتيك 3 كجم',
       activity: 'افتتاح فرع جديد',
       activityType: 'ستاند',
       activityCount: 2,
@@ -556,7 +591,7 @@
       supervisorScore: 9.2,
       overallRating: 9.2,
       ratedSessionsCount: 2,
-      supervisorNotes: 'إشراف ميداني متميز وتنسيق عالي الجودة لعلامات فلفيتا وبرسيل.',
+      supervisorNotes: 'إشراف ميداني متميز وتنسيق عالي الجودة لعلامات فلفيتا وفما.',
       reviewerName: 'م. حسام الدين غانم',
       reviewedAt: '2026-11-04T12:00:00.000Z',
       timestamp: '2026-11-03T09:30:00.000Z',
@@ -676,6 +711,187 @@
         'فرع ميامي - جمال عبد الناصر',
         'فرع محرم بك - قناة السويس'
       ];
+    }
+
+    /**
+     * Resolve Supplying Branch (فرع الشركة المورد للبضاعة) synchronously from relational DB mapping
+     */
+    static getSupplyingBranchSync(clientName, branchName) {
+      const cName = (clientName || '').trim();
+      const bName = (branchName || '').trim();
+      if (!bName && !cName) return ADCO_CATALOGS.coordinatorBranches[0] || 'الإسكندرية - قطاع وسط';
+
+      // 1. Check live / seeded activities database for exact (client, branch) match
+      const all = this.getAllActivities();
+      if (bName) {
+        const exactMatch = all.find((a) => {
+          const sameBranch = (a.branch || '').trim() === bName || (a.branch || '').includes(bName) || bName.includes(a.branch || '');
+          const sameClient = !cName || (a.client || '').includes(cName) || cName.includes(a.client || '');
+          return sameBranch && sameClient && a.coordinatorBranch;
+        });
+        if (exactMatch && exactMatch.coordinatorBranch) {
+          return exactMatch.coordinatorBranch;
+        }
+      }
+
+      // 2. Check relational supplyingBranchMap catalog
+      const map = ADCO_CATALOGS.supplyingBranchMap || {};
+      if (bName && map[bName]) {
+        return map[bName];
+      }
+      for (const [key, val] of Object.entries(map)) {
+        if (bName && (bName.includes(key) || key.includes(bName))) {
+          return val;
+        }
+      }
+
+      // 3. Keyword geographical inference fallback
+      if (/سموحة|المنشية|وسط/.test(bName)) return 'الإسكندرية - قطاع وسط';
+      if (/رشدي|كفر عبده|لوران|المنتزه|ميامي|سيدي جابر|جليم|ستانلي|سيدي بشر|شرق/.test(bName)) return 'الإسكندرية - قطاع شرق';
+      if (/محرم بك|العجمي|الهانوفيل|غرب/.test(bName)) return 'الإسكندرية - قطاع غرب';
+      if (/برج العرب|الساحل|العلمين/.test(bName)) return 'برج العرب والساحل الشمالي';
+      if (/المعادي|مدينة نصر|مصر الجديدة|التجمع|القاهرة/.test(bName)) return 'قطاع القاهرة الكبرى (مدينة نصر / التجمع)';
+      if (/زايد|الدقي|المهندسين|الجيزة|أكتوبر/.test(bName)) return 'قطاع الجيزة وأكتوبر (الشيخ زايد / الدقي)';
+      if (/طنطا|المنصورة|دمنهور|الدلتا|البحيرة|الغربية/.test(bName)) return 'قطاع الدلتا والبحيرة';
+
+      // 4. Check any branch record matching branchName alone
+      if (bName) {
+        const branchOnlyMatch = all.find((a) => ((a.branch || '').includes(bName) || bName.includes(a.branch || '')) && a.coordinatorBranch);
+        if (branchOnlyMatch && branchOnlyMatch.coordinatorBranch) {
+          return branchOnlyMatch.coordinatorBranch;
+        }
+      }
+
+      return ADCO_CATALOGS.coordinatorBranches[0] || 'الإسكندرية - قطاع وسط';
+    }
+
+    /**
+     * Async Database / API call to fetch the Company Supplying Branch (فرع الشركة المورد للبضاعة)
+     * based on selected Client (العميل) and Client Branch (فرع العميل).
+     */
+    static async fetchSupplyingBranch(clientName, branchName) {
+      const cName = (clientName || '').trim();
+      const bName = (branchName || '').trim();
+
+      // Attempt backend REST API call when running over HTTP/HTTPS with active API
+      if (typeof window !== 'undefined' && window.location && window.location.protocol.startsWith('http') && global.apiClient) {
+        try {
+          const endpoint = (global.API_ENDPOINTS && global.API_ENDPOINTS.BRANCHES && global.API_ENDPOINTS.BRANCHES.SUPPLYING_BRANCH)
+            || '/branches/supplying-branch';
+          const query = `?client=${encodeURIComponent(cName)}&branch=${encodeURIComponent(bName)}`;
+          const res = await global.apiClient.get(`${endpoint}${query}`);
+          if (res && (res.supplyingBranch || (res.data && res.data.supplyingBranch))) {
+            return res.supplyingBranch || res.data.supplyingBranch;
+          }
+        } catch (_) {
+          // Graceful fallback to local relational database mapping
+        }
+      }
+
+      return this.getSupplyingBranchSync(cName, bName);
+    }
+
+    /**
+     * Resolve stored GPS coordinates (latitude, longitude) for a specific client branch
+     */
+    static getBranchCoordinatesSync(branchName) {
+      const bName = (branchName || '').trim();
+      if (!bName) return null;
+
+      // 1. Check live/seeded activities for exact branch GPS coordinates
+      const all = this.getAllActivities();
+      const matchedAct = all.find((a) => {
+        const ab = (a.branch || '').trim();
+        return (ab === bName || ab.includes(bName) || bName.includes(ab)) && a.location && a.location.latitude && a.location.longitude;
+      });
+      if (matchedAct && matchedAct.location) {
+        return {
+          latitude: Number(matchedAct.location.latitude),
+          longitude: Number(matchedAct.location.longitude)
+        };
+      }
+
+      // 2. Check master branchCoordinatesMap catalog
+      const coordsMap = ADCO_CATALOGS.branchCoordinatesMap || {};
+      if (coordsMap[bName]) {
+        return coordsMap[bName];
+      }
+      for (const [key, coords] of Object.entries(coordsMap)) {
+        if (bName.includes(key) || key.includes(bName)) {
+          return coords;
+        }
+      }
+
+      return null;
+    }
+
+    /**
+     * Haversine Formula: Calculates great-circle distance in meters between two GPS coordinates
+     */
+    static calculateHaversineDistanceMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371000; // Earth mean radius in meters
+      const toRad = (deg) => (Number(deg) * Math.PI) / 180;
+      const dLat = toRad(Number(lat2) - Number(lat1));
+      const dLon = toRad(Number(lon2) - Number(lon1));
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return Math.round(R * c);
+    }
+
+    /**
+     * Automated GPS Proximity Validation (Branch vs. Coordinator Location)
+     * Compares stored branch GPS coordinates against coordinator's current device GPS coordinates.
+     * Configurable threshold defaults to 150 meters.
+     */
+    static validateBranchProximity(branchName, deviceLocation, maxAllowedMeters = ADCO_CATALOGS.maxBranchProximityMeters || 150) {
+      if (!deviceLocation || deviceLocation.latitude === undefined || deviceLocation.longitude === undefined) {
+        return {
+          isValid: false,
+          distanceMeters: null,
+          maxAllowedMeters,
+          branchCoords: null,
+          errorMessage: 'يرجى السماح بالوصول إلى الموقع الجغرافي (GPS) للتحقق من تواجدك داخل نطاق الفرع'
+        };
+      }
+
+      const branchCoords = this.getBranchCoordinatesSync(branchName);
+      if (!branchCoords) {
+        return {
+          isValid: true,
+          distanceMeters: 0,
+          maxAllowedMeters,
+          branchCoords: null,
+          errorMessage: null
+        };
+      }
+
+      const distanceMeters = this.calculateHaversineDistanceMeters(
+        branchCoords.latitude,
+        branchCoords.longitude,
+        deviceLocation.latitude,
+        deviceLocation.longitude
+      );
+
+      const threshold = Number(maxAllowedMeters) || 150;
+      if (distanceMeters > threshold) {
+        return {
+          isValid: false,
+          distanceMeters,
+          maxAllowedMeters: threshold,
+          branchCoords,
+          errorMessage: 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل'
+        };
+      }
+
+      return {
+        isValid: true,
+        distanceMeters,
+        maxAllowedMeters: threshold,
+        branchCoords,
+        errorMessage: null
+      };
     }
 
     static getCoordinatorsForClient(clientName) {
@@ -850,6 +1066,18 @@
       };
       const locationData = payload.location || defaultLoc;
 
+      // Automated GPS Proximity Validation (Haversine distance <= 150m from registered branch)
+      const proximityCheck = this.validateBranchProximity(
+        payload.branch,
+        locationData,
+        payload.maxBranchProximityMeters || ADCO_CATALOGS.maxBranchProximityMeters || 150
+      );
+      if (!proximityCheck.isValid) {
+        throw new Error(proximityCheck.errorMessage || 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل');
+      }
+      locationData.distanceFromBranchMeters = proximityCheck.distanceMeters;
+      locationData.proximityVerified = true;
+
       const newRecord = {
         id: activityId,
         coordinatorId: payload.coordinatorId,
@@ -942,6 +1170,18 @@
         address: act.branch || 'الإسكندرية',
         capturedAt: timestamp
       };
+
+      // Automated GPS Proximity Validation on follow-up photo upload
+      const proximityCheck = this.validateBranchProximity(
+        act.branch,
+        sessionLocation,
+        ADCO_CATALOGS.maxBranchProximityMeters || 150
+      );
+      if (!proximityCheck.isValid) {
+        throw new Error(proximityCheck.errorMessage || 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل');
+      }
+      sessionLocation.distanceFromBranchMeters = proximityCheck.distanceMeters;
+      sessionLocation.proximityVerified = true;
 
       const newSession = {
         roundNumber: nextRoundNumber,

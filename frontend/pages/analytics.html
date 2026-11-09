@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#15803d" />
+  <meta name="theme-color" content="#0f766e" />
   <title>تحليلات الأداء Power BI | ADCO Field Portal</title>
   <link rel="stylesheet" href="../css/variables.css" />
   <link rel="stylesheet" href="../css/base.css" />
@@ -20,23 +20,24 @@
   <main class="web-main-workspace">
     <div class="an-s1">
       <h2>تحليلات الأداء والانتشار الميداني</h2>
-      <p>مؤشرات التغطية ونسب الحصص التسويقية الموزونة للعلامات التجارية عبر السلاسل التجارية</p>
+      <p>مؤشرات التغطية، معدلات فروع الشركة الموردة للبضاعة، ونسب الحصص التسويقية الموزونة للعلامات التجارية عبر السلاسل التجارية</p>
     </div>
 
     <div class="pbi-header">
       <div class="an-s2">
         <img src="../assets/icons/bar-chart-3.svg" class="ui-icon ui-icon-md" alt="" />
-        <span>Microsoft Power BI Telemetry Feed</span>
+        <span>Microsoft Power BI &bull; ADCO Operational Analytics</span>
       </div>
       <span class="badge badge-mint">Live DirectQuery (Brand Share 1/N)</span>
     </div>
 
+    <!-- Campaign Slicers Card -->
     <div class="card an-s3">
       <h4 class="an-s4">
-        <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-sm" alt="" />
-        <span>فلاتر الحملات الترويجية (Campaign Slicers)</span>
+        <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>فلاتر الحملات الترويجية وفروع التوريد (Campaign Slicers)</span>
       </h4>
-      <div class="responsive-form-grid">
+      <div class="responsive-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
         <div>
           <label class="form-label">السلسلة التجارية</label>
           <select id="bi-client-filter" class="form-select">
@@ -47,7 +48,7 @@
           </select>
         </div>
         <div>
-          <label class="form-label">النشاط</label>
+          <label class="form-label">النشاط الترويجي</label>
           <select id="bi-display-filter" class="form-select">
             <option value="ALL">جميع الأنشطة</option>
             <option value="عقد">عقد</option>
@@ -58,44 +59,179 @@
             <option value="موسمي">موسمي</option>
           </select>
         </div>
+        <div>
+          <label class="form-label">فرع الشركة المورد للبضاعة</label>
+          <select id="bi-supply-branch-filter" class="form-select">
+            <option value="ALL">جميع فروع الشركة الموردة</option>
+            <option value="قطاع وسط">الإسكندرية - قطاع وسط</option>
+            <option value="قطاع شرق">الإسكندرية - قطاع شرق</option>
+            <option value="قطاع غرب">الإسكندرية - قطاع غرب</option>
+          </select>
+        </div>
       </div>
     </div>
 
-    <div class="responsive-form-grid an-s1">
-      <div class="card an-s5">
-        <span class="an-s6">نسبة قبول العروض</span>
-        <div class="an-s7" id="bi-acc-rate">92%</div>
-        <span class="badge badge-success">+4.2% مقارنة بالشهر السابق</span>
+    <!-- Row 1: 4 Circular Progress Ring Indicators (Inspired by Reference UI) -->
+    <div class="circular-charts-row" id="circular-rings-mount">
+      <!-- Populated dynamically in analytics.page.js (with static fallback) -->
+      <div class="circular-ring-card">
+        <div class="ring-svg-wrap">
+          <svg class="ring-svg" viewBox="0 0 84 84">
+            <circle class="ring-bg" cx="42" cy="42" r="34"></circle>
+            <circle class="ring-progress" id="ring-acc-circle" cx="42" cy="42" r="34" stroke-dasharray="213.6" stroke-dashoffset="17"></circle>
+          </svg>
+          <div class="ring-center-text" id="bi-acc-rate">92%</div>
+        </div>
+        <div class="ring-info">
+          <span class="ring-title">نسبة قبول العروض</span>
+          <span class="ring-sub">+4.2% مقارنة بالشهر السابق</span>
+        </div>
       </div>
-      <div class="card an-s5">
-        <span class="an-s6">متوسط التقييم العام للأنشطة</span>
-        <div class="an-s8" id="bi-avg-quality">9.0/10</div>
-        <span class="badge badge-mint">معيار الجودة المعتمد</span>
+
+      <div class="circular-ring-card">
+        <div class="ring-svg-wrap">
+          <svg class="ring-svg" viewBox="0 0 84 84">
+            <circle class="ring-bg" cx="42" cy="42" r="34"></circle>
+            <circle class="ring-progress ring-teal-vivid" id="ring-qual-circle" cx="42" cy="42" r="34" stroke-dasharray="213.6" stroke-dashoffset="21"></circle>
+          </svg>
+          <div class="ring-center-text" id="bi-avg-quality">9.0/10</div>
+        </div>
+        <div class="ring-info">
+          <span class="ring-title">متوسط جودة التنفيذ</span>
+          <span class="ring-sub">معيار الجودة المعتمد</span>
+        </div>
+      </div>
+
+      <div class="circular-ring-card">
+        <div class="ring-svg-wrap">
+          <svg class="ring-svg" viewBox="0 0 84 84">
+            <circle class="ring-bg" cx="42" cy="42" r="34"></circle>
+            <circle class="ring-progress ring-amber" id="ring-score-circle" cx="42" cy="42" r="34" stroke-dasharray="213.6" stroke-dashoffset="24"></circle>
+          </svg>
+          <div class="ring-center-text" id="bi-weighted-score">89%</div>
+        </div>
+        <div class="ring-info">
+          <span class="ring-title">التقييم الشامل الموزون</span>
+          <span class="ring-sub">من إجمالي 100 نقطة</span>
+        </div>
+      </div>
+
+      <div class="circular-ring-card">
+        <div class="ring-svg-wrap">
+          <svg class="ring-svg" viewBox="0 0 84 84">
+            <circle class="ring-bg" cx="42" cy="42" r="34"></circle>
+            <circle class="ring-progress ring-indigo" id="ring-gps-circle" cx="42" cy="42" r="34" stroke-dasharray="213.6" stroke-dashoffset="6"></circle>
+          </svg>
+          <div class="ring-center-text" id="bi-gps-rate">98%</div>
+        </div>
+        <div class="ring-info">
+          <span class="ring-title">توثيق البصمة والموقع GPS</span>
+          <span class="ring-sub">مطابقة الإحداثيات الحية</span>
+        </div>
       </div>
     </div>
 
-    <!-- Analytics Dashboard Grid -->
+    <!-- Row 2: Right Chart (Brand Share & Activity Histogram) + Left Chart (Activity Types & Brand Pie/Distribution Chart) -->
     <div class="analytics-dashboard-grid">
-      <div class="card an-s9">
-        <h4 class="an-s10">حصة ظهور العلامات التجارية الموزونة (Brand Share = 1/N)</h4>
-        <div id="brand-bars-mount"></div>
+      <!-- Right Chart in RTL: Brand Share & Activity Histogram -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h4 class="chart-card-title">المدرج التكراري لحصة العلامة التجارية عبر أنواع الأنشطة (Brand Share Histogram)</h4>
+            <p class="chart-card-subtitle">اختر علامة أدكو التجارية، نوع النشاط، والنطاق الزمني لاستعراض توزيع الحصص الموزونة (1/N)</p>
+          </div>
+          <span class="badge badge-mint" id="hist-brand-summary-badge">إجمالي الحصص</span>
+        </div>
+
+        <!-- Inline Filters for Right Histogram Chart -->
+        <div class="chart-inline-filters">
+          <div class="chart-filter-field">
+            <label class="form-label" for="hist-brand-select">العلامة التجارية (ADCO Brand)</label>
+            <select id="hist-brand-select" class="form-select">
+              <option value="فلفيتا" selected>فلفيتا</option>
+              <option value="جلاسي">جلاسي</option>
+              <option value="ديفا">ديفا</option>
+              <option value="سبيد">سبيد</option>
+              <option value="فما">فما</option>
+              <option value="فييا">فييا</option>
+              <option value="كلوريل">كلوريل</option>
+              <option value="ماكسيل ماجيك">ماكسيل ماجيك</option>
+            </select>
+          </div>
+
+          <div class="chart-filter-field">
+            <label class="form-label" for="hist-acttype-select">تصفية نوع النشاط</label>
+            <select id="hist-acttype-select" class="form-select">
+              <option value="ALL" selected>جميع أنواع الأنشطة</option>
+              <option value="جندولة">جندولة</option>
+              <option value="دريس أب">دريس أب</option>
+              <option value="ستاند">ستاند</option>
+              <option value="فلور">فلور</option>
+              <option value="بوديوم">بوديوم</option>
+              <option value="بيلر">بيلر</option>
+              <option value="سايد جندولة">سايد جندولة</option>
+              <option value="لايت بوكس">لايت بوكس</option>
+            </select>
+          </div>
+
+          <div class="chart-filter-field">
+            <label class="form-label" for="hist-timerange-select">الفلتر الزمني (Time Range)</label>
+            <select id="hist-timerange-select" class="form-select">
+              <option value="ALL" selected>كل الفترات الزمنية</option>
+              <option value="7D">آخر 7 أيام</option>
+              <option value="30D">آخر 30 يوماً</option>
+              <option value="90D">الربع الحالي (90 يوماً)</option>
+              <option value="180D">الأشهر الـ 6 الأخيرة</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="vbar-chart-grid histogram-chart-grid" id="brand-histogram-mount"></div>
+        <div class="chart-kpi-strip" id="brand-histogram-kpis"></div>
       </div>
 
-      <div class="card an-s9">
-        <h4 class="an-s10">التغطية الجغرافية لقطاعات الإسكندرية</h4>
-        <div class="bar-row">
-          <div class="bar-meta"><span>قطاع وسط (سموحة - محرم بك)</span><span>96%</span></div>
-          <div class="bar-track"><div class="bar-fill an-s11"></div></div>
+      <!-- Left Chart in RTL: Activity Types & Brand Pie/Distribution Chart -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h4 class="chart-card-title">توزيع حصص علامات أدكو داخل نوع النشاط (Brand Share Pie Chart)</h4>
+            <p class="chart-card-subtitle">اختر نوع النشاط لعرض المخطط الدائري ونسبة استحواذ كل علامة تجارية رسمية</p>
+          </div>
+          <span class="badge badge-success" id="pie-acttype-badge">جندولة</span>
         </div>
-        <div class="bar-row">
-          <div class="bar-meta"><span>قطاع شرق (رشدي - سيدي جابر - المنتزه)</span><span>89%</span></div>
-          <div class="bar-track"><div class="bar-fill an-s12"></div></div>
+
+        <!-- Inline Activity Type Selector for Left Pie Chart -->
+        <div class="chart-inline-filters" style="grid-template-columns: 1fr;">
+          <div class="chart-filter-field">
+            <label class="form-label" for="pie-acttype-select">اختر نوع النشاط (وسيلة العرض الميدانية)</label>
+            <select id="pie-acttype-select" class="form-select">
+              <option value="جندولة" selected>جندولة</option>
+              <option value="دريس أب">دريس أب</option>
+              <option value="ستاند">ستاند</option>
+              <option value="فلور">فلور</option>
+              <option value="بوديوم">بوديوم</option>
+              <option value="بيلر">بيلر</option>
+              <option value="سايد جندولة">سايد جندولة</option>
+              <option value="لايت بوكس">لايت بوكس</option>
+              <option value="ALL">جميع وسائل العرض الميدانية</option>
+            </select>
+          </div>
         </div>
-        <div class="bar-row">
-          <div class="bar-meta"><span>قطاع غرب وبرج العرب</span><span>82%</span></div>
-          <div class="bar-track"><div class="bar-fill an-s13"></div></div>
-        </div>
+
+        <div class="pie-chart-layout" id="activity-brand-pie-mount"></div>
       </div>
+    </div>
+
+    <!-- Row 3: Display Hardware Type Breakdown (Vertical Bar Chart - Strictly Arabic & "فلور") -->
+    <div class="chart-card" style="margin-bottom: 12px;">
+      <div class="chart-card-header">
+        <div>
+          <h4 class="chart-card-title">تحليل وسائل العرض الميدانية</h4>
+          <p class="chart-card-subtitle">توزيع الأنشطة المعتمدة حسب وسيلة العرض (جندولة، دريس أب، ستاند، فلور، بيلر، لايت بوكس)</p>
+        </div>
+        <span class="badge badge-mint">تحديث فوري</span>
+      </div>
+      <div class="vbar-chart-grid" id="display-type-vbar-mount"></div>
     </div>
   </main>
 

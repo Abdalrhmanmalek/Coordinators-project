@@ -6,9 +6,11 @@
 
 import { STORAGE_KEYS, ACTIVITY_STATUS, CLOSURE_STATUS } from '../config/constants.js';
 import { API_ENDPOINTS } from '../config/endpoints.js';
+import { ADCO_CATALOGS } from '../config/catalogs.js';
 import { apiClient } from '../api/http-client.js';
 import { ScoreCalculator } from '../utils/score-calculator.js';
 import { formatToEgyptTime } from '../utils/camera-compressor.js';
+import { Validators } from '../utils/validators.js';
 
 export const INITIAL_SEED_ACTIVITIES = [
   {
@@ -21,22 +23,22 @@ export const INITIAL_SEED_ACTIVITIES = [
     activity: 'فرشة مجلة',
     activityType: 'جندولة',
     activityCount: 2,
-    brands: ['Velveta (فلفيتا)', 'Fairy (فيري)'],
+    brands: ['فلفيتا', 'فييا'],
     products: [
       {
-        brandName: 'Velveta (فلفيتا)',
+        brandName: 'فلفيتا',
         mainGroup: 'معطرات الأقمشة',
         subGroup: 'معطر مركز',
         skuItem: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر'
       },
       {
-        brandName: 'Fairy (فيري)',
+        brandName: 'فييا',
         mainGroup: 'سائل غسيل الأطباق',
-        subGroup: 'بلاتينيوم بلس',
-        skuItem: 'فيري بلاتينيوم بلس ليمون 650 مل'
+        subGroup: 'فييا مركز بالليمون',
+        skuItem: 'فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر'
       }
     ],
-    skuVariant: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر / فيري بلاتينيوم بلس ليمون 650 مل',
+    skuVariant: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر / فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر',
     magazineStartDate: '2026-11-01',
     magazineEndDate: '2026-11-15',
     magazineDate: '2026-11-01 إلى 2026-11-15',
@@ -94,16 +96,16 @@ export const INITIAL_SEED_ACTIVITIES = [
     activity: 'عقد',
     activityType: 'ستاند',
     activityCount: 1,
-    brands: ['Persil (برسيل)'],
+    brands: ['فما'],
     products: [
       {
-        brandName: 'Persil (برسيل)',
-        mainGroup: 'منظفات الملابس السائلة (جل)',
-        subGroup: 'برسيل جل أوتوماتيك',
-        skuItem: 'برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية'
+        brandName: 'فما',
+        mainGroup: 'مساحيق ومنظفات الغسيل',
+        subGroup: 'مسحوق غسيل فما أوتوماتيك',
+        skuItem: 'فما مسحوق غسيل أوتوماتيك 3 كجم'
       }
     ],
-    skuVariant: 'برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية',
+    skuVariant: 'فما مسحوق غسيل أوتوماتيك 3 كجم',
     magazineStartDate: null,
     magazineEndDate: null,
     magazineDate: '',
@@ -161,16 +163,22 @@ export const INITIAL_SEED_ACTIVITIES = [
     activity: 'إضافي',
     activityType: 'عرض أرضي',
     activityCount: 1,
-    brands: ['Oxi (أوكسي)'],
+    brands: ['سبيد', 'جلاسي'],
     products: [
       {
-        brandName: 'Oxi (أوكسي)',
-        mainGroup: 'مساحيق غسيل أوتوماتيك',
-        subGroup: 'أوكسي بودرة',
-        skuItem: 'أوكسي مسحوق أوتوماتيك 4 كجم نسيم الشرق'
+        brandName: 'سبيد',
+        mainGroup: 'مبيدات ومنتجات حماية المنزل',
+        subGroup: 'سبيد إيروسول',
+        skuItem: 'سبيد مبيد حشرات طائرة وزاحفة 400 مل'
+      },
+      {
+        brandName: 'جلاسي',
+        mainGroup: 'منظفات الزجاج والأسطح',
+        subGroup: 'ملمع زجاج ومرايا',
+        skuItem: 'جلاسي ملمع زجاج ومرايا بالبخاخ 600 مل'
       }
     ],
-    skuVariant: 'أوكسي مسحوق أوتوماتيك 4 كجم نسيم الشرق',
+    skuVariant: 'سبيد مبيد حشرات طائرة وزاحفة 400 مل / جلاسي ملمع زجاج ومرايا بالبخاخ 600 مل',
     magazineStartDate: null,
     magazineEndDate: null,
     magazineDate: '',
@@ -222,22 +230,28 @@ export const INITIAL_SEED_ACTIVITIES = [
     activity: 'عقد',
     activityType: 'دريس اب',
     activityCount: 1,
-    brands: ['Clorox (كلوركس)', 'Downy (داوني)'],
+    brands: ['كلوريل', 'ماكسيل ماجيك', 'ديفا'],
     products: [
       {
-        brandName: 'Clorox (كلوركس)',
+        brandName: 'كلوريل',
         mainGroup: 'مبيضات ومطهرات ملابس',
-        subGroup: 'كلوركس ألوان',
-        skuItem: 'كلوركس ألوان جل 750 مل برائحة اللافندر'
+        subGroup: 'كلوريل أبيض ناصع',
+        skuItem: 'كلوريل مبيض ومطهر ملابس 1 لتر'
       },
       {
-        brandName: 'Downy (داوني)',
-        mainGroup: 'مركزات منعم ومعطر أقمشة',
-        subGroup: 'عطور منعشة',
-        skuItem: 'داوني مركز أزهار منعشة 1 لتر'
+        brandName: 'ماكسيل ماجيك',
+        mainGroup: 'منظفات ومطهرات متعددة الأغراض',
+        subGroup: 'ماكسيل ماجيك باور للدهون',
+        skuItem: 'ماكسيل ماجيك منظف أفران ودهون صعبة 500 مل'
+      },
+      {
+        brandName: 'ديفا',
+        mainGroup: 'العناية الشخصية والجمال',
+        subGroup: 'شاور جل وصابون سائل',
+        skuItem: 'ديفا شاور جل برائحة التوت البري 500 مل'
       }
     ],
-    skuVariant: 'كلوركس ألوان جل 750 مل / داوني مركز أزهار منعشة 1 لتر',
+    skuVariant: 'كلوريل مبيض ومطهر ملابس 1 لتر / ماكسيل ماجيك منظف أفران 500 مل / ديفا شاور جل 500 مل',
     magazineStartDate: null,
     magazineEndDate: null,
     magazineDate: '',
@@ -372,6 +386,95 @@ export class ActivityService {
     ];
   }
 
+  static getSupplyingBranchSync(clientName, branchName) {
+    const cName = (clientName || '').trim();
+    const bName = (branchName || '').trim();
+    if (!bName && !cName) return ADCO_CATALOGS.coordinatorBranches[0] || 'الإسكندرية - قطاع وسط';
+
+    const all = this.getAllActivities();
+    if (bName) {
+      const exactMatch = all.find((a) => {
+        const sameBranch = (a.branch || '').trim() === bName || (a.branch || '').includes(bName) || bName.includes(a.branch || '');
+        const sameClient = !cName || (a.client || '').includes(cName) || cName.includes(a.client || '');
+        return sameBranch && sameClient && a.coordinatorBranch;
+      });
+      if (exactMatch && exactMatch.coordinatorBranch) {
+        return exactMatch.coordinatorBranch;
+      }
+    }
+
+    const map = ADCO_CATALOGS.supplyingBranchMap || {};
+    if (bName && map[bName]) {
+      return map[bName];
+    }
+    for (const [key, val] of Object.entries(map)) {
+      if (bName && (bName.includes(key) || key.includes(bName))) {
+        return val;
+      }
+    }
+
+    if (/سموحة|المنشية|وسط/.test(bName)) return 'الإسكندرية - قطاع وسط';
+    if (/رشدي|كفر عبده|لوران|المنتزه|ميامي|سيدي جابر|جليم|ستانلي|سيدي بشر|شرق/.test(bName)) return 'الإسكندرية - قطاع شرق';
+    if (/محرم بك|العجمي|الهانوفيل|غرب/.test(bName)) return 'الإسكندرية - قطاع غرب';
+    if (/برج العرب|الساحل|العلمين/.test(bName)) return 'برج العرب والساحل الشمالي';
+    if (/المعادي|مدينة نصر|مصر الجديدة|التجمع|القاهرة/.test(bName)) return 'قطاع القاهرة الكبرى (مدينة نصر / التجمع)';
+    if (/زايد|الدقي|المهندسين|الجيزة|أكتوبر/.test(bName)) return 'قطاع الجيزة وأكتوبر (الشيخ زايد / الدقي)';
+    if (/طنطا|المنصورة|دمنهور|الدلتا|البحيرة|الغربية/.test(bName)) return 'قطاع الدلتا والبحيرة';
+
+    return ADCO_CATALOGS.coordinatorBranches[0] || 'الإسكندرية - قطاع وسط';
+  }
+
+  static async fetchSupplyingBranch(clientName, branchName) {
+    const cName = (clientName || '').trim();
+    const bName = (branchName || '').trim();
+    try {
+      const endpoint = (API_ENDPOINTS.BRANCHES && API_ENDPOINTS.BRANCHES.SUPPLYING_BRANCH) || '/branches/supplying-branch';
+      const query = `?client=${encodeURIComponent(cName)}&branch=${encodeURIComponent(bName)}`;
+      const res = await apiClient.get(`${endpoint}${query}`);
+      if (res && (res.supplyingBranch || (res.data && res.data.supplyingBranch))) {
+        return res.supplyingBranch || res.data.supplyingBranch;
+      }
+    } catch (_) {
+      // Fallback to local relational mapping
+    }
+    return this.getSupplyingBranchSync(cName, bName);
+  }
+
+  static getBranchCoordinatesSync(branchName) {
+    const bName = (branchName || '').trim();
+    if (!bName) return null;
+
+    const all = this.getAllActivities();
+    const matchedAct = all.find((a) => {
+      const ab = (a.branch || '').trim();
+      return (ab === bName || ab.includes(bName) || bName.includes(ab)) && a.location && a.location.latitude && a.location.longitude;
+    });
+    if (matchedAct && matchedAct.location) {
+      return {
+        latitude: Number(matchedAct.location.latitude),
+        longitude: Number(matchedAct.location.longitude)
+      };
+    }
+
+    const coordsMap = ADCO_CATALOGS.branchCoordinatesMap || {};
+    if (coordsMap[bName]) return coordsMap[bName];
+    for (const [key, coords] of Object.entries(coordsMap)) {
+      if (bName.includes(key) || key.includes(bName)) {
+        return coords;
+      }
+    }
+    return null;
+  }
+
+  static validateBranchProximity(branchName, deviceLocation, maxAllowedMeters = ADCO_CATALOGS.maxBranchProximityMeters || 150) {
+    const branchCoords = this.getBranchCoordinatesSync(branchName);
+    const result = Validators.validateBranchProximity(branchCoords, deviceLocation, maxAllowedMeters);
+    return {
+      ...result,
+      branchCoords
+    };
+  }
+
   static getCoordinatorsForClient(clientName) {
     const all = this.getAllActivities();
     const filtered = all.filter((a) => (a.client || '').includes(clientName) || clientName.includes(a.client || ''));
@@ -395,6 +498,22 @@ export class ActivityService {
     const formattedNow = formatToEgyptTime ? formatToEgyptTime(nowIso) : nowIso.slice(0, 16).replace('T', ' ');
 
     const newId = `ACT-2026-${String(Math.floor(1000 + Math.random() * 9000))}`;
+
+    const deviceCoords = payload.location || {
+      latitude: payload.latitude,
+      longitude: payload.longitude,
+      accuracy: payload.accuracy || 10,
+      verified: true
+    };
+
+    const proximityCheck = this.validateBranchProximity(
+      payload.branch,
+      deviceCoords,
+      payload.maxBranchProximityMeters || ADCO_CATALOGS.maxBranchProximityMeters || 150
+    );
+    if (!proximityCheck.isValid) {
+      throw new Error(proximityCheck.errorMessage || 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل');
+    }
 
     const newActivity = {
       id: newId,
@@ -548,6 +667,16 @@ export class ActivityService {
     if (idx === -1) throw new Error('النشاط المطلوب غير موجود');
 
     const act = all[idx];
+    if (location) {
+      const proximityCheck = this.validateBranchProximity(
+        act.branch,
+        location,
+        ADCO_CATALOGS.maxBranchProximityMeters || 150
+      );
+      if (!proximityCheck.isValid) {
+        throw new Error(proximityCheck.errorMessage || 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل');
+      }
+    }
     const sessions = act.followUpHistory || [];
     const nextRoundNum = sessions.length + 1;
     const nowIso = new Date().toISOString();

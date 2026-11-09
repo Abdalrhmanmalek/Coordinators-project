@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#15803d" />
+  <meta name="theme-color" content="#0f766e" />
   <title>لوحة الإشراف وتقييم العمليات | ADCO Supervisor</title>
   <link rel="stylesheet" href="../css/variables.css" />
   <link rel="stylesheet" href="../css/base.css" />
@@ -23,28 +23,73 @@
       <p>فحص واعتماد الصور الميدانية، تقييم جولات المتابعة، والرقابة على دورة حياة الأنشطة</p>
     </div>
 
+    <!-- Dual Parent Client & Branch Filter Bar (Manager / Supervisor View) -->
+    <div class="card sp-s3" style="margin-bottom: 22px; padding: 18px 22px;">
+      <div class="sp-s4" style="margin-bottom: 12px;">
+        <strong class="sp-s5" style="display: flex; align-items: center; gap: 6px; color: var(--adco-green-deep);">
+          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>تصفية سريعة حسب العميل الأم والفرع: <span id="sp-top-client-tag" style="color: var(--adco-green-primary);">جميع العملاء</span></span>
+        </strong>
+        <span class="badge badge-mint" id="sp-top-branch-badge">كل الفروع</span>
+      </div>
+      <div class="responsive-form-grid">
+        <div class="form-group">
+          <label class="form-label" for="sp-filter-parent-client">اسم العميل الأم (Parent Client)</label>
+          <select id="sp-filter-parent-client" class="form-select">
+            <option value="ALL">جميع السلاسل والعملاء (الكل)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="sp-filter-branch">اسم فرع العميل (Client Branch)</label>
+          <select id="sp-filter-branch" class="form-select">
+            <option value="ALL">كل فروع العميل</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Master Branch Cards Overview (Supervisor View) -->
+    <div class="section-header-row">
+      <h3 class="section-header-title">
+        <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>بطاقات الفروع الرئيسية وفروع الشركة الموردة للبضاعة</span>
+      </h3>
+      <button type="button" id="sup-reset-branch-filter" class="btn btn-outline btn-sm is-hidden">
+        <span>إظهار كافة الفروع</span>
+      </button>
+    </div>
+    <div id="supervisor-branches-overview" class="master-branches-grid"></div>
+
     <!-- Filter Bar -->
     <div class="filter-bar">
-      <button type="button" class="filter-chip active" data-st="ALL">الكل</button>
+      <button type="button" class="filter-chip active" data-st="ALL">
+        <span>الكل</span>
+        <span class="chip-count-pill" id="sp-cnt-all">0</span>
+      </button>
       <button type="button" class="filter-chip" data-st="CLOSURE_PENDING">
         <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
         <span>طلبات إنهاء النشاط</span>
+        <span class="chip-count-pill" id="sp-cnt-closure">0</span>
       </button>
       <button type="button" class="filter-chip" data-st="Under Review">
         <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
         <span>بانتظار التقييم</span>
+        <span class="chip-count-pill" id="sp-cnt-review">0</span>
       </button>
       <button type="button" class="filter-chip" data-st="Accepted">
         <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
         <span>مقبول</span>
+        <span class="chip-count-pill" id="sp-cnt-accepted">0</span>
       </button>
       <button type="button" class="filter-chip" data-st="Rejected">
         <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
         <span>مرفوض</span>
+        <span class="chip-count-pill" id="sp-cnt-rejected">0</span>
       </button>
       <button type="button" class="filter-chip" data-st="CLOSED">
         <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
         <span>الأنشطة المنتهية</span>
+        <span class="chip-count-pill" id="sp-cnt-closed">0</span>
       </button>
 
       <button type="button" class="btn btn-outline btn-sm sp-s2" id="toggle-custom-search-btn">
@@ -203,9 +248,9 @@
             <div class="form-group sp-s18">
               <label class="form-label">قرار الاعتماد</label>
               <select id="rev-status" class="form-select" required>
-                <option value="Accepted">مقبول ومطابق للمواصفات (Accepted)</option>
-                <option value="Rejected">مرفوض - يتطلب إعادة تنسيق (Rejected)</option>
-                <option value="Under Review">إبقاء قيد المراجعة (Under Review)</option>
+                <option value="Accepted">مقبول — مطابق للمواصفات (Accepted)</option>
+                <option value="Rejected">غير مقبول — يتطلب إعادة تنسيق (Rejected)</option>
+                <option value="Under Review">تحت المراجعة — إبقاء قيد المراجعة (Under Review)</option>
               </select>
             </div>
 
@@ -258,22 +303,82 @@
             </div>
           </div>
 
-          <!-- 3. Location & Timestamp Box -->
+          <!-- 3. Location Comparison & Evaluation Status Box (Task 1) -->
           <div class="card sp-s40">
-            <!-- Location -->
-            <div class="sp-s41">
+            <!-- Header & Distance Discrepancy Indicator -->
+            <div class="gps-review-header">
               <div class="sp-s42">
                 <span class="sp-s43">
                   <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
-                  <span>موقع الالتقاط الميداني (Live Phone GPS)</span>
+                  <span>فحص ومطابقة الموقع الجغرافي (GPS Proximity)</span>
                 </span>
-                <span class="badge badge-success sp-s44">GPS موثق</span>
+                <span id="rev-gps-proximity-badge" class="badge badge-success sp-s44">ضمن النطاق</span>
               </div>
-              <div class="sp-s45" id="rev-loc-coords" dir="ltr">31.21560&deg; N, 29.95530&deg; E</div>
-              <a class="sp-s46" id="rev-loc-map-link" href="#" target="_blank" rel="noopener noreferrer">
-                <span>عرض الموقع على خرائط Google</span>
-                <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-xs" alt="" />
-              </a>
+
+              <!-- Live Distance Indicator & Interactive Comparison Link -->
+              <div id="rev-gps-distance-banner" class="gps-distance-banner gps-distance-ok">
+                <div class="gps-distance-info">
+                  <span class="gps-distance-label">المسافة الفعلية بين المنسق والفرع:</span>
+                  <strong id="rev-gps-distance-value" class="gps-distance-val">0 متر</strong>
+                </div>
+                <a id="rev-gps-compare-link" class="gps-compare-btn" href="#" target="_blank" rel="noopener noreferrer" title="معاينة المسار والمسافة بين موقع المنسق وموقع الفرع على خرائط Google">
+                  <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <span>مقارنة الموقعين على الخريطة</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Side-by-Side / Stacked GPS Comparison Grid -->
+            <div class="gps-comparison-grid">
+              <!-- Card A: Coordinator's Submitted Location (لوكيشن المنسق) -->
+              <div class="gps-loc-card gps-loc-coordinator">
+                <div class="gps-loc-card-head">
+                  <span class="gps-loc-title">لوكيشن المنسق (موقع الالتقاط)</span>
+                  <span class="gps-loc-tag">هاتف المنسق</span>
+                </div>
+                <div class="gps-loc-coords" id="rev-loc-coords" dir="ltr">31.21560&deg; N, 29.95530&deg; E</div>
+                <div class="gps-loc-sub" id="rev-loc-accuracy">دقة الرصد: &plusmn;12 متر</div>
+                <a class="sp-s46" id="rev-loc-map-link" href="#" target="_blank" rel="noopener noreferrer">
+                  <span>فتح لوكيشن المنسق</span>
+                  <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-xs" alt="" />
+                </a>
+              </div>
+
+              <!-- Card B: Branch's Registered Location (لوكيشن الفرع) -->
+              <div class="gps-loc-card gps-loc-branch">
+                <div class="gps-loc-card-head">
+                  <span class="gps-loc-title">لوكيشن الفرع المسجل</span>
+                  <span class="gps-loc-tag gps-loc-tag-branch">إحداثيات رسمية</span>
+                </div>
+                <div class="gps-loc-coords" id="rev-branch-coords" dir="ltr">31.21560&deg; N, 29.95530&deg; E</div>
+                <div class="gps-loc-sub" id="rev-branch-name-lbl">الفرع الرسمي المسجل</div>
+                <a class="sp-s46" id="rev-branch-map-link" href="#" target="_blank" rel="noopener noreferrer">
+                  <span>فتح لوكيشن الفرع</span>
+                  <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-xs" alt="" />
+                </a>
+              </div>
+            </div>
+
+            <!-- Quick Accessible Evaluation Status Controls Next to Location Review -->
+            <div class="rev-quick-status-box">
+              <div class="rev-quick-status-header">
+                <span>قرار التقييم السريع (بجوار فحص الموقع):</span>
+                <span id="rev-quick-status-current" class="rev-quick-status-Readout">مقبول</span>
+              </div>
+              <div class="rev-quick-status-group" role="group" aria-label="خيارات حالة التقييم">
+                <button type="button" class="rev-quick-status-btn status-opt-accepted active" data-status="Accepted">
+                  <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <span>مقبول</span>
+                </button>
+                <button type="button" class="rev-quick-status-btn status-opt-rejected" data-status="Rejected">
+                  <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <span>غير مقبول</span>
+                </button>
+                <button type="button" class="rev-quick-status-btn status-opt-review" data-status="Under Review">
+                  <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <span>تحت المراجعة</span>
+                </button>
+              </div>
             </div>
 
             <!-- Timestamp of submission -->

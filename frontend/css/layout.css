@@ -4,33 +4,55 @@
    ========================================================= */
 
 /* =========================================================
-   WEBSITE TOP NAVIGATION BAR (Sticky, 68px, Full Width)
+   WEBSITE TOP NAVIGATION BAR (Floating, Sleek, Lightweight Pill)
    ========================================================= */
-.web-top-navbar {
+#app-header-mount {
   position: sticky;
   top: 0;
   z-index: 1000;
   width: 100%;
-  height: var(--header-height);
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  padding: 12px 24px 4px;
+  pointer-events: none;
+}
+
+.web-top-navbar {
+  pointer-events: auto;
+  position: relative;
+  width: 100%;
+  max-width: 1560px;
+  height: 64px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  outline: 1px solid rgba(15, 118, 110, 0.1);
+  border-radius: 18px;
+  box-shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.06), 0 4px 12px -3px rgba(15, 118, 110, 0.04);
+  transition: all 0.2s ease;
 }
 
 .web-navbar-inner {
-  max-width: 1600px;
+  width: 100%;
   height: 100%;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
 }
 
 @media (max-width: 768px) {
+  #app-header-mount {
+    padding: 8px 12px 2px;
+  }
+  .web-top-navbar {
+    height: 58px;
+    border-radius: 14px;
+  }
   .web-navbar-inner {
-    padding: 0 16px;
+    padding: 0 14px;
   }
 }
 
@@ -38,15 +60,16 @@
 .web-brand-group {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   text-decoration: none;
   flex-shrink: 0;
 }
 
 .web-brand-logo {
-  height: 40px;
+  height: 38px;
   width: auto;
   display: block;
+  object-fit: contain;
 }
 
 .web-brand-text {
@@ -55,14 +78,14 @@
 }
 
 .web-brand-title {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: var(--adco-green-deep);
   line-height: 1.2;
 }
 
 .web-brand-sub {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--adco-gray-600);
 }
 
@@ -70,33 +93,36 @@
 .web-nav-links {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   height: 100%;
+  padding: 6px;
 }
 
 .web-nav-item {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  height: 100%;
+  height: 42px;
   padding: 0 14px;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--adco-gray-700);
   text-decoration: none;
-  border-bottom: 3px solid transparent;
-  transition: all 0.15s ease;
+  border-radius: 12px;
+  border-bottom: none;
+  transition: all 0.2s ease;
 }
 
 .web-nav-item:hover {
   color: var(--adco-green-primary);
-  background: #f8fafc;
+  background: var(--adco-green-mint);
 }
 
 .web-nav-item.active {
   color: var(--adco-green-primary);
-  border-bottom-color: var(--adco-green-primary);
-  font-weight: 700;
+  background: var(--adco-green-soft);
+  font-weight: 800;
+  box-shadow: 0 2px 8px -2px rgba(15, 118, 110, 0.15);
 }
 
 /* Left Section: Rank, Profile & Logout */
@@ -120,18 +146,19 @@
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .web-profile-pill {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 4px 10px 4px 6px;
+  padding: 4px 12px 4px 6px;
   background: var(--adco-gray-50);
   border: 1px solid var(--adco-gray-200);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .web-profile-pill:hover {
@@ -177,7 +204,7 @@
   border-radius: var(--radius-sm);
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .web-logout-btn:hover {
@@ -187,22 +214,25 @@
 /* Mobile Nav Toggle & Drawer */
 .web-mobile-toggle {
   display: none;
-  background: none;
+  background: #ffffff;
   border: 1px solid var(--adco-gray-300);
   border-radius: var(--radius-sm);
   padding: 6px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .web-mobile-drawer {
   display: none;
   position: absolute;
-  top: var(--header-height);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background: #ffffff;
-  border-bottom: 1px solid var(--adco-gray-200);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--adco-gray-200);
+  border-radius: 16px;
+  box-shadow: 0 14px 32px -6px rgba(15, 23, 42, 0.1);
   padding: 12px 16px;
   flex-direction: column;
   gap: 8px;
@@ -232,30 +262,17 @@
     text-align: center;
     font-size: clamp(0.72rem, 2.3vw, 0.84rem);
     font-weight: 800;
-    color: #064e3b;
-    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-    border: 1px solid #86efac;
+    color: var(--adco-green-deep);
+    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+    border: 1px solid #99f6e4;
     border-radius: 999px;
     padding: 5px 12px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    box-shadow: 0 1px 3px rgba(16, 185, 129, 0.12);
-    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: all 0.2s ease;
     cursor: default;
     user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .web-mobile-center-title:hover {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-    border-color: #4ade80;
-    color: #022c22;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
-  }
-  .web-mobile-center-title:active {
-    transform: scale(0.97);
-    background: #bbf7d0;
   }
   .web-mobile-toggle {
     display: flex;
@@ -279,7 +296,7 @@
   .web-brand-text,
   .web-brand-sub,
   .web-brand-title {
-    display: none !important; /* Header shows only icons & logo on mobile view */
+    display: none !important;
   }
   .web-brand-logo {
     height: 34px;
@@ -289,7 +306,7 @@
     gap: 8px;
   }
   .web-logout-btn {
-    display: none !important; /* Conceal direct logout text button on mobile; available in list drawer & profile */
+    display: none !important;
   }
   .web-profile-pill {
     padding: 0;
@@ -313,7 +330,7 @@
     border: 1px solid #fde68a;
   }
   .web-rank-badge span {
-    display: none !important; /* Only the trophy icon on mobile */
+    display: none !important;
   }
   .web-mobile-toggle {
     display: inline-flex;
@@ -349,24 +366,36 @@
 /* Desktop Grid Form System */
 .responsive-form-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 18px 16px;
+  align-items: end;
+}
+
+.responsive-form-grid > .form-group {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 @media (max-width: 768px) {
   .responsive-form-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 14px;
   }
 }
 
-/* Responsive Cards Grid (Multi-Column Auto-Fill on Desktop) */
+/* Responsive Cards Grid (Multi-Column Auto-Fit on Desktop) */
 .responsive-cards-grid,
 #activities-list,
 #supervisor-cards-mount {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 350px), 1fr));
   gap: 20px;
+  padding-top: 8px;
+  padding-bottom: 4px;
+  overflow: visible;
 }
 
 @media (max-width: 640px) {
@@ -374,7 +403,7 @@
   #activities-list,
   #supervisor-cards-mount {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 14px;
   }
 }
 

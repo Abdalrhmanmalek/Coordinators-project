@@ -121,7 +121,7 @@ export class ProductModalComponent {
     };
 
     // Initial cascade population
-    syncCascade('Persil (برسيل)');
+    syncCascade('فلفيتا');
 
     // Wire onchange events
     brandEl.addEventListener('change', () => syncCascade(brandEl.value));

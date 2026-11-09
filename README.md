@@ -31,6 +31,9 @@ The unified digital enterprise platform for **Alexandria Company for Chemicals a
 ## ⚡ Key Architectural Capabilities
 
 - **Strict Single Source of Truth (SSOT):** Clean entry point via `frontend/index.html` with zero duplicate root shells or orphaned test scripts.
+- **Clean Light-Mode Design System:** Crisp white floating cards (`#ffffff`, `border-radius: 16px`, `box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05)`) on a soft `#f8fafc` background with corporate soft teal accents (`#0f766e`) and `0.2s ease` micro-interactions.
+- **Master Branch Cards & Interactive Counters:** Dedicated branch cards displaying branch metadata, company supplying branch (`فرع الشركة المورد للبضاعة`), coordinator/supervisor names, GPS location, and interactive status counters.
+- **Expanded Supervisor Analytics Charts:** Zero-dependency SVG circular progress rings, smooth cubic-bezier wave/area charts with soft teal gradients, vertical column bar charts, supplying branch performance bars, and $1/N$ brand share breakdowns.
 - **Decoupled CSS & Component Architecture:** Zero embedded or inline styles; 14 modular stylesheets in `frontend/css/` and isolated single-responsibility page controllers in `frontend/js/pages/`.
 - **4-Level Cascading Product Picker:** Dynamic cascading selection (`Brand` ➔ `Main Group` ➔ `Sub Group` ➔ `Item/SKU`) with real-time $1/N$ brand share weight recalculation.
 - **Client-Side Camera & Media Pipeline:** Live hardware capture, 720p canvas compression ($< 1\text{MB}$), SHA-256 byte hashing, and EXIF timestamp extraction validated against Egypt standard time (`Africa/Cairo`).

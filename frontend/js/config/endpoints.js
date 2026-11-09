@@ -26,6 +26,9 @@ export const API_ENDPOINTS = Object.freeze({
     PROCESS_CLOSURE: (id) => `/activities/${id}/process-closure`,
     UPDATE_DATE: (id) => `/activities/${id}/update-date`
   },
+  BRANCHES: {
+    SUPPLYING_BRANCH: '/branches/supplying-branch'
+  },
   MEDIA: {
     UPLOAD: '/media/upload',
     VERIFY_METADATA: '/media/verify-metadata'

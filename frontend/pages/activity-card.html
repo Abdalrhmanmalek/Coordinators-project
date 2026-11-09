@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#15803d" />
+  <meta name="theme-color" content="#0f766e" />
   <title>بطاقة النشاط والمتابعة بالصور | ADCO Field Portal</title>
   <link rel="stylesheet" href="../css/variables.css" />
   <link rel="stylesheet" href="../css/base.css" />
@@ -61,7 +61,13 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">فرع الشركة (Branch) *</label>
+                <label class="form-label supplying-branch-label-row">
+                  <span class="supplying-branch-label-text">فرع الشركة المورد للبضاعة *</span>
+                  <span class="supplying-branch-db-badge" id="supplying-branch-db-status">
+                    <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+                    <span>تلقائي</span>
+                  </span>
+                </label>
                 <div id="combo-coord-branch"></div>
               </div>
 
@@ -382,16 +388,14 @@
             <label class="form-label ac-s76" for="picker-brand">1. اسم البراند (Brand Name) *</label>
             <select id="picker-brand" class="form-select ac-s77"
               onchange="if(window.syncCascade) window.syncCascade(this.value);">
-              <option value="Persil (برسيل)" selected>Persil (برسيل)</option>
-              <option value="Velveta (فلفيتا)">Velveta (فلفيتا)</option>
-              <option value="Fairy (فيري)">Fairy (فيري)</option>
-              <option value="Clorox (كلوركس)">Clorox (كلوركس)</option>
-              <option value="Downy (داوني)">Downy (داوني)</option>
-              <option value="Pril (بريل)">Pril (بريل)</option>
-              <option value="Harpic (هاربيك)">Harpic (هاربيك)</option>
-              <option value="Oxi (أوكسي)">Oxi (أوكسي)</option>
-              <option value="Dettol (ديتول)">Dettol (ديتول)</option>
-              <option value="Finish (فينيش)">Finish (فينيش)</option>
+              <option value="فلفيتا" selected>فلفيتا</option>
+              <option value="جلاسي">جلاسي</option>
+              <option value="ديفا">ديفا</option>
+              <option value="سبيد">سبيد</option>
+              <option value="فما">فما</option>
+              <option value="فييا">فييا</option>
+              <option value="كلوريل">كلوريل</option>
+              <option value="ماكسيل ماجيك">ماكسيل ماجيك</option>
             </select>
           </div>
 
@@ -400,8 +404,8 @@
             <label class="form-label ac-s76" for="picker-main-group">2. مجموعة رئيسية (Main Group) *</label>
             <select id="picker-main-group" class="form-select ac-s77"
               onchange="if(window.syncCascade) window.syncCascade(document.getElementById('picker-brand').value, this.value);">
-              <option value="منظفات الملابس السائلة (جل)" selected>منظفات الملابس السائلة (جل)</option>
-              <option value="مساحيق غسيل بودرة">مساحيق غسيل بودرة</option>
+              <option value="معطرات الأقمشة" selected>معطرات الأقمشة</option>
+              <option value="منظفات الملابس">منظفات الملابس</option>
             </select>
           </div>
 
@@ -410,8 +414,8 @@
             <label class="form-label ac-s76" for="picker-sub-group">3. مجموعة فرعية (Sub Group) *</label>
             <select id="picker-sub-group" class="form-select ac-s77"
               onchange="if(window.syncCascade) window.syncCascade(document.getElementById('picker-brand').value, document.getElementById('picker-main-group').value, this.value);">
-              <option value="برسيل جل أوتوماتيك" selected>برسيل جل أوتوماتيك</option>
-              <option value="برسيل بلاك للأقمشة الداكنة">برسيل بلاك للأقمشة الداكنة</option>
+              <option value="معطر مركز" selected>معطر مركز</option>
+              <option value="معطر عادي">معطر عادي</option>
             </select>
           </div>
 
@@ -419,10 +423,9 @@
           <div class="form-group">
             <label class="form-label ac-s76" for="picker-sku">4. الصنف (Item / SKU) *</label>
             <select id="picker-sku" class="form-select ac-s77">
-              <option value="برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية" selected>برسيل جل لافندر 3.9 لتر + داوني 1 لتر
-                هدية</option>
-              <option value="برسيل جل حماية الألوان كولور 2.6 لتر">برسيل جل حماية الألوان كولور 2.6 لتر</option>
-              <option value="برسيل جل باور كلين الأبيض الناصع 3.9 لتر">برسيل جل باور كلين الأبيض الناصع 3.9 لتر</option>
+              <option value="فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر" selected>فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر</option>
+              <option value="فلفيتا معطر أقمشة مركز لافندر 1 لتر">فلفيتا معطر أقمشة مركز لافندر 1 لتر</option>
+              <option value="فلفيتا معطر أقمشة مركز عبير الشرق 1 لتر">فلفيتا معطر أقمشة مركز عبير الشرق 1 لتر</option>
             </select>
           </div>
         </div>

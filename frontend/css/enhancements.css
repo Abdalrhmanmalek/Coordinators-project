@@ -1,14 +1,170 @@
 /* =========================================================
    enhancements.css
-   Touch / hover interaction enhancements and late responsive overrides.
+   Smooth micro-interactions (transition: all 0.2s ease),
+   CSS View Transitions & Fluid Page Navigation Wrappers
    ========================================================= */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: adcoViewFadeOut 0.18s ease-in-out forwards;
+}
+
+::view-transition-new(root) {
+  animation: adcoViewFadeIn 0.24s ease-in-out forwards;
+}
+
+@keyframes adcoViewFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes adcoViewFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes adcoPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* =========================================================
-   LIGHTWEIGHT INTERACTIVE TACTILE & HOVER SYSTEM
-   Optimized for 60fps on weak mobile phones & modern desktops
+   TASK 3: Staggered Slide-Up Box Entrance Animations
+   Cards and UI boxes slide up from bottom to top like neatly stacking boxes
    ========================================================= */
+@keyframes adcoSlideUpBox {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-/* Eliminate mobile 300ms tap delay & ugly blue box highlights */
+.web-main-workspace,
+.pwa-content,
+.auth-floating-card {
+  animation: adcoPageEnter 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.web-main-workspace > *,
+.card,
+.kpi-card,
+.branch-master-card,
+.circular-ring-card,
+.chart-card,
+.activity-card-item,
+.podium-card,
+.slide-up-box-item {
+  animation: adcoSlideUpBox 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Staggered Box Stacking Sequence */
+.web-main-workspace > *:nth-child(1),
+.kpi-grid > *:nth-child(1),
+.branch-cards-grid > *:nth-child(1),
+.circular-charts-row > *:nth-child(1),
+.analytics-dashboard-grid > *:nth-child(1),
+.activity-cards-grid > *:nth-child(1),
+#supervisor-cards-mount > *:nth-child(1) {
+  animation-delay: 0.02s;
+}
+
+.web-main-workspace > *:nth-child(2),
+.kpi-grid > *:nth-child(2),
+.branch-cards-grid > *:nth-child(2),
+.circular-charts-row > *:nth-child(2),
+.analytics-dashboard-grid > *:nth-child(2),
+.activity-cards-grid > *:nth-child(2),
+#supervisor-cards-mount > *:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.web-main-workspace > *:nth-child(3),
+.kpi-grid > *:nth-child(3),
+.branch-cards-grid > *:nth-child(3),
+.circular-charts-row > *:nth-child(3),
+.activity-cards-grid > *:nth-child(3),
+#supervisor-cards-mount > *:nth-child(3) {
+  animation-delay: 0.08s;
+}
+
+.web-main-workspace > *:nth-child(4),
+.kpi-grid > *:nth-child(4),
+.branch-cards-grid > *:nth-child(4),
+.circular-charts-row > *:nth-child(4),
+.activity-cards-grid > *:nth-child(4),
+#supervisor-cards-mount > *:nth-child(4) {
+  animation-delay: 0.11s;
+}
+
+.web-main-workspace > *:nth-child(5),
+.branch-cards-grid > *:nth-child(5),
+.activity-cards-grid > *:nth-child(5),
+#supervisor-cards-mount > *:nth-child(5) {
+  animation-delay: 0.14s;
+}
+
+.web-main-workspace > *:nth-child(n+6),
+.branch-cards-grid > *:nth-child(n+6),
+.activity-cards-grid > *:nth-child(n+6),
+#supervisor-cards-mount > *:nth-child(n+6) {
+  animation-delay: 0.17s;
+}
+
+body.page-is-leaving .web-main-workspace,
+body.page-is-leaving .pwa-content,
+body.page-is-leaving .auth-floating-card {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.16s ease-in-out, transform 0.16s ease-in-out;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .web-main-workspace,
+  .pwa-content,
+  .auth-floating-card,
+  .web-main-workspace > *,
+  .card,
+  .kpi-card,
+  .branch-master-card,
+  .circular-ring-card,
+  .chart-card,
+  .activity-card-item,
+  .podium-card,
+  .slide-up-box-item,
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 button,
 a,
 input,
@@ -17,28 +173,30 @@ textarea,
 .btn,
 .card,
 .activity-card-item,
+.branch-master-card,
 .filter-chip,
+.status-counter-btn,
 .web-nav-item,
 .web-rank-badge,
 .web-mobile-toggle,
 .stepper-btn {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  transition: all 0.2s ease;
 }
 
-/* Fast hardware-accelerated tap feedback on touch (Zero CPU overhead) */
 .btn:active,
 button:active:not(:disabled),
 .stepper-btn:active,
 .web-mobile-toggle:active,
 .web-rank-badge:active,
 .filter-chip:active,
-.activity-card-item:active {
-  transform: scale(0.96) !important;
-  transition: transform 0.08s ease-out;
+.status-counter-btn:active,
+.activity-card-item:active,
+.branch-master-card:active {
+  transform: scale(0.98);
 }
 
-/* Fallback for btn-danger-subtle on all devices */
 .btn-danger-subtle {
   background: #fef2f2;
   color: #b91c1c;
@@ -49,31 +207,30 @@ button:active:not(:disabled),
   justify-content: center;
   gap: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
-/* Desktop Hover Enhancements (Filtered for devices with mice/fine pointers to prevent mobile sticky hovers) */
 @media (hover: hover) and (pointer: fine) {
   .btn-primary:hover {
-    background-color: var(--adco-green-dark);
+    background: var(--adco-green-dark);
     transform: translateY(-1.5px);
-    box-shadow: 0 4px 14px rgba(21, 128, 61, 0.3);
+    box-shadow: 0 8px 20px -4px rgba(15, 118, 110, 0.32);
   }
 
   .btn-secondary:hover {
     background-color: #f8fafc;
-    border-color: #94a3b8;
+    border-color: var(--adco-green-border);
     color: var(--adco-green-deep);
     transform: translateY(-1.5px);
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    box-shadow: var(--shadow-sm);
   }
 
   .btn-outline:hover {
-    background-color: #f0fdf4;
-    border-color: #15803d;
-    color: #15803d;
+    background-color: var(--adco-green-mint);
+    border-color: var(--adco-green-primary);
+    color: var(--adco-green-primary);
     transform: translateY(-1.5px);
-    box-shadow: 0 2px 8px rgba(21, 128, 61, 0.15);
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.12);
   }
 
   .btn-danger:hover {
@@ -81,7 +238,7 @@ button:active:not(:disabled),
     color: #ffffff;
     border-color: #dc2626;
     transform: translateY(-1.5px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.28);
   }
 
   .btn-danger-subtle:hover {
@@ -89,77 +246,59 @@ button:active:not(:disabled),
     border-color: #f87171;
     color: #991b1b;
     transform: translateY(-1.5px);
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
   }
 
   .web-nav-item:hover {
     color: var(--adco-green-primary);
-    background-color: #f0fdf4;
-    border-radius: 8px;
-    transform: translateY(-1px);
+    background-color: var(--adco-green-mint);
+    border-radius: 10px;
   }
 
   .web-rank-badge:hover {
-    transform: translateY(-1.5px) scale(1.02);
-    box-shadow: 0 3px 10px rgba(245, 158, 11, 0.25);
-  }
-
-  .web-mobile-toggle:hover {
-    background-color: #f0fdf4;
-    border-color: #86efac;
-    transform: translateY(-1px);
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 14px rgba(15, 118, 110, 0.28);
   }
 
   .filter-chip:hover {
     border-color: var(--adco-green-primary);
     color: var(--adco-green-primary);
-    background-color: #f0fdf4;
+    background-color: var(--adco-green-mint);
     transform: translateY(-1px);
   }
 
-  .stepper-btn:hover {
-    background-color: #f0fdf4;
-    border-color: #86efac;
-    color: #15803d;
+  .filter-chip.active:hover {
+    color: #ffffff;
+    background-color: var(--adco-green-dark);
   }
 
   .card:hover {
     border-color: #cbd5e1;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+    box-shadow: var(--shadow-md);
   }
 
-  .activity-card-item:hover {
-    transform: translateY(-2px);
-    border-color: #86efac;
-    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.12);
+  .activity-card-item:hover,
+  .branch-master-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--adco-green-border);
+    box-shadow: var(--shadow-md);
   }
 
-  .data-table tbody tr:hover {
-    background-color: #f0fdf4 !important;
-  }
-
-  .closure-reason-card:hover {
-    border-color: #86efac !important;
-    background-color: #f0fdf4 !important;
+  .data-table tbody tr:hover,
+  .sheets-grid tbody tr:hover td {
+    background-color: var(--adco-green-mint) !important;
   }
 }
 
-/* =========================================================
-   HEADER REFINEMENT: brand-matched rank badge & company title
-   ========================================================= */
+/* Header Rank Badge */
 .web-rank-badge {
-  background: linear-gradient(135deg, #16a34a 0%, #065f46 100%);
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
   color: #ffffff;
-  border: 1px solid #065f46;
-  box-shadow: 0 2px 8px rgba(6, 95, 70, 0.28);
+  border: 1px solid #115e59;
+  box-shadow: 0 4px 10px rgba(15, 118, 110, 0.22);
 }
+
 .web-rank-badge .ui-icon {
   filter: brightness(0) invert(1);
-}
-@media (hover: hover) {
-  .web-rank-badge:hover {
-    box-shadow: 0 4px 12px rgba(6, 95, 70, 0.38);
-  }
 }
 
 @media (max-width: 900px) {
@@ -174,18 +313,10 @@ button:active:not(:disabled),
     max-width: 230px;
     line-height: 1.25;
   }
-  .web-mobile-center-title:hover,
-  .web-mobile-center-title:active {
-    background: none;
-    border: none;
-    box-shadow: none;
-    transform: none;
-    color: inherit;
-  }
   .wmct-name {
     font-size: clamp(0.74rem, 2.6vw, 0.88rem);
     font-weight: 800;
-    color: #064e3b;
+    color: var(--adco-green-deep);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -198,41 +329,19 @@ button:active:not(:disabled),
     font-size: 0.66rem;
     font-weight: 800;
     letter-spacing: 2.5px;
-    color: #16a34a;
+    color: var(--adco-green-primary);
   }
   .wmct-dot {
     width: 14px;
     height: 2px;
     border-radius: 2px;
-    background: linear-gradient(90deg, transparent, #16a34a);
+    background: linear-gradient(90deg, transparent, var(--adco-green-primary));
   }
   .wmct-sub::after {
     content: "";
     width: 14px;
     height: 2px;
     border-radius: 2px;
-    background: linear-gradient(90deg, #16a34a, transparent);
+    background: linear-gradient(90deg, var(--adco-green-primary), transparent);
   }
-}
-@media (max-width: 480px) {
-  .web-mobile-center-title {
-    max-width: 175px;
-    margin: 0 4px;
-    padding: 0;
-  }
-  .wmct-name {
-    font-size: 0.74rem;
-  }
-}
-
-/* Logo blends seamlessly with its container: one solid color */
-.auth-floating-card {
-  background: #ffffff;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-.auth-floating-card img[src*="ADCO-logo"],
-.web-brand-logo {
-  mix-blend-mode: multiply;
-  background: transparent;
 }

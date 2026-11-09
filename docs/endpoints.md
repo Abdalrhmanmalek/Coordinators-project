@@ -215,6 +215,27 @@ All error responses from the backend follow this standardized JSON schema:
 
 ## 4. Field Activities Module
 
+### 4.0 Resolve Company Supplying Branch (`فرع الشركة المورد للبضاعة`)
+* **Method & Path:** `GET /api/v1/branches/supplying-branch`
+* **Target Backend File:** `src/modules/branches/branches.routes.ts` -> `BranchController.getSupplyingBranch`
+* **Required Role:** `COORDINATOR`, `COORDINATOR_SUPERVISOR`, `MARKETING_MANAGER`
+* **Description:** Dynamically resolves and returns the Company Supplying Branch (`فرع الشركة المورد للبضاعة`) mapped in the PostgreSQL database for a given retail Client (`client`) and Client Branch (`branch`). Used by the Activity Creation Form (`activity-card.html`) to auto-populate the read-only Supplying Branch field and prevent manual entry errors.
+* **Query Parameters:**
+  * `client`: Retail client chain name (e.g., `فتح الله جملة ماركت (Fathalla)`)
+  * `branch`: Specific retail client branch (e.g., `فرع سموحة - الإسكندرية`)
+* **Expected Response & HTTP Status Codes:**
+  * **`200 OK`**:
+    ```json
+    {
+      "success": true,
+      "client": "فتح الله جملة ماركت (Fathalla)",
+      "branch": "فرع سموحة - الإسكندرية",
+      "supplyingBranch": "الإسكندرية - قطاع وسط"
+    }
+    ```
+
+---
+
 ### 4.1 List Activities (3-Tier Data Scoped)
 * **Method & Path:** `GET /api/v1/activities`
 * **Target Backend File:** `src/modules/activities/activities.routes.ts` -> `ActivityController.listActivities`
@@ -307,16 +328,16 @@ All error responses from the backend follow this standardized JSON schema:
     "activityDate": "2026-11-01T10:15:00+02:00",
     "products": [
       {
-        "brandName": "Velveta (فلفيتا)",
+        "brandName": "فلفيتا",
         "mainGroup": "معطرات الأقمشة",
         "subGroup": "معطر مركز",
         "skuItem": "فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر"
       },
       {
-        "brandName": "Fairy (فيري)",
+        "brandName": "فييا",
         "mainGroup": "سائل غسيل الأطباق",
-        "subGroup": "بلاتينيوم بلس",
-        "skuItem": "فيري بلاتينيوم بلس ليمون 650 مل"
+        "subGroup": "فييا مركز بالليمون",
+        "skuItem": "فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر"
       }
     ],
     "photoUrl": "https://cdn.adco.com.eg/photos/2026/11/act-0841.jpg",
@@ -327,9 +348,42 @@ All error responses from the backend follow this standardized JSON schema:
   ```
 * **Expected Response & HTTP Status Codes:**
   * **`201 Created`**: Returns `{ success: true, id: "ACT-2026-0841", status: "Under Review", ... }`.
-  * **`400 Bad Request`**: Validation error.
+  * **`400 Bad Request`**: Validation error or **Geo-Fence Proximity Violation** (`"موقعك الحالي بعيد جداً عن نطاق الفرع المسجل"` when the Haversine distance between the branch's stored `(latitude, longitude)` and the coordinator's device `(latitude, longitude)` exceeds the configurable threshold of `MAX_BRANCH_PROXIMITY_METERS = 150` meters).
   * **`401 Unauthorized`**: Token missing or expired.
   * **`403 Forbidden`**: Coordinator attempting to submit card for unauthorized branch.
+
+* **Backend Geo-Fence Validation Rule (Fastify / Node.js):**
+  ```typescript
+  const EARTH_RADIUS_METERS = 6371000;
+  const MAX_ALLOWED_DISTANCE_METERS = Number(process.env.MAX_BRANCH_PROXIMITY_METERS) || 150;
+
+  export function calculateHaversineDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return Math.round(2 * EARTH_RADIUS_METERS * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+  }
+
+  // Inside ActivityController.createActivity / addFollowUpRound:
+  const distanceMeters = calculateHaversineDistanceMeters(
+    branchRecord.latitude,
+    branchRecord.longitude,
+    payload.latitude,
+    payload.longitude
+  );
+  if (distanceMeters > MAX_ALLOWED_DISTANCE_METERS) {
+    return reply.code(400).send({
+      success: false,
+      error: "GEO_FENCE_VIOLATION",
+      distanceMeters,
+      maxAllowedMeters: MAX_ALLOWED_DISTANCE_METERS,
+      message: "موقعك الحالي بعيد جداً عن نطاق الفرع المسجل"
+    });
+  }
+  ```
 
 ---
 

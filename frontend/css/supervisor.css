@@ -1,91 +1,312 @@
 /* =========================================================
    supervisor.css
+   Clean Light Mode — Supervisor Operations, Branch Cards &
+   Interactive Status Counters (Soft Teal #0f766e)
    ========================================================= */
 
-/* ---- extracted from pages/supervisor-panel.html <style> ---- */
-    .filter-bar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .filter-chip {
-      background: #ffffff;
-      border: 1px solid var(--adco-gray-300);
-      color: var(--adco-gray-700);
-      padding: 6px 14px;
-      border-radius: var(--radius-full);
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-    }
-    .filter-chip.active {
-      background: var(--adco-green-primary);
-      color: #ffffff;
-      border-color: var(--adco-green-primary);
-    }
-    .review-modal-grid {
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 20px;
-      align-items: start;
-    }
-    @media (max-width: 860px) {
-      .review-modal-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-    .rev-photo-box {
-      background: #f8fafc;
-      border: 1px solid var(--adco-gray-200);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .rev-photo-img-wrapper {
-      position: relative;
-      background: #0f172a;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 220px;
-      max-height: 280px;
-      overflow: hidden;
-    }
-    .rev-photo-img-wrapper > img {
-      width: 100%;
-      height: 100%;
-      max-height: 280px;
-      object-fit: cover;
-      transition: transform 0.2s ease;
-    }
-    .rev-photo-img-wrapper:hover > img {
-      transform: scale(1.03);
-    }
-    .rev-photo-zoom-hint {
-      position: absolute;
-      bottom: 8px;
-      left: 8px;
-      background: rgba(0, 0, 0, 0.7);
-      color: #ffffff;
-      font-size: 0.72rem;
-      padding: 3px 8px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      pointer-events: none;
-    }
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.filter-chip {
+  background: #ffffff;
+  border: 1px solid var(--adco-gray-200);
+  color: var(--adco-gray-700);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filter-chip.active {
+  background: var(--adco-green-primary);
+  color: #ffffff;
+  border-color: var(--adco-green-primary);
+  box-shadow: 0 6px 14px -3px rgba(15, 118, 110, 0.3);
+}
+
+.chip-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: var(--adco-gray-100);
+  color: var(--adco-gray-700);
+}
+
+.filter-chip.active .chip-count-pill {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+/* Master Branch Overview Cards in Supervisor View */
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.section-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--adco-green-deep);
+  margin: 0;
+}
+
+.master-branches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
+  gap: 18px;
+  padding-top: 8px;
+  padding-bottom: 4px;
+  margin-bottom: 24px;
+  overflow: visible;
+}
+
+.branch-master-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.branch-master-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--adco-green-border);
+}
+
+.branch-card-sub {
+  font-size: 0.84rem;
+  color: var(--adco-green-primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.branch-master-card.active-branch-filter {
+  border: 1.5px solid var(--adco-green-primary);
+  background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 100%);
+  box-shadow: 0 12px 28px -6px rgba(15, 118, 110, 0.14);
+}
+
+.branch-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.branch-card-title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--adco-green-deep);
+  margin: 0 0 3px 0;
+  line-height: 1.3;
+}
+
+.branch-card-client {
+  font-size: 0.78rem;
+  color: var(--adco-gray-600);
+  font-weight: 600;
+}
+
+.branch-supply-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--adco-green-mint);
+  color: var(--adco-green-primary);
+  border: 1px solid var(--adco-green-border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.branch-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 12px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: 12px;
+  font-size: 0.76rem;
+}
+
+.branch-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.branch-meta-item.full-span {
+  grid-column: 1 / -1;
+}
+
+.branch-meta-label {
+  color: var(--adco-gray-500);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.branch-meta-val {
+  color: var(--adco-gray-800);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.branch-status-counters {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  padding-top: 4px;
+  overflow: visible;
+}
+
+.status-counter-btn {
+  background: #f8fafc;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: 10px;
+  padding: 6px 3px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.status-counter-btn:hover {
+  border-color: var(--adco-green-primary);
+  background: var(--adco-green-mint);
+}
+
+.status-counter-btn.active {
+  background: var(--adco-green-primary);
+  border-color: var(--adco-green-primary);
+  color: #ffffff;
+}
+
+.status-counter-btn.active .sc-num,
+.status-counter-btn.active .sc-lbl {
+  color: #ffffff !important;
+}
+
+.sc-num {
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--adco-gray-800);
+}
+
+.sc-num.sc-accepted { color: #0f766e; }
+.sc-num.sc-review { color: #d97706; }
+.sc-num.sc-rejected { color: #dc2626; }
+.sc-num.sc-closed { color: #475569; }
+
+.sc-lbl {
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: var(--adco-gray-600);
+  white-space: nowrap;
+}
+
+.review-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .review-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.rev-photo-box {
+  background: #f8fafc;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.rev-photo-img-wrapper {
+  position: relative;
+  background: #0f172a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  max-height: 280px;
+  overflow: hidden;
+}
+.rev-photo-img-wrapper > img {
+  width: 100%;
+  height: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+.rev-photo-img-wrapper:hover > img {
+  transform: scale(1.03);
+}
+.rev-photo-zoom-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
 
 /* ---- pages/supervisor-panel.html: former inline styles (doubled selector keeps the old inline-style precedence) ---- */
 .sp-s1.sp-s1 {
@@ -935,3 +1156,244 @@
 .sp-card-auto.sp-card-auto { display: flex; flex-direction: column; justify-content: space-between; }
 .sp-card-closed.sp-card-closed { border: 1.5px solid #86efac; background: #f0fdf4; }
 .sp-card-pending.sp-card-pending { border: 2px solid #f59e0b; background: #fffdf7; }
+
+/* =========================================================
+   TASK 1: Supervisor Side-by-Side GPS Comparison & Quick Status Controls
+   ========================================================= */
+.gps-review-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.gps-distance-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+}
+
+.gps-distance-banner.gps-distance-ok {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.gps-distance-banner.gps-distance-warn {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+.gps-distance-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gps-distance-label {
+  font-size: 0.7rem;
+  opacity: 0.9;
+}
+
+.gps-distance-val {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.gps-compare-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: #ffffff;
+  border: 1px solid #99f6e4;
+  border-radius: 8px;
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.gps-compare-btn:hover {
+  background: #f0fdfa;
+  border-color: #0f766e;
+  transform: translateY(-1px);
+}
+
+.gps-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 480px) {
+  .gps-comparison-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gps-loc-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 9px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.gps-loc-card.gps-loc-coordinator {
+  background: #f0fdfa;
+  border-color: #ccfbf1;
+}
+
+.gps-loc-card.gps-loc-branch {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.gps-loc-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.gps-loc-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.gps-loc-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.gps-loc-tag.gps-loc-tag-branch {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.gps-loc-coords {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #0f766e;
+  font-family: monospace;
+  letter-spacing: 0.01em;
+}
+
+.gps-loc-sub {
+  font-size: 0.68rem;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+/* Quick Accessible Evaluation Status Controls Next to Location Review */
+.rev-quick-status-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 9px 10px;
+  margin-bottom: 10px;
+}
+
+.rev-quick-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 7px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.rev-quick-status-Readout {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.rev-quick-status-Readout[data-state="Rejected"] {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.rev-quick-status-Readout[data-state="Under Review"] {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.rev-quick-status-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.rev-quick-status-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 6px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-family: inherit;
+  font-size: 0.73rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.rev-quick-status-btn:hover {
+  transform: translateY(-1px);
+  border-color: #94a3b8;
+}
+
+.rev-quick-status-btn.status-opt-accepted.active {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(15, 118, 110, 0.22);
+}
+
+.rev-quick-status-btn.status-opt-rejected.active {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.22);
+}
+
+.rev-quick-status-btn.status-opt-review.active {
+  background: #d97706;
+  border-color: #d97706;
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(217, 119, 6, 0.22);
+}
+
+.rev-quick-status-btn.active .ui-icon {
+  filter: brightness(0) invert(1);
+}

@@ -70,21 +70,26 @@ The system enforces 3 distinct operational tiers with strict data scoping and au
   * **COORDINATOR:** `منسق ميداني — [اسم الفرع، مثال: فرع سموحة - الإسكندرية]`
   * **COORDINATOR_SUPERVISOR:** `مشرف منسق — مسؤول فروع [اسم العميل، مثال: فتح الله جملة ماركت (Fathalla)] - [المنطقة، مثال: الإسكندرية]`
   * **MARKETING_MANAGER:** `مسؤول التسويق — استعراض كافة السجلات الميدانية للجمهورية`
-* **Dedicated Coordinator Supervisor Toolbar (`#sup-filter-toolbar`):**
-  * Displays client badge tag and two live dropdown filters:
-    1. **فرع العميل (`filter-sup-branch`):** Lists all branches of that assigned client, defaulting to "كل فروع العميل".
-    2. **المنسق الميداني (`filter-sup-coord`):** Lists all coordinators assigned to this client in the region, defaulting to "كل المنسقين".
-  * Changing either dropdown instantly re-filters the feed and recalculates all 3 KPI cards.
+* **Dedicated Manager & Coordinator Supervisor Toolbar (`#sup-filter-toolbar`):**
+  * Displays client badge tag and live dropdown filters:
+    1. **اسم العميل الأم (`filter-parent-client`):** Lists all Parent Client retail chains (e.g., Carrefour, Fathalla) for Marketing Managers, or locks to the assigned client for Coordinator Supervisors.
+    2. **اسم فرع العميل (`filter-sup-branch`):** Dynamically lists all branches belonging to the selected Parent Client, defaulting to "كل فروع العميل".
+    3. **المنسق الميداني (`filter-sup-coord`):** Lists all coordinators assigned to the selected client/branch, defaulting to "كل المنسقين".
+  * Changing any dropdown instantly re-filters the Master Branch Cards, activity feed, and recalculates all 3 KPI cards.
+* **Master Branch Cards & Interactive Counters (`#master-branches-mount` & `#supervisor-branches-overview`):**
+  * Renders dedicated branch cards with the **Parent Client (`العميل الأم`)** as the main bold title and the **Branch Name (`فرع العميل`)** underneath, alongside the company supplying branch (`فرع الشركة المورد للبضاعة` from `coordinatorBranch`), assigned coordinator and supervisor names, GPS location, and 5 interactive status counters (`الكل`, `المقبولة`, `مراجعة`, `المرفوضة`, and `المنتهية` placed right next to `المرفوضة`).
+  * Clicking any Master Branch Card navigates to `branch-details.html?branch=...&client=...` to display all activities belonging strictly to that branch, featuring a clickable **Google Maps** location link (`https://www.google.com/maps/search/?api=1&query=...`) and an advanced filter toolbar (Activity Type, Date/Time range, and Activity Status).
 * **KPI Metrics:**
   * **إجمالي الأنشطة المسجلة:** Total activity cards within user's data scope.
-  * **الانشطه المقبوله:** Total approved activity cards.
-  * **متوسط التقييم الشامل:** Weighted score out of 100 points across follow-up rounds.
+  * **الأنشطة المقبولة:** Total approved activity cards.
+  * **إجمالي الأنشطة تحت المراجعه:** Live count of activities currently under review (`status === 'Under Review'`).
 
 ### 2.5 Activity Card: Creation (`frontend/pages/activity-card.html`)
-* **Standardized Form Fields & Labels:**
+* **Standardized Form Fields & Dynamic Database Binding:**
   * `client`: Client store chain from `ADCO_CATALOGS.clients` (e.g. كارفور, لولو ماركت, فتح الله).
   * `branch`: Retail store branch labeled strictly **"فرع العميل *"**.
-  * `coordinatorBranch`: Logistics hub labeled strictly **"فرع الشركة (Branch) *"**.
+  * `coordinatorBranch`: Company Supplying Branch labeled strictly **"فرع الشركة المورد للبضاعة (Supplying Branch) *"**.
+    * **Dynamic Database Binding (`ActivityManager.fetchSupplyingBranch`):** Whenever the coordinator selects or changes **Client (`العميل`)** or **Client Branch (`فرع العميل`)**, the form automatically queries `GET /api/v1/branches/supplying-branch?client=...&branch=...` (with instant relational database lookup via `ADCO_CATALOGS.supplyingBranchMap` and activity records) and auto-populates `#f-supplying-branch-readonly` as a **read-only, database-bound field** (`تلقائي من قاعدة البيانات`) to guarantee data accuracy and prevent manual entry errors.
   * `activity`: Activity type from catalog (e.g. `عقد`, `فرشة مجلة`, `إضافي`, `افتتاح فرع جديد`, `مهرجان`, `موسمي`).
   * `activityType` (`activityCategory`): Category options include `جندولة`, `دريس اب`, `سايد جندولة`, `ستاند`, `بوديوم`, `بيلر`, **`كات مان`**, `سي ثرو`, **`لايت بوكس`**, `عرض أرضي`.
   * `activityCount`: Integer from 1 to 10 (stepper control).
@@ -106,8 +111,10 @@ The system enforces 3 distinct operational tiers with strict data scoping and au
   * Clicking **"إضافة الصنف"** appends the product to `selectedProducts` array, renders a badge entry in the card with a delete button, and recalculates the $1/N$ brand share across distinct brands.
   * Multiple products across different brands can be added to the same activity card.
 
-* **Camera Capture & Geolocation:**
-  * Live camera shutter capture with mandatory GPS location check.
+* **Camera Capture & Automated GPS Proximity Geo-Fence Validation:**
+  * Live camera shutter capture with mandatory `navigator.geolocation.getCurrentPosition({ enableHighAccuracy: true })` check. If location permissions are denied or unavailable, the coordinator is prompted clearly and photo/activity submission is blocked.
+  * **Automated Haversine Proximity Matching (`validateBranchProximity`):** Both the frontend (`Validators.validateBranchProximity` / `ActivityManager.validateBranchProximity`) and backend (`POST /api/v1/activities` & `POST /api/v1/activities/:id/follow-up`) extract the selected branch's registered GPS coordinates (`latitude`, `longitude`) and compute the great-circle distance in meters against the coordinator's live device GPS coordinates using the Haversine formula.
+  * **Configurable Threshold (`MAX_BRANCH_PROXIMITY_METERS = 150`):** If the calculated distance exceeds `150` meters, the submission is rejected immediately with the error message: **`"موقعك الحالي بعيد جداً عن نطاق الفرع المسجل"`** (Your current location is outside the branch radius).
   * Canvas compression to 720p, progressive JPEG targeting $< 1\text{MB}$, SHA-256 byte integrity hashing, and EXIF timestamp extraction validated against Egypt timezone (`Africa/Cairo`).
 
 ### 2.6 Leaderboard & Podium Stacking (`frontend/pages/leaderboard.html`)
@@ -116,6 +123,11 @@ The system enforces 3 distinct operational tiers with strict data scoping and au
   1. **Top (`order: 1`):** 1st Place (Gold `#1`).
   2. **Middle (`order: 2`):** 2nd Place (Silver `#2`).
   3. **Bottom (`order: 3`):** 3rd Place (Bronze `#3`).
+
+### 2.7 Supervisor GPS Proximity Comparison & Quick Evaluation Controls (`frontend/pages/supervisor-panel.html` & `frontend/js/pages/supervisor.page.js`)
+* **Side-by-Side GPS Comparison (`.gps-comparison-grid`):** Displays **Coordinator Location (`لوكيشن المنسق`)** alongside **Branch Registered Location (`لوكيشن الفرع المسجل`)** resolved via `ActivityManager.getBranchCoordinatesSync(act.branch)`.
+* **Live Haversine Discrepancy Indicator (`#rev-gps-distance-banner`):** Computes exact distance in meters via `ActivityManager.calculateHaversineDistanceMeters` and provides a direct Google Maps route comparison link (`https://www.google.com/maps/dir/?api=1&origin=...&destination=...`).
+* **Accessible Evaluation Status Controls (`.rev-quick-status-group`):** Interactive `مقبول` (`Accepted`), `غير مقبول` (`Rejected`), and `تحت المراجعة` (`Under Review`) controls placed directly next to the GPS location review section and synced bidirectionally with `#rev-status`.
 
 ---
 

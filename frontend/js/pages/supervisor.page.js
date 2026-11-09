@@ -10,6 +10,234 @@ const user = AuthManager.checkAuthGuard('supervisor');
 
     let statusFilter = 'ALL';
     let customSearchActive = false;
+    let selectedBranchKey = null;
+
+    const spParentClientSelect = document.getElementById('sp-filter-parent-client');
+    const spBranchSelect = document.getElementById('sp-filter-branch');
+    const spTopClientTag = document.getElementById('sp-top-client-tag');
+    const spTopBranchBadge = document.getElementById('sp-top-branch-badge');
+
+    function populateSpBranchDropdown(clientVal) {
+      if (!spBranchSelect) return;
+      const allActs = ActivityManager.getAllActivities();
+      const matching = (!clientVal || clientVal === 'ALL')
+        ? allActs
+        : allActs.filter((a) => (a.client || '') === clientVal || (a.client || '').includes(clientVal));
+
+      let branches = [...new Set(matching.map((a) => a.branch).filter(Boolean))];
+      if (branches.length === 0 && clientVal && clientVal !== 'ALL' && ActivityManager.getBranchesForClient) {
+        branches = ActivityManager.getBranchesForClient(clientVal);
+      }
+      if (branches.length === 0 && window.ADCO_CATALOGS && Array.isArray(window.ADCO_CATALOGS.branches)) {
+        branches = window.ADCO_CATALOGS.branches;
+      }
+
+      spBranchSelect.innerHTML =
+        '<option value="ALL">كل فروع العميل</option>' +
+        branches.map((b) => `<option value="${b}">${b}</option>`).join('');
+    }
+
+    if (spParentClientSelect) {
+      const allActs = ActivityManager.getAllActivities();
+      const actClients = [...new Set(allActs.map((a) => a.client).filter(Boolean))];
+      const catClients = (window.ADCO_CATALOGS && Array.isArray(window.ADCO_CATALOGS.clients)) ? window.ADCO_CATALOGS.clients : [];
+      const mergedClients = [...new Set([...actClients, ...catClients])];
+
+      spParentClientSelect.innerHTML =
+        '<option value="ALL">جميع السلاسل والعملاء (الكل)</option>' +
+        mergedClients.map((c) => `<option value="${c}">${c}</option>`).join('');
+
+      populateSpBranchDropdown('ALL');
+
+      spParentClientSelect.addEventListener('change', () => {
+        const cVal = spParentClientSelect.value || 'ALL';
+        selectedBranchKey = null;
+        if (spTopClientTag) spTopClientTag.textContent = cVal === 'ALL' ? 'جميع العملاء' : cVal;
+        populateSpBranchDropdown(cVal);
+        if (spTopBranchBadge) spTopBranchBadge.textContent = 'كل الفروع';
+        renderList();
+      });
+    }
+
+    if (spBranchSelect) {
+      spBranchSelect.addEventListener('change', () => {
+        const bVal = spBranchSelect.value || 'ALL';
+        selectedBranchKey = bVal === 'ALL' ? null : bVal;
+        if (spTopBranchBadge) spTopBranchBadge.textContent = bVal === 'ALL' ? 'كل الفروع' : bVal;
+        renderList();
+      });
+    }
+
+    const supResetBranchBtn = document.getElementById('sup-reset-branch-filter');
+    if (supResetBranchBtn) {
+      supResetBranchBtn.addEventListener('click', () => {
+        selectedBranchKey = null;
+        if (spBranchSelect) spBranchSelect.value = 'ALL';
+        if (spTopBranchBadge) spTopBranchBadge.textContent = 'كل الفروع';
+        renderList();
+      });
+    }
+
+    function syncSupFilterChipsUI() {
+      document.querySelectorAll('.filter-chip').forEach((c) => {
+        c.classList.toggle('active', c.dataset.st === statusFilter);
+      });
+    }
+
+    function renderSupervisorBranchCards(allActivities) {
+      const mount = document.getElementById('supervisor-branches-overview');
+      if (!mount) return;
+
+      if (supResetBranchBtn) {
+        supResetBranchBtn.classList.toggle('is-hidden', !selectedBranchKey);
+      }
+
+      const branchMap = {};
+      allActivities.forEach((act) => {
+        const bName = act.branch || 'فرع سموحة - الإسكندرية';
+        if (!branchMap[bName]) {
+          branchMap[bName] = {
+            branch: bName,
+            client: act.client || 'فتح الله جملة ماركت (Fathalla)',
+            supplyingBranch: act.coordinatorBranch || 'الإسكندرية - قطاع وسط',
+            coordinators: new Set(),
+            supervisorName: act.reviewerName || (user && user.fullName) || 'م. حسام الدين غانم',
+            locationLabel: (act.location && act.location.address) ? act.location.address : bName,
+            total: 0,
+            accepted: 0,
+            review: 0,
+            rejected: 0,
+            closed: 0
+          };
+        }
+        const entry = branchMap[bName];
+        if (act.coordinatorName) entry.coordinators.add(act.coordinatorName);
+        if (act.isClosed) {
+          entry.closed += 1;
+        } else {
+          entry.total += 1;
+          if (act.status === 'Accepted') entry.accepted += 1;
+          else if (act.status === 'Rejected') entry.rejected += 1;
+          else entry.review += 1;
+        }
+      });
+
+      const groups = Object.values(branchMap);
+      mount.innerHTML = groups
+        .map((bg) => {
+          const isSelected = selectedBranchKey === bg.branch;
+          const coordsText = Array.from(bg.coordinators).join(' ، ') || '-';
+          const branchUrl = `./branch-details.html?branch=${encodeURIComponent(bg.branch)}&client=${encodeURIComponent(bg.client)}`;
+          return `
+            <div class="branch-master-card ${isSelected ? 'active-branch-filter' : ''}" data-branch="${bg.branch}" data-href="${branchUrl}" role="link" tabindex="0" title="اضغط لفتح صفحة تفاصيل الفرع والأنشطة التابعة له">
+              <div>
+                <div class="branch-card-top">
+                  <div>
+                    <h4 class="branch-card-title">${bg.client}</h4>
+                    <div class="branch-card-sub">
+                      <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <span>${bg.branch}</span>
+                    </div>
+                  </div>
+                  <span class="badge badge-mint">${bg.total} نشط</span>
+                </div>
+
+                <div style="margin: 10px 0;">
+                  <span class="branch-supply-pill">
+                    <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+                    <span>فرع الشركة المورد للبضاعة: <strong>${bg.supplyingBranch}</strong></span>
+                  </span>
+                </div>
+
+                <div class="branch-meta-grid">
+                  <div class="branch-meta-item">
+                    <span class="branch-meta-label">المنسق الميداني</span>
+                    <span class="branch-meta-val" title="${coordsText}">${coordsText}</span>
+                  </div>
+                  <div class="branch-meta-item">
+                    <span class="branch-meta-label">المشرف المعتمد</span>
+                    <span class="branch-meta-val" title="${bg.supervisorName}">${bg.supervisorName}</span>
+                  </div>
+                  <div class="branch-meta-item full-span">
+                    <span class="branch-meta-label">الموقع الجغرافي للفرع</span>
+                    <span class="branch-meta-val">
+                      <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <span>${bg.locationLabel}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="branch-status-counters">
+                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'ALL' ? 'active' : ''}" data-branch="${bg.branch}" data-st="ALL">
+                  <span class="sc-num">${bg.total}</span>
+                  <span class="sc-lbl">الكل</span>
+                </button>
+                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'Accepted' ? 'active' : ''}" data-branch="${bg.branch}" data-st="Accepted">
+                  <span class="sc-num sc-accepted">${bg.accepted}</span>
+                  <span class="sc-lbl">المقبولة</span>
+                </button>
+                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'Under Review' ? 'active' : ''}" data-branch="${bg.branch}" data-st="Under Review">
+                  <span class="sc-num sc-review">${bg.review}</span>
+                  <span class="sc-lbl">بانتظار</span>
+                </button>
+                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'Rejected' ? 'active' : ''}" data-branch="${bg.branch}" data-st="Rejected">
+                  <span class="sc-num sc-rejected">${bg.rejected}</span>
+                  <span class="sc-lbl">المرفوضة</span>
+                </button>
+                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'CLOSED' ? 'active' : ''}" data-branch="${bg.branch}" data-st="CLOSED">
+                  <span class="sc-num sc-closed">${bg.closed}</span>
+                  <span class="sc-lbl">المنتهية</span>
+                </button>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      mount.querySelectorAll('.branch-master-card').forEach((card) => {
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.status-counter-btn')) return;
+          const targetHref = card.dataset.href;
+          if (targetHref) {
+            if (global.AppRouter && typeof global.AppRouter.navigateTo === 'function') {
+              global.AppRouter.navigateTo(targetHref);
+            } else {
+              window.location.href = targetHref;
+            }
+          }
+        });
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.target.closest('.status-counter-btn')) {
+            const targetHref = card.dataset.href;
+            if (targetHref) {
+              if (global.AppRouter && typeof global.AppRouter.navigateTo === 'function') {
+                global.AppRouter.navigateTo(targetHref);
+              } else {
+                window.location.href = targetHref;
+              }
+            }
+          }
+        });
+      });
+
+      mount.querySelectorAll('.status-counter-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const bName = btn.dataset.branch;
+          const st = btn.dataset.st;
+          if (selectedBranchKey === bName && statusFilter === st) {
+            selectedBranchKey = null;
+            statusFilter = 'ALL';
+          } else {
+            selectedBranchKey = bName;
+            statusFilter = st;
+          }
+          syncSupFilterChipsUI();
+          renderList();
+        });
+      });
+    }
 
     const modal = document.getElementById('review-modal');
     const auditModal = document.getElementById('activity-audit-modal');
@@ -128,14 +356,49 @@ const user = AuthManager.checkAuthGuard('supervisor');
     }
 
     function renderList() {
-      const all = ActivityManager.getAllActivities();
+      let rawAll = ActivityManager.getAllActivities();
+
+      // Apply top Parent Client & Branch filters
+      const topClientVal = spParentClientSelect ? spParentClientSelect.value : 'ALL';
+      const topBranchVal = spBranchSelect ? spBranchSelect.value : 'ALL';
+
+      if (topClientVal && topClientVal !== 'ALL') {
+        rawAll = rawAll.filter((a) => (a.client || '') === topClientVal || (a.client || '').includes(topClientVal));
+      }
+      if (topBranchVal && topBranchVal !== 'ALL') {
+        rawAll = rawAll.filter((a) => (a.branch || '') === topBranchVal || (a.branch || '').includes(topBranchVal));
+      }
+
+      renderSupervisorBranchCards(rawAll);
+
+      const all = selectedBranchKey
+        ? rawAll.filter((a) => (a.branch || '') === selectedBranchKey)
+        : rawAll;
+
+      const activePool = all.filter((a) => !a.isClosed);
+      const closedPool = all.filter((a) => a.isClosed);
+
+      const cntAllEl = document.getElementById('sp-cnt-all');
+      const cntClosureEl = document.getElementById('sp-cnt-closure');
+      const cntReviewEl = document.getElementById('sp-cnt-review');
+      const cntAcceptedEl = document.getElementById('sp-cnt-accepted');
+      const cntRejectedEl = document.getElementById('sp-cnt-rejected');
+      const cntClosedEl = document.getElementById('sp-cnt-closed');
+
+      if (cntAllEl) cntAllEl.textContent = activePool.length;
+      if (cntClosureEl) cntClosureEl.textContent = activePool.filter((a) => a.closureRequested).length;
+      if (cntReviewEl) cntReviewEl.textContent = activePool.filter((a) => a.status === 'Under Review').length;
+      if (cntAcceptedEl) cntAcceptedEl.textContent = activePool.filter((a) => a.status === 'Accepted').length;
+      if (cntRejectedEl) cntRejectedEl.textContent = activePool.filter((a) => a.status === 'Rejected').length;
+      if (cntClosedEl) cntClosedEl.textContent = closedPool.length;
+
       let filtered = [];
 
       // Requirement 9: Closed activities disappear from active list and only appear in "CLOSED" tab
       if (statusFilter === 'CLOSED') {
-        filtered = all.filter((a) => a.isClosed);
+        filtered = closedPool;
       } else {
-        const activeOnly = all.filter((a) => !a.isClosed);
+        const activeOnly = activePool;
         if (statusFilter === 'ALL') {
           filtered = activeOnly;
         } else if (statusFilter === 'CLOSURE_PENDING') {
@@ -232,15 +495,22 @@ const user = AuthManager.checkAuthGuard('supervisor');
                 }
 
                 <div style="display:flex; gap:14px; margin-bottom:12px;">
-                  <img src="${act.photoUrl}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl}" data-title="${act.client}" style="width:96px; height:96px; border-radius:var(--radius-sm); object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
+                  <img src="${act.photoUrl}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl}" data-title="${act.client}" style="width:96px; height:96px; border-radius:12px; object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
                   <div style="flex:1; min-width:0;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:2px;">
                       <strong style="color:var(--adco-green-deep); font-size:0.98rem;">${act.client}</strong>
                       ${renderStatusBadge(act.status)}
                     </div>
-                    <p style="font-size:0.8rem; margin:3px 0;">المنسق: <strong>${act.coordinatorName}</strong></p>
-                    <p style="font-size:0.78rem;">${act.branch} | <strong>${act.activity || '-'} (${act.activityType || '-'} × ${act.activityCount || 1})</strong></p>
-                    <p style="font-size:0.76rem; color:var(--adco-green-dark); margin-top:2px;">العلامات: ${(act.brands || []).join('، ')} (حصة: ${shareFormatted})</p>
+                    <div class="branch-card-sub" style="margin-bottom:4px;">
+                      <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <span>${act.branch}</span>
+                    </div>
+                    <p style="font-size:0.8rem; margin:3px 0;">النشاط: <strong>${act.activity || '-'} (${act.activityType || '-'} × ${act.activityCount || 1})</strong></p>
+                    <div class="branch-supply-pill" style="margin: 4px 0;">
+                      <span>فرع الشركة المورد للبضاعة: <strong>${act.coordinatorBranch || 'الإسكندرية - قطاع وسط'}</strong></span>
+                    </div>
+                    <p style="font-size:0.76rem; color:var(--adco-gray-700); margin:3px 0;">المنسق: <strong>${act.coordinatorName}</strong> | المشرف: <strong>${act.reviewerName || 'أيمن الروبي'}</strong></p>
+                    <p style="font-size:0.75rem; color:var(--adco-green-dark); margin-top:2px;">العلامات: ${(act.brands || []).join('، ')} (حصة: ${shareFormatted})</p>
                   </div>
                 </div>
 
@@ -466,10 +736,63 @@ const user = AuthManager.checkAuthGuard('supervisor');
       document.getElementById('rev-photo-title').textContent = title;
       document.getElementById('rev-timestamp').textContent = currentModalMedia.timestamp;
 
-      const lat = loc.latitude ? Number(loc.latitude).toFixed(5) : '31.21560';
-      const lng = loc.longitude ? Number(loc.longitude).toFixed(5) : '29.95530';
-      document.getElementById('rev-loc-coords').innerHTML = `${lat}&deg; N, ${lng}&deg; E &bull; ${loc.address || act.branch || 'الإسكندرية'}`;
-      document.getElementById('rev-loc-map-link').href = `https://www.google.com/maps?q=${lat},${lng}`;
+      const latNum = loc && loc.latitude !== undefined ? Number(loc.latitude) : 31.2156;
+      const lngNum = loc && loc.longitude !== undefined ? Number(loc.longitude) : 29.9553;
+      const lat = latNum.toFixed(5);
+      const lng = lngNum.toFixed(5);
+      const accuracyVal = loc && loc.accuracy ? Math.round(Number(loc.accuracy)) : 12;
+
+      const locCoordsEl = document.getElementById('rev-loc-coords');
+      const locAccEl = document.getElementById('rev-loc-accuracy');
+      const locMapLinkEl = document.getElementById('rev-loc-map-link');
+      if (locCoordsEl) locCoordsEl.innerHTML = `${lat}&deg; N, ${lng}&deg; E`;
+      if (locAccEl) locAccEl.innerHTML = `دقة الرصد: &plusmn;${accuracyVal} متر &bull; ${loc.address || act.branch || 'الإسكندرية'}`;
+      if (locMapLinkEl) locMapLinkEl.href = `https://www.google.com/maps?q=${lat},${lng}`;
+
+      // Resolve Branch Registered Coordinates & Compute Haversine Proximity (Task 1)
+      const branchCoords = typeof ActivityManager.getBranchCoordinatesSync === 'function'
+        ? ActivityManager.getBranchCoordinatesSync(act.branch)
+        : { latitude: 31.2156, longitude: 29.9553 };
+      const bLatNum = Number(branchCoords.latitude);
+      const bLngNum = Number(branchCoords.longitude);
+      const bLat = bLatNum.toFixed(5);
+      const bLng = bLngNum.toFixed(5);
+
+      const branchCoordsEl = document.getElementById('rev-branch-coords');
+      const branchNameLblEl = document.getElementById('rev-branch-name-lbl');
+      const branchMapLinkEl = document.getElementById('rev-branch-map-link');
+      if (branchCoordsEl) branchCoordsEl.innerHTML = `${bLat}&deg; N, ${bLng}&deg; E`;
+      if (branchNameLblEl) branchNameLblEl.textContent = act.branch || 'الفرع الرسمي المسجل';
+      if (branchMapLinkEl) branchMapLinkEl.href = `https://www.google.com/maps?q=${bLat},${bLng}`;
+
+      const maxThresholdMeters = typeof ActivityManager.MAX_BRANCH_PROXIMITY_METERS === 'number'
+        ? ActivityManager.MAX_BRANCH_PROXIMITY_METERS
+        : 150;
+      const distMeters = typeof ActivityManager.calculateHaversineDistanceMeters === 'function'
+        ? Math.round(ActivityManager.calculateHaversineDistanceMeters(bLatNum, bLngNum, latNum, lngNum))
+        : 0;
+      const isWithinRange = distMeters <= maxThresholdMeters;
+
+      const proxBadgeEl = document.getElementById('rev-gps-proximity-badge');
+      const distBannerEl = document.getElementById('rev-gps-distance-banner');
+      const distValEl = document.getElementById('rev-gps-distance-value');
+      const compareLinkEl = document.getElementById('rev-gps-compare-link');
+
+      if (proxBadgeEl) {
+        proxBadgeEl.textContent = isWithinRange ? `مطابق للنطاق (≤ ${maxThresholdMeters}م)` : `خارج النطاق (> ${maxThresholdMeters}م)`;
+        proxBadgeEl.className = `badge ${isWithinRange ? 'badge-success' : 'badge-danger'} sp-s44`;
+      }
+      if (distBannerEl) {
+        distBannerEl.className = `gps-distance-banner ${isWithinRange ? 'gps-distance-ok' : 'gps-distance-warn'}`;
+      }
+      if (distValEl) {
+        distValEl.textContent = distMeters <= 3
+          ? `${distMeters} متر (تطابق تام بموقع الفرع)`
+          : `${distMeters} متر ${isWithinRange ? '(داخل النطاق المسموح)' : '(بعيد عن موقع الفرع المسجل)'}`;
+      }
+      if (compareLinkEl) {
+        compareLinkEl.href = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${bLat},${bLng}&travelmode=walking`;
+      }
 
       // Populate EXIF & Photo Origin Metadata (Requirement 2 & 4)
       const currentPhotoObj = session && session.photos && session.photos.length > 0 ? session.photos[0] : (act.initialPhotos && act.initialPhotos.length > 0 ? act.initialPhotos[0] : null);
@@ -493,6 +816,42 @@ const user = AuthManager.checkAuthGuard('supervisor');
         takenTimeEl.textContent = formatDateTime(timestamp);
         deviceModelEl.textContent = 'هاتف منسق أدكو المعتمد';
       }
+    }
+
+    // Sync Quick Evaluation Status Buttons (next to Location Review) with #rev-status select (Task 1)
+    const revStatusSelect = document.getElementById('rev-status');
+    const quickStatusReadout = document.getElementById('rev-quick-status-current');
+    const quickStatusBtns = document.querySelectorAll('.rev-quick-status-btn');
+
+    function syncQuickStatusUI(statusVal) {
+      const normalized = statusVal || 'Accepted';
+      if (revStatusSelect && revStatusSelect.value !== normalized) {
+        revStatusSelect.value = normalized;
+      }
+      const statusLabels = {
+        'Accepted': 'مقبول',
+        'Rejected': 'غير مقبول',
+        'Under Review': 'تحت المراجعة'
+      };
+      if (quickStatusReadout) {
+        quickStatusReadout.textContent = statusLabels[normalized] || 'مقبول';
+        quickStatusReadout.setAttribute('data-state', normalized);
+      }
+      quickStatusBtns.forEach((b) => {
+        b.classList.toggle('active', b.dataset.status === normalized);
+      });
+    }
+
+    quickStatusBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        syncQuickStatusUI(btn.dataset.status);
+      });
+    });
+
+    if (revStatusSelect) {
+      revStatusSelect.addEventListener('change', () => {
+        syncQuickStatusUI(revStatusSelect.value);
+      });
     }
 
     // Wire round select change to update displayed media
@@ -566,7 +925,9 @@ const user = AuthManager.checkAuthGuard('supervisor');
             revDateInput.value = getEgyptDateTimeLocalString(act.activityDate || act.timestamp || new Date());
           }
 
-          document.getElementById('rev-status').value = act.status === 'Under Review' ? 'Accepted' : act.status;
+          const initialStatusVal = act.status || 'Under Review';
+          document.getElementById('rev-status').value = initialStatusVal;
+          syncQuickStatusUI(initialStatusVal);
           document.getElementById('rev-notes').value = act.supervisorNotes || '';
           modal.classList.add('active');
         });
@@ -578,6 +939,17 @@ const user = AuthManager.checkAuthGuard('supervisor');
       const content = document.getElementById('audit-modal-content');
       const sessions = act.followUpHistory || [];
       const loc = act.location || { latitude: 31.2156, longitude: 29.9553, address: act.branch || 'الإسكندرية' };
+      const branchCoords = typeof ActivityManager.getBranchCoordinatesSync === 'function'
+        ? ActivityManager.getBranchCoordinatesSync(act.branch)
+        : { latitude: 31.2156, longitude: 29.9553 };
+      const cLat = Number(loc.latitude || 31.2156).toFixed(5);
+      const cLng = Number(loc.longitude || 29.9553).toFixed(5);
+      const bLat = Number(branchCoords.latitude || 31.2156).toFixed(5);
+      const bLng = Number(branchCoords.longitude || 29.9553).toFixed(5);
+      const auditDistMeters = typeof ActivityManager.calculateHaversineDistanceMeters === 'function'
+        ? Math.round(ActivityManager.calculateHaversineDistanceMeters(Number(bLat), Number(bLng), Number(cLat), Number(cLng)))
+        : 0;
+      const auditInRange = auditDistMeters <= (ActivityManager.MAX_BRANCH_PROXIMITY_METERS || 150);
 
       content.innerHTML = `
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 20px;">
@@ -618,10 +990,12 @@ const user = AuthManager.checkAuthGuard('supervisor');
             <p style="font-size: 0.82rem; margin: 4px 0; color: #334155;">
               تم إنشاء البطاقة بواسطة المنسق <strong>${act.coordinatorName}</strong> (${act.coordinatorId}) وتوثيق عرض <strong>${act.skuVariant}</strong>.
             </p>
-            <div style="font-size: 0.78rem; color: #065f46; display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
-              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
-              <span>الموقع الجغرافي: <strong>${loc.latitude}&deg;, ${loc.longitude}&deg;</strong> (${loc.address || act.branch})</span>
-              <a href="https://www.google.com/maps?q=${loc.latitude},${loc.longitude}" target="_blank" class="btn btn-outline btn-sm" style="padding: 2px 8px; font-size: 0.72rem; min-height: 22px;">الخريطة</a>
+            <div style="font-size: 0.78rem; color: #065f46; display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; background: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+              <span>لوكيشن المنسق: <strong dir="ltr">${cLat}&deg;, ${cLng}&deg;</strong></span>
+              <span>|</span>
+              <span>لوكيشن الفرع: <strong dir="ltr">${bLat}&deg;, ${bLng}&deg;</strong></span>
+              <span class="badge ${auditInRange ? 'badge-success' : 'badge-danger'}" style="font-size: 0.68rem;">المسافة: ${auditDistMeters} متر</span>
+              <a href="https://www.google.com/maps/dir/?api=1&origin=${cLat},${cLng}&destination=${bLat},${bLng}&travelmode=walking" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="padding: 2px 8px; font-size: 0.72rem; min-height: 22px;">مقارنة بالخريطة</a>
             </div>
           </div>
 

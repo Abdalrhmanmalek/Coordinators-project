@@ -200,6 +200,7 @@ export class NavbarComponent {
   }
 
   static getPageTitle(path) {
+    if (path.includes('branch-details')) return 'تفاصيل الفرع';
     if (path.includes('dashboard')) return 'لوحة المنسق';
     if (path.includes('activity-card')) return 'بطاقة النشاط';
     if (path.includes('supervisor-panel')) return 'لوحة الإشراف';

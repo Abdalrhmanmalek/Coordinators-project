@@ -45,20 +45,20 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
-| `frontend/css/variables.css` | Design Tokens | Color palettes, spacing scales, border radiuses, and elevation custom properties. |
-| `frontend/css/base.css` | Reset & Typography | Foundational CSS reset, box-sizing, and base typography rules. |
-| `frontend/css/layout.css` | Grid & Structure | Multi-column responsive layout, sticky workspace columns, and header mount styling. |
-| `frontend/css/components.css` | UI Components | Reusable UI styles for buttons, badges, modals, form inputs, and cards. |
-| `frontend/css/auth.css` | Authentication UI | Blurred backdrop, floating glassmorphic auth cards, and wizard steps. |
-| `frontend/css/dashboard.css` | Operational Feed | KPI metric summary cards, supervisor toolbar, and activity feed cards. |
+| `frontend/css/variables.css` | Design Tokens | Clean light-mode soft teal (`#0f766e`) color palette, `16px` card radius, and soft floating shadows (`0 10px 25px -5px rgba(0, 0, 0, 0.05)`). |
+| `frontend/css/base.css` | Reset & Typography | Foundational light-mode CSS reset (`#f8fafc`), box-sizing, and base typography rules. |
+| `frontend/css/layout.css` | Grid & Structure | Multi-column responsive fluid grids, sticky top navbar, and workspace containers. |
+| `frontend/css/components.css` | UI Components | Reusable crisp white (`#ffffff`) cards, soft teal buttons, badges, modals, and form inputs. |
+| `frontend/css/auth.css` | Authentication UI | Pastel mint/teal light backdrop, floating white auth card, and 3-tier fast login switcher. |
+| `frontend/css/dashboard.css` | Operational Feed | KPI metric cards, Master Branch Cards (`فرع الشركة المورد للبضاعة`), interactive status counters, and activity cards. |
 | `frontend/css/activity.css` | Activity Creator | Responsive 4-level cascading product selector, sticky camera dropzone, and timeline styles. |
 | `frontend/css/sheets.css` | Data Table | Full-bleed spreadsheet grid, multi-parameter filter bar, and brand share pills. |
-| `frontend/css/supervisor.css` | Evaluation UI | 100-point scoring sliders, evaluation breakdown rows, and review action panels. |
-| `frontend/css/analytics.css` | Intelligence / BI | High-density metric cards, Power BI embed wrappers, and analytics charts. |
+| `frontend/css/supervisor.css` | Evaluation UI | Master Branch Overview cards, interactive status counters, 100-point scoring form, and review modal. |
+| `frontend/css/analytics.css` | Intelligence / BI | Circular SVG progress rings, smooth SVG wave/area chart, vertical column bar charts, and horizontal progress bars. |
 | `frontend/css/leaderboard.css` | Gamification | Top-3 podium visualization with medal icons and ranked coordinator rows. |
-| `frontend/css/enhancements.css` | Micro-interactions | Micro-animations, responsive layout refinements, and touch feedback styles. |
-| `frontend/css/styles.css` | Legacy Utilities | Utility helper classes preserved for backwards compatibility. |
-| `frontend/css/mobile-pwa.css` | Mobile Optimization | Viewport-specific overrides, safe-area insets, and touch target enhancements. |
+| `frontend/css/enhancements.css` | Micro-interactions | Native CSS `@view-transition`, `0.24s` page entry/exit fade-slide transitions, and `0.2s` hover elevations. |
+| `frontend/css/styles.css` | Global Harmony | Logo blend harmony utility rules. |
+| `frontend/css/mobile-pwa.css` | Mobile Optimization | Viewport-specific overrides and single-column mobile card grid adaptations. |
 
 ---
 
@@ -68,8 +68,9 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 |:---|:---|:---|
 | `frontend/pages/login.html` | Auth View | Secure login page with 3-tier demo account switcher and password recovery OTP modal. |
 | `frontend/pages/signup-wizard.html` | Onboarding View | 3-step employee registration wizard (ID check, OTP verification, password setup). |
-| `frontend/pages/dashboard.html` | Operations View | Operational dashboard with 3-tier data scoping and dedicated supervisor filter toolbar. |
-| `frontend/pages/activity-card.html` | Operations View | Activity card creation with 4-level cascading product picker and camera dropzone. |
+| `frontend/pages/dashboard.html` | Operations View | Operational dashboard with Parent Client & Branch filters, Master Branch Cards, live Under-Review KPI, and 3-tier scoping. |
+| `frontend/pages/branch-details.html` | Operations View | Dedicated branch view displaying full branch metadata, clickable Google Maps location link, advanced activity filters (Type, Date/Time, Status), and branch-scoped activities. |
+| `frontend/pages/activity-card.html` | Operations View | Activity card creation with dynamic database-bound read-only Supplying Branch (`فرع الشركة المورد للبضاعة`), 4-level cascading product picker, and camera dropzone. |
 | `frontend/pages/sheets-view.html` | Reporting View | $1/N$ multi-brand live Google Sheets spreadsheet view with instant Excel (.CSV) export. |
 | `frontend/pages/supervisor-panel.html` | Management View | 100-point evaluation scoring panel, review workflow, and completion approval module. |
 | `frontend/pages/analytics.html` | Intelligence View | Enterprise analytics workspace featuring Power BI integration and KPI trends. |
@@ -83,7 +84,7 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
 | `frontend/js/auth.js` | Auth Engine | Client-side 3-tier authentication, session management, and auth guard validation. |
-| `frontend/js/app.js` | Navigation Engine | Sticky top navbar, profile modal management, and service worker registration. |
+| `frontend/js/app.js` | Navigation Engine | Sticky top navbar, smooth page transitions (`navigateTo`), scroll restoration, profile modal, and SW registration. |
 | `frontend/js/activity-manager.js` | Operations Engine | Activity card CRUD, $1/N$ brand share row multiplication, and local cache manager. |
 | `frontend/js/supervisor.js` | Evaluation Engine | 100-point weighted evaluation scoring, activity approvals, and CSV export engine. |
 | `frontend/js/ui-helpers.js` | UI Utilities | Toast notifications, date/time formatters, network connectivity listeners, and DOM helpers. |
@@ -121,7 +122,8 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 |:---|:---|:---|
 | `frontend/js/pages/login.page.js` | Controller | Handles login form submission, input validation, and 3-tier fast login buttons. |
 | `frontend/js/pages/signup.page.js` | Controller | Manages the 3-step employee registration wizard and OTP verification. |
-| `frontend/js/pages/dashboard.page.js` | Controller | Renders scoped operational cards, KPI metrics, and supervisor branch filters. |
+| `frontend/js/pages/dashboard.page.js` | Controller | Renders Master Branch Cards (Parent Client first, Branch underneath), KPI metrics, and activity cards. |
+| `frontend/js/pages/branch-details.page.js` | Controller | Dedicated controller for `branch-details.html` showing full branch metadata and branch-filtered activities. |
 | `frontend/js/pages/activity-card.page.js` | Controller | Coordinates activity creation form, live camera capture, and follow-up rounds. |
 | `frontend/js/pages/sheets.page.js` | Controller | Handles the multi-brand spreadsheet view, filtering, and Excel (.CSV) export. |
 | `frontend/js/pages/supervisor.page.js` | Controller | Controls the 100-point evaluation slider review panel and activity approval workflow. |

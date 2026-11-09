@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#15803d" />
+  <meta name="theme-color" content="#0f766e" />
   <title>(ADCO) شركة الاسكندريه للكيماويات و المنظفات</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="stylesheet" href="./css/variables.css" />
@@ -48,6 +48,25 @@
           <img src="./assets/icons/user-plus.svg" class="ui-icon" alt="" />
           <span>تفعيل حساب موظف جديد</span>
         </a>
+      </div>
+
+      <!-- Fast Login 3-Tier RBAC Accounts -->
+      <div class="lg-s16">
+        <span class="lg-s17">دخول سريع لحسابات المستويات الثلاثة (Fast Login):</span>
+        <div class="lg-s18">
+          <button type="button" class="btn btn-secondary btn-sm lg-s19" onclick="fastLandingLogin('ADCO-101', 'Pass@1234')">
+            <span><strong>1. منسق ميداني:</strong> أحمد محمود (سموحة)</span>
+            <span class="badge badge-mint lg-s20">ADCO-101</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm lg-s21" onclick="fastLandingLogin('ADCO-501', 'Super@2026')">
+            <span><strong>2. مشرف منسق:</strong> أيمن الروبي (فتح الله)</span>
+            <span class="badge badge-success lg-s20">ADCO-501</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm lg-s19" onclick="fastLandingLogin('ADCO-901', 'Admin@2026')">
+            <span><strong>3. مسؤول التسويق:</strong> م. حسام غانم (إشراف عام)</span>
+            <span class="badge badge-warning lg-s20">ADCO-901</span>
+          </button>
+        </div>
       </div>
     </main>
 

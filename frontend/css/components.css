@@ -1,6 +1,6 @@
 /* =========================================================
    components.css
-   Reusable UI components: buttons, forms, comboboxes, cards, badges, offline banner, modals, lightbox, toasts.
+   Reusable UI components: buttons, forms, comboboxes, rounded white cards (16px), badges, modals, lightbox, toasts.
    ========================================================= */
 
 /* Buttons */
@@ -26,24 +26,25 @@
 }
 
 .btn-primary {
-  background: var(--adco-green-primary);
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(21, 128, 61, 0.25);
+  box-shadow: 0 6px 16px -3px rgba(15, 118, 110, 0.28);
 }
 
 .btn-primary:hover {
-  background: var(--adco-green-dark);
-  box-shadow: 0 4px 12px rgba(21, 128, 61, 0.35);
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  box-shadow: 0 8px 20px -3px rgba(15, 118, 110, 0.36);
 }
 
 .btn-secondary {
   background: #ffffff;
   color: var(--adco-green-dark);
   border-color: var(--adco-gray-200);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .btn-secondary:hover {
-  background: var(--adco-gray-50);
+  background: var(--adco-green-mint);
   border-color: var(--adco-green-border);
 }
 
@@ -90,12 +91,12 @@
   line-height: 1.4;
 }
 
-/* Explicit styling for all inputs, selects, textareas, and combobox inputs */
 input[type="text"],
 input[type="password"],
 input[type="email"],
 input[type="date"],
 input[type="number"],
+input[type="datetime-local"],
 select,
 textarea,
 .form-input,
@@ -106,16 +107,16 @@ textarea,
   min-height: 46px;
   background-color: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
   padding: 10px 14px !important;
   color: #0f172a !important;
   font-size: 0.92rem;
   outline: none;
   font-family: inherit;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.025);
   box-sizing: border-box;
   display: block;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 input[type="text"]:focus,
@@ -123,14 +124,15 @@ input[type="password"]:focus,
 input[type="email"]:focus,
 input[type="date"]:focus,
 input[type="number"]:focus,
+input[type="datetime-local"]:focus,
 select:focus,
 textarea:focus,
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus,
 .combobox-input:focus {
-  border-color: #15803d !important;
-  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15) !important;
+  border-color: #0f766e !important;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14) !important;
 }
 
 input::placeholder,
@@ -154,7 +156,7 @@ input::placeholder,
 }
 
 .combobox-input {
-  padding-left: 56px !important; /* Space for action buttons in RTL */
+  padding-left: 56px !important;
 }
 
 .combobox-actions {
@@ -180,7 +182,7 @@ input::placeholder,
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
 }
 
 .combobox-clear-btn:hover,
@@ -197,8 +199,8 @@ input::placeholder,
   right: 0;
   background: #ffffff;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
   max-height: 240px;
   overflow-y: auto;
   z-index: 1100;
@@ -214,22 +216,22 @@ input::placeholder,
   font-size: 0.9rem;
   color: #1e293b;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.1s;
+  transition: all 0.2s ease;
 }
 
 .combobox-option:hover,
 .combobox-option.highlighted {
-  background: #f0fdf4;
-  color: #166534;
+  background: var(--adco-green-mint);
+  color: var(--adco-green-dark);
 }
 
 .combobox-option.selected {
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--adco-green-soft);
+  color: var(--adco-green-primary);
   font-weight: 700;
 }
 
@@ -242,7 +244,7 @@ input::placeholder,
 
 .match-highlight {
   font-weight: 700;
-  color: #15803d;
+  color: var(--adco-green-primary);
 }
 
 /* Multi-select Tags Pill Container */
@@ -259,9 +261,9 @@ input::placeholder,
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #f0fdf4;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+  background: var(--adco-green-mint);
+  color: var(--adco-green-dark);
+  border: 1px solid var(--adco-green-border);
   padding: 4px 10px;
   border-radius: 9999px;
   font-size: 0.82rem;
@@ -271,7 +273,7 @@ input::placeholder,
 .multi-tag-remove {
   background: none;
   border: none;
-  color: #15803d;
+  color: var(--adco-green-primary);
   font-size: 1.1rem;
   line-height: 1;
   cursor: pointer;
@@ -286,14 +288,16 @@ input::placeholder,
   color: #ef4444;
 }
 
-/* Surface Cards */
+/* Crisp White Floating Surface Cards (16px radius, soft drop shadow) */
 .card {
   background: #ffffff;
-  border-radius: var(--radius-md);
+  border-radius: 16px;
   padding: 20px 24px;
-  border: 1px solid var(--adco-gray-200);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
   margin-bottom: 18px;
+  overflow: visible;
+  transition: all 0.2s ease;
 }
 
 /* Badges */
@@ -309,14 +313,14 @@ input::placeholder,
 }
 
 .badge-mint {
-  background: var(--adco-green-soft);
+  background: var(--adco-green-mint);
   color: var(--adco-green-deep);
   border: 1px solid var(--adco-green-border);
 }
 
 .badge-success {
   background: #dcfce7;
-  color: #15803d;
+  color: #0f766e;
   border: 1px solid #86efac;
 }
 
@@ -330,6 +334,12 @@ input::placeholder,
   background: #fee2e2;
   color: #b91c1c;
   border: 1px solid #fca5a5;
+}
+
+.badge-secondary {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
 }
 
 /* Offline Banner */
@@ -355,7 +365,7 @@ input::placeholder,
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.55);
+  background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(4px);
   z-index: 1200;
   display: none;
@@ -373,8 +383,8 @@ input::placeholder,
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 20px;
+  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   overflow-y: auto;
   padding: 24px;
   border: 1px solid var(--adco-gray-200);
@@ -402,6 +412,7 @@ input::placeholder,
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .close-modal-btn:hover {
@@ -416,7 +427,7 @@ input::placeholder,
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(15, 23, 42, 0.82);
   backdrop-filter: blur(8px);
   z-index: 1300;
   display: none;
@@ -430,23 +441,23 @@ input::placeholder,
 }
 
 .lightbox-box {
-  background: #0f172a;
-  color: #ffffff;
-  border-radius: var(--radius-md);
+  background: #ffffff;
+  color: #1e293b;
+  border-radius: 16px;
   max-width: 900px;
   width: 100%;
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .lightbox-box img {
   width: 100%;
   max-height: 65vh;
   object-fit: contain;
-  background: #020617;
+  background: #f8fafc;
 }
 
 /* Toast Container */
@@ -466,9 +477,9 @@ input::placeholder,
   min-width: 280px;
   max-width: 420px;
   padding: 12px 18px;
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   background: #ffffff;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
   font-size: 0.88rem;
   font-weight: 600;
   display: flex;
@@ -479,9 +490,9 @@ input::placeholder,
 }
 
 .toast-success {
-  background: #f0fdf4;
-  color: #166534;
-  border-color: #86efac;
+  background: #f0fdfa;
+  color: #115e59;
+  border-color: #99f6e4;
 }
 
 .toast-error {
@@ -513,7 +524,7 @@ input::placeholder,
   }
 }
 
-/* ---- js/app.js: former inline styles (doubled selector keeps the old inline-style precedence) ---- */
+/* ---- js/app.js: Profile Modal & Navigation Helpers ---- */
 .cm-s1.cm-s1 {
   height: 44px;
   padding: 0 10px;
@@ -712,9 +723,7 @@ input::placeholder,
   width: 100%;
 }
 
-/* ---- js/ui-helpers.js: former inline styles (doubled selector keeps the old inline-style precedence) ---- */
 .ui-s1.ui-s1 {
   font-size: 0.76rem;
   color: var(--adco-gray-400);
 }
-

@@ -21,7 +21,92 @@
 
       this.renderTopNavbar();
       this.ensureProfileModal();
+      this.initSmoothPageTransitions();
+      this.triggerSlideUpBoxes();
       this.registerServiceWorker();
+    }
+
+    /**
+     * Triggers lightweight staggered slide-up box entrance animations on cards & sections
+     */
+    static triggerSlideUpBoxes(rootEl) {
+      try {
+        const scope = rootEl || document.querySelector('.web-main-workspace') || document.body;
+        if (!scope) return;
+        const boxes = scope.querySelectorAll(
+          '.card, .kpi-card, .branch-master-card, .circular-ring-card, .chart-card, .activity-card-item, .podium-card'
+        );
+        boxes.forEach((box, idx) => {
+          box.classList.add('slide-up-box-item');
+          const delaySec = Math.min(idx * 0.03, 0.18).toFixed(2);
+          box.style.animationDelay = `${delaySec}s`;
+        });
+      } catch (_) {}
+    }
+
+    /**
+     * Smooth Page Transitions, Scroll Restoration & History Routing
+     */
+    static navigateTo(targetUrl) {
+      if (!targetUrl) return;
+      try {
+        sessionStorage.setItem(
+          `ADCO_SCROLL_${window.location.pathname}`,
+          String(window.scrollY || document.documentElement.scrollTop || 0)
+        );
+      } catch (_) {}
+
+      if (document.body) {
+        document.body.classList.add('page-is-leaving');
+      }
+
+      setTimeout(() => {
+        window.location.href = targetUrl;
+      }, 150);
+    }
+
+    static initSmoothPageTransitions() {
+      if (this._transitionsInitialized) return;
+      this._transitionsInitialized = true;
+
+      // Enable browser scroll restoration + restore saved scroll on back/forward navigation
+      try {
+        if ('scrollRestoration' in history) {
+          history.scrollRestoration = 'auto';
+        }
+      } catch (_) {}
+
+      window.addEventListener('pageshow', (e) => {
+        if (document.body) {
+          document.body.classList.remove('page-is-leaving');
+        }
+        if (e.persisted) {
+          try {
+            const savedY = Number(sessionStorage.getItem(`ADCO_SCROLL_${window.location.pathname}`) || 0);
+            if (savedY > 0) window.scrollTo({ top: savedY, behavior: 'instant' });
+          } catch (_) {}
+        }
+      });
+
+      // Intercept internal same-origin navigation links for smooth fade/slide exit
+      document.addEventListener('click', (e) => {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        const anchor = e.target.closest('a[href]');
+        if (!anchor) return;
+        if (anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+        if (anchor.classList.contains('branch-gps-map-link')) return;
+
+        const rawHref = anchor.getAttribute('href') || '';
+        if (!rawHref || rawHref.startsWith('#') || rawHref.startsWith('javascript:') || rawHref.startsWith('mailto:') || rawHref.startsWith('tel:')) {
+          return;
+        }
+        if (/^https?:\/\//i.test(rawHref) && !rawHref.startsWith(window.location.origin)) {
+          return;
+        }
+
+        e.preventDefault();
+        this.navigateTo(anchor.href || rawHref);
+      });
     }
 
     static cleanupLegacyCaches() {

@@ -1,6 +1,6 @@
 /**
  * ADCO Field Operations System - landing.page.js
- * Single Responsibility: Isolated DOM rendering and active session resumption button
+ * Single Responsibility: Isolated DOM rendering, 3-Tier Fast Login handler, and active session resumption button
  * Universal browser script (Works on both http:// and file:// protocol)
  */
 
@@ -11,6 +11,29 @@
   }
 
   const Auth = global.AuthManager || global.AuthService;
+  const toast = global.showToast || alert;
+
+  global.fastLandingLogin = async function (empId, pass) {
+    if (!Auth || typeof Auth.login !== 'function') {
+      window.location.href = './pages/login.html';
+      return;
+    }
+    try {
+      const session = await Auth.login(empId, pass);
+      const user = session.user || session;
+      toast(`مرحباً بك ${user.fullName}`, 'success');
+      setTimeout(() => {
+        if (user.role === 'marketing_manager' || user.role === 'coordination_manager' || user.role === 'supervisor') {
+          window.location.href = './pages/supervisor-panel.html';
+        } else {
+          window.location.href = './pages/dashboard.html';
+        }
+      }, 280);
+    } catch (err) {
+      toast(err.message || 'تعذر تسجيل الدخول السريع', 'error');
+    }
+  };
+
   const currentUser = Auth ? Auth.getCurrentUser() : null;
 
   if (currentUser) {

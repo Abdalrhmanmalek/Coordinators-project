@@ -36,12 +36,104 @@ const user = AuthManager.checkAuthGuard();
       branchOptions = [defaultBranch];
     }
 
+    // Read-Only Database-Bound Supplying Branch (فرع الشركة المورد للبضاعة)
+    const coordBranchMount = document.getElementById('combo-coord-branch');
+    const supplyingBranchDbBadge = document.getElementById('supplying-branch-db-status');
+    const initialSupplyingBranch = (ActivityManager.getSupplyingBranchSync
+      ? ActivityManager.getSupplyingBranchSync(defaultClient, defaultBranch)
+      : ADCO_CATALOGS.coordinatorBranches[0]) || 'الإسكندرية - قطاع وسط';
+
+    if (coordBranchMount) {
+      coordBranchMount.innerHTML = `
+        <div class="supplying-branch-readonly-wrap is-bound" id="supplying-branch-readonly-wrap" title="حقل مرتبط تلقائياً بقاعدة البيانات بناءً على العميل وفرع العميل (غير قابل للتعديل اليدوي)">
+          <span class="supplying-branch-readonly-icon">
+            <img src="../assets/icons/building-2.svg" class="ui-icon ui-icon-sm" alt="" />
+          </span>
+          <input
+            type="text"
+            id="f-supplying-branch-readonly"
+            class="supplying-branch-readonly-input"
+            value="${initialSupplyingBranch}"
+            readonly
+            aria-readonly="true"
+            tabindex="-1"
+          />
+          <span class="supplying-branch-lock-pill" title="مقفل للقراءة فقط - مرتبط بقاعدة البيانات">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>مقفل</span>
+          </span>
+        </div>
+      `;
+    }
+
+    const coordBranchCombo = {
+      getValue: () => {
+        const el = document.getElementById('f-supplying-branch-readonly');
+        return el ? el.value.trim() : initialSupplyingBranch;
+      },
+      setValue: (val) => {
+        const el = document.getElementById('f-supplying-branch-readonly');
+        if (el) el.value = val || '';
+      }
+    };
+
+    async function syncSupplyingBranchFromDatabase(selectedClient, selectedBranch) {
+      const wrapEl = document.getElementById('supplying-branch-readonly-wrap');
+      const inputEl = document.getElementById('f-supplying-branch-readonly');
+      if (!inputEl) return;
+
+      const cVal = (selectedClient !== undefined ? selectedClient : (clientCombo ? clientCombo.getValue() : defaultClient)) || '';
+      const bVal = (selectedBranch !== undefined ? selectedBranch : (branchCombo ? branchCombo.getValue() : defaultBranch)) || '';
+
+      if (supplyingBranchDbBadge) {
+        supplyingBranchDbBadge.classList.add('is-fetching');
+        supplyingBranchDbBadge.innerHTML = `
+          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+          <span>جاري الجلب...</span>
+        `;
+      }
+
+      try {
+        const resolvedSupplyBranch = ActivityManager.fetchSupplyingBranch
+          ? await ActivityManager.fetchSupplyingBranch(cVal, bVal)
+          : (ActivityManager.getSupplyingBranchSync ? ActivityManager.getSupplyingBranchSync(cVal, bVal) : initialSupplyingBranch);
+
+        coordBranchCombo.setValue(resolvedSupplyBranch);
+        if (wrapEl) wrapEl.classList.add('is-bound');
+        if (supplyingBranchDbBadge) {
+          supplyingBranchDbBadge.classList.remove('is-fetching');
+          supplyingBranchDbBadge.innerHTML = `
+            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>تلقائي</span>
+          `;
+        }
+      } catch (_) {
+        const fallback = ActivityManager.getSupplyingBranchSync
+          ? ActivityManager.getSupplyingBranchSync(cVal, bVal)
+          : initialSupplyingBranch;
+        coordBranchCombo.setValue(fallback);
+        if (supplyingBranchDbBadge) {
+          supplyingBranchDbBadge.classList.remove('is-fetching');
+          supplyingBranchDbBadge.innerHTML = `
+            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>تلقائي</span>
+          `;
+        }
+      }
+    }
+
     const clientCombo = createSearchableCombobox({
       mountId: 'combo-client',
       options: clientOptions,
       placeholder: 'ابحث عن العميل (مثال: فتح الله، زهران)...',
       defaultValue: defaultClient,
-      allowCustomText: !isCoordSup && !isCoord
+      allowCustomText: !isCoordSup && !isCoord,
+      onSelect: (newClientVal) => {
+        syncSupplyingBranchFromDatabase(newClientVal, branchCombo ? branchCombo.getValue() : defaultBranch);
+      }
     });
 
     const branchCombo = createSearchableCombobox({
@@ -49,16 +141,31 @@ const user = AuthManager.checkAuthGuard();
       options: branchOptions,
       placeholder: 'ابحث عن الفرع (مثال: سموحة، لوران)...',
       defaultValue: defaultBranch,
-      allowCustomText: !isCoord
+      allowCustomText: !isCoord,
+      onSelect: (newBranchVal) => {
+        syncSupplyingBranchFromDatabase(clientCombo ? clientCombo.getValue() : defaultClient, newBranchVal);
+        if (currentDeviceLocation && typeof requestDeviceLocation === 'function') {
+          requestDeviceLocation(newBranchVal).catch(() => {});
+        }
+      }
     });
 
-    const coordBranchCombo = createSearchableCombobox({
-      mountId: 'combo-coord-branch',
-      options: ADCO_CATALOGS.coordinatorBranches,
-      placeholder: 'اختر أو ابحث عن قطاع المنسق...',
-      defaultValue: ADCO_CATALOGS.coordinatorBranches[0],
-      allowCustomText: true
-    });
+    // Also bind input/change events on client & branch inputs for custom text entry
+    const clientInputEl = document.querySelector('#combo-client .combobox-input');
+    const branchInputEl = document.querySelector('#combo-branch .combobox-input');
+    if (clientInputEl) {
+      clientInputEl.addEventListener('change', () => {
+        syncSupplyingBranchFromDatabase(clientCombo.getValue(), branchCombo.getValue());
+      });
+    }
+    if (branchInputEl) {
+      branchInputEl.addEventListener('change', () => {
+        syncSupplyingBranchFromDatabase(clientCombo.getValue(), branchCombo.getValue());
+      });
+    }
+
+    // Trigger initial database sync on form load
+    syncSupplyingBranchFromDatabase(defaultClient, defaultBranch);
 
         const magGroup = document.getElementById('magazine-date-group');
     const magStartInput = document.getElementById('f-magazine-start-date');
@@ -112,16 +219,16 @@ const user = AuthManager.checkAuthGuard();
     // State of selected products: [{ brand, mainGroup, subGroup, sku }]
     let selectedProducts = [
       {
-        brand: 'Velveta (فلفيتا)',
+        brand: 'فلفيتا',
         mainGroup: 'معطرات الأقمشة',
         subGroup: 'معطر مركز',
         sku: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر'
       },
       {
-        brand: 'Fairy (فيري)',
+        brand: 'فييا',
         mainGroup: 'سائل غسيل الأطباق',
-        subGroup: 'بلاتينيوم بلس',
-        sku: 'فيري بلاتينيوم بلس ليمون 650 مل'
+        subGroup: 'فييا مركز بالليمون',
+        sku: 'فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر'
       }
     ];
 
@@ -188,26 +295,46 @@ const user = AuthManager.checkAuthGuard();
     const pickerSku = document.getElementById('picker-sku');
 
     const fullHierarchy = {
-      'Persil (برسيل)': {
-        'منظفات الملابس السائلة (جل)': {
-          'برسيل جل أوتوماتيك': [
-            'برسيل جل لافندر 3.9 لتر + داوني 1 لتر هدية',
-            'برسيل جل حماية الألوان كولور 2.6 لتر',
-            'برسيل جل باور كلين الأبيض الناصع 3.9 لتر'
+      'جلاسي': {
+        'منظفات الزجاج والأسطح': {
+          'ملمع زجاج ومرايا': [
+            'جلاسي ملمع زجاج ومرايا بالبخاخ 600 مل',
+            'جلاسي ملمع زجاج مضاد للضباب 750 مل',
+            'جلاسي بخاخ تلميع كريستال وأسطح 500 مل'
           ],
-          'برسيل بلاك للأقمشة الداكنة': [
-            'برسيل بلاك جل حماية العبايات والأقمشة السوداء 2.5 لتر',
-            'برسيل بلاك معطر العود الفاخر 3 لتر'
-          ]
-        },
-        'مساحيق غسيل بودرة': {
-          'مسحوق أوتوماتيك باور': [
-            'برسيل مسحوق أوتوماتيك لافندر 4 كجم + 1 كجم مجاناً',
-            'برسيل مسحوق أوتوماتيك بتقنية التنظيف العميق 6 كجم'
+          'منظف أسطح متعدد الاستخدام': [
+            'جلاسي منظف أسطح ومكاتب برائحة الليمون 750 مل',
+            'جلاسي ملمع ستانلس وأخشاب 600 مل'
           ]
         }
       },
-      'Velveta (فلفيتا)': {
+      'ديفا': {
+        'العناية الشخصية والجمال': {
+          'شاور جل وصابون سائل': [
+            'ديفا شاور جل برائحة التوت البري 500 مل',
+            'ديفا صابون سائل لليدين باللافندر 450 مل',
+            'ديفا شاور جل بالورد والمسك الأبيض 750 مل'
+          ],
+          'شامبو وبلسم العناية بالشعر': [
+            'ديفا شامبو بزيت الأرجان والكيراتين 400 مل',
+            'ديفا بلسم مرطب للشعر الجاف 400 مل'
+          ]
+        }
+      },
+      'سبيد': {
+        'مبيدات ومنتجات حماية المنزل': {
+          'سبيد إيروسول': [
+            'سبيد مبيد حشرات طائرة وزاحفة 400 مل',
+            'سبيد بدون رائحة حماية مضاعفة 600 مل',
+            'سبيد مبيد حشرات برائحة اللافندر 500 مل'
+          ],
+          'سبيد حماية مركزة': [
+            'سبيد مبيد للصراصير والنمل مفعول ممتد 400 مل',
+            'سبيد سائل طارد للناموس والحشرات 300 مل'
+          ]
+        }
+      },
+      'فلفيتا': {
         'معطرات الأقمشة': {
           'معطر مركز': [
             'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر',
@@ -226,112 +353,58 @@ const user = AuthManager.checkAuthGuard();
             'فلفيتا جل غسيل أوتوماتيك وايت باور 2.5 لتر',
             'فلفيتا جل غسيل أوتوماتيك حماية الألوان 2.5 لتر',
             'فلفيتا جل غسيل أوتوماتيك نسيم الشرق 3 لتر'
-          ],
-          'مسحوق غسيل': [
-            'فلفيتا مسحوق يدوي رغوة غنية 1 كجم',
-            'فلفيتا مسحوق غسيل أوتوماتيك 3 كجم'
           ]
         }
       },
-      'Fairy (فيري)': {
+      'فما': {
+        'مساحيق ومنظفات الغسيل': {
+          'مسحوق غسيل فما أوتوماتيك': [
+            'فما مسحوق غسيل أوتوماتيك 3 كجم',
+            'فما مسحوق غسيل أوتوماتيك باللافندر 4 كجم',
+            'فما مسحوق غسيل أوتوماتيك توفير عائلي 6 كجم'
+          ],
+          'مسحوق غسيل فما يدوي': [
+            'فما مسحوق غسيل يدوي رغوة وفيرة 1.5 كجم',
+            'فما مسحوق غسيل يدوي نسيم الربيع 800 جم'
+          ]
+        }
+      },
+      'فييا': {
         'سائل غسيل الأطباق': {
-          'بلاتينيوم بلس': [
-            'فيري بلاتينيوم بلس ليمون 650 مل',
-            'فيري بلاتينيوم بلس برتقال 650 مل',
-            'فيري بلاتينيوم بلس توت أزرق 650 مل'
+          'فييا مركز بالليمون': [
+            'فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر',
+            'فييا سائل غسيل أطباق بالليمون المركز 2.5 لتر عرض التوفير',
+            'فييا سائل غسيل أطباق بالليمون والنعناع 650 مل'
           ],
-          'أصلي ومركز': [
-            'فيري ليمون أخضر مركز 1 لتر',
-            'فيري تفاح مضاد للبكتيريا 1 لتر',
-            'فيري رغوة تدوم طويلاً 2.5 لتر'
-          ]
-        },
-        'أقراص غسالات الأطباق': {
-          'كبسولات أوتوماتيك الكل في واحد': [
-            'فيري كبسولات أوتوماتيك ليمون 42 قرص',
-            'فيري بلاتينيوم بلس أقراص غسالات 30 قرص'
+          'فييا بالتفاح والخل': [
+            'فييا سائل غسيل أطباق بالتفاح الأخضر 750 مل',
+            'فييا سائل غسيل أطباق بقوة الخل لإزالة الدهون 1 لتر'
           ]
         }
       },
-      'Clorox (كلوركس)': {
+      'كلوريل': {
         'مبيضات ومطهرات ملابس': {
-          'كلوركس ألوان': [
-            'كلوركس ألوان جل 750 مل برائحة اللافندر',
-            'كلوركس ألوان سائل 1.8 لتر عرض مزدوج'
+          'كلوريل أبيض ناصع': [
+            'كلوريل مبيض ومطهر ملابس 1 لتر',
+            'كلوريل مبيض ملابس عبوة التوفير 2 لتر',
+            'كلوريل مبيض ومطهر برائحة الصنوبر 1 لتر'
           ],
-          'كلوركس مبيض تقليدي': [
-            'كلوركس مبيض أقمشة بيضاء 950 مل'
-          ]
-        },
-        'منظفات ومطهرات الأسطح': {
-          'بخاخات تعقيم وتطهير': [
-            'كلوركس بخاخ تعقيم أسطح 750 مل',
-            'كلوركس جل تنظيف التواليت 700 مل صنوبر'
+          'كلوريل جل للألوان': [
+            'كلوريل جل حماية الألوان 950 مل',
+            'كلوريل جل للألوان برائحة الزهور 1.8 لتر'
           ]
         }
       },
-      'Downy (داوني)': {
-        'مركزات منعم ومعطر أقمشة': {
-          'عطور منعشة': [
-            'داوني مركز أزهار منعشة 1 لتر',
-            'داوني مركز نسيم الوادي 880 مل'
+      'ماكسيل ماجيك': {
+        'منظفات ومطهرات متعددة الأغراض': {
+          'ماكسيل ماجيك باور للدهون': [
+            'ماكسيل ماجيك منظف أفران ودهون صعبة 500 مل',
+            'ماكسيل ماجيك مذيب شحوم ودهون المطبخ 750 مل'
           ],
-          'عطور فاخرة': [
-            'داوني دريم جولد عطور فرنسية 1 لتر',
-            'داوني باشن أحمر عطور ملكية 1 لتر'
-          ]
-        }
-      },
-      'Pril (بريل)': {
-        'سائل تنظيف الأطباق': {
-          'بريل قوة الليمون المركز': [
-            'بريل سائل أطباق بالليمون الأخضر عبوة 1 لتر',
-            'بريل سائل أطباق مضاد للدهون 2.5 لتر عرض التوفير'
-          ],
-          'بريل بالخل وبيكربونات الصوديوم': [
-            'بريل برودكت الخل وبيكربونات 1.25 لتر'
-          ]
-        }
-      },
-      'Harpic (هاربيك)': {
-        'منظفات ومطهرات التواليت': {
-          'هاربيك باور بلس 10x': [
-            'هاربيك باور بلس أوريجينال 750 مل عبوة مزدوجة',
-            'هاربيك باور بلس ليمون 750 مل'
-          ],
-          'أقراص حافة التواليت': [
-            'هاربيك أقراص نشطة للحافة برائحة اللافندر 35 جم'
-          ]
-        }
-      },
-      'Oxi (أوكسي)': {
-        'مساحيق غسيل أوتوماتيك': {
-          'أوكسي بودرة': [
-            'أوكسي مسحوق أوتوماتيك 4 كجم نسيم الشرق',
-            'أوكسي مسحوق أوتوماتيك 2.5 كجم لافندر'
-          ],
-          'أوكسي جل سائل': [
-            'أوكسي جل غسيل مركز 2.5 لتر'
-          ]
-        }
-      },
-      'Dettol (ديتول)': {
-        'مطهرات ومعقمات': {
-          'سائل مطهر متعدد الأغراض': [
-            'ديتول سائل معقم ومطهر 725 مل',
-            'ديتول بخاخ معقم أسطح وأثاث 500 مل'
-          ]
-        }
-      },
-      'Finish (فينيش)': {
-        'مستلزمات غسالات الأطباق': {
-          'كبسولات وأقراص': [
-            'فينيش كوانتم ألتيميت ليمون 30 كبسولة',
-            'فينيش الكل في واحد أقراص 40 قرص'
-          ],
-          'إضافات غسالات': [
-            'فينيش مساعد شطف وتلميع 400 مل',
-            'فينيش ملح غسالات أطباق عالي النقاوة 2 كجم'
+          'ماكسيل ماجيك مطهر أرضيات وحمامات': [
+            'ماكسيل ماجيك مطهر أرضيات وحمامات 1 لتر',
+            'ماكسيل ماجيك جل منظف ومطهر تواليت 750 مل',
+            'ماكسيل ماجيك مطهر برائحة اللافندر 2 لتر'
           ]
         }
       }
@@ -383,7 +456,7 @@ const user = AuthManager.checkAuthGuard();
       const modal = document.getElementById('product-picker-modal');
       if (!modal) return;
       const bEl = document.getElementById('picker-brand');
-      syncCascade(bEl && bEl.value ? bEl.value : 'Persil (برسيل)');
+      syncCascade(bEl && bEl.value ? bEl.value : 'فلفيتا');
       modal.classList.add('active');
       modal.style.display = 'flex';
     };
@@ -403,7 +476,7 @@ const user = AuthManager.checkAuthGuard();
 
     // Initial population so lists are NEVER empty
     setTimeout(() => {
-      syncCascade('Persil (برسيل)');
+      syncCascade('فلفيتا');
     }, 50);
 
     window.confirmAddProduct = function() {
@@ -978,13 +1051,20 @@ const user = AuthManager.checkAuthGuard();
     });
 
     // Requirement 3: Strictly ask for location; if denied, reject the photo!
-    async function requestDeviceLocation() {
+    // Also runs automated Haversine GPS proximity validation against the selected branch (<= 150m)
+    async function requestDeviceLocation(targetBranchOverride = null) {
       const telGps = document.getElementById('tel-gps-text');
-      if (telGps) telGps.textContent = 'جاري طلب إذن الموقع الجغرافي (GPS)...';
+      const telBox = document.getElementById('compression-telemetry');
+      if (telBox) telBox.classList.remove('is-hidden');
+      if (telGps) telGps.textContent = 'جاري طلب إذن الموقع الجغرافي (GPS) والتحقق من نطاق الفرع...';
 
       if (!navigator.geolocation) {
         throw new Error('المتصفح أو الهاتف لا يدعم خدمة الـ GPS، ويلزم توفرها لاعتماد الصور.');
       }
+
+      const activeBranchName =
+        targetBranchOverride ||
+        (branchCombo && typeof branchCombo.getValue === 'function' ? branchCombo.getValue() : defaultBranch);
 
       return new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
@@ -996,11 +1076,31 @@ const user = AuthManager.checkAuthGuard();
               timestamp: formatDateTime(new Date()),
               verified: true
             };
+
+            // Check Haversine proximity against registered branch coordinates
+            let proximity = { isValid: true, distanceMeters: 0, maxAllowedMeters: 150 };
+            if (ActivityManager && typeof ActivityManager.validateBranchProximity === 'function') {
+              proximity = ActivityManager.validateBranchProximity(activeBranchName, loc, 150);
+              loc.distanceFromBranchMeters = proximity.distanceMeters;
+              loc.proximityVerified = proximity.isValid;
+            }
+
             currentDeviceLocation = loc;
+
             if (telGps) {
-              telGps.innerHTML = `تم التحقق من الموقع GPS بنجاح: <strong>${loc.latitude}&deg; N, ${loc.longitude}&deg; E</strong> (&plusmn;${loc.accuracy}م)`;
-              telGps.parentElement.style.background = '#f0fdf4';
-              telGps.parentElement.style.borderColor = '#86efac';
+              if (proximity.isValid) {
+                const distBadge =
+                  proximity.distanceMeters !== null && proximity.distanceMeters !== undefined
+                    ? ` — المسافة عن الفرع: <strong>${proximity.distanceMeters}م</strong> (ضمن النطاق المسموح ${proximity.maxAllowedMeters}م)`
+                    : '';
+                telGps.innerHTML = `تم التحقق من الموقع GPS بنجاح: <strong>${loc.latitude}&deg; N, ${loc.longitude}&deg; E</strong> (&plusmn;${loc.accuracy}م)${distBadge}`;
+                telGps.parentElement.style.background = '#f0fdf4';
+                telGps.parentElement.style.borderColor = '#86efac';
+              } else {
+                telGps.innerHTML = `<strong style="color: #b91c1c;">موقعك الحالي بعيد جداً عن نطاق الفرع المسجل (${proximity.distanceMeters}م &gt; ${proximity.maxAllowedMeters}م)</strong>`;
+                telGps.parentElement.style.background = '#fef2f2';
+                telGps.parentElement.style.borderColor = '#fca5a5';
+              }
             }
             resolve(loc);
           },
@@ -1008,18 +1108,25 @@ const user = AuthManager.checkAuthGuard();
             console.warn('Geolocation denied/error:', err.code, err.message);
             currentDeviceLocation = null;
             if (telGps) {
-              telGps.innerHTML = '<strong style="color: #b91c1c;">تم رفض إذن الموقع الجغرافي (Access Denied) — تم حظر رفع الصورة</strong>';
+              telGps.innerHTML = '<strong style="color: #b91c1c;">تم رفض إذن الموقع الجغرافي (Access Denied) — يرجى تفعيل الموقع للمتابعة</strong>';
               telGps.parentElement.style.background = '#fef2f2';
               telGps.parentElement.style.borderColor = '#fca5a5';
             }
             if (err.code === 1 || err.code === err.PERMISSION_DENIED) {
-              reject(new Error('❌ تم رفض إذن الوصول للموقع الجغرافي (Access Denied). لنظام أدكو الرقابي، يلزم منح صلاحية الـ GPS لاعتماد الصور الميدانية. تم حظر وإلغاء رفع الصورة.'));
+              reject(new Error('❌ تم رفض إذن الوصول للموقع الجغرافي (Access Denied). لنظام أدكو الرقابي، يلزم منح صلاحية الـ GPS للتحقق من تواجدك داخل نطاق الفرع المسجل.'));
             } else {
-              reject(new Error('❌ تعذر تحديد إحداثيات الـ GPS بدقة. يرجى تفعيل خدمة الموقع في هاتفك والمحاولة مجدداً.'));
+              reject(new Error('❌ تعذر تحديد إحداثيات الـ GPS بدقة. يرجى تفعيل خدمة الموقع في هاتفك أو متصفحك والمحاولة مجدداً.'));
             }
           },
           { enableHighAccuracy: true, timeout: 9000, maximumAge: 0 }
         );
+      });
+    }
+
+    // Automatically capture device GPS coordinates when opening the activity creation form
+    if (!activityId && navigator.geolocation) {
+      requestDeviceLocation().catch(() => {
+        // Handled gracefully in UI telemetry banner; re-prompted upon photo upload or form submission
       });
     }
 
@@ -1035,7 +1142,15 @@ const user = AuthManager.checkAuthGuard();
         showToast('جاري التحقق من إذن الموقع وفحص بصمة الصورة...', 'info');
 
         // Requirement 3: Ask for location access; if denied, reject the photo
-        const loc = await requestDeviceLocation();
+        const loc = await requestDeviceLocation(currentAct ? currentAct.branch : null);
+
+        // Automated Haversine GPS proximity check against the activity's registered branch
+        if (currentAct && ActivityManager && typeof ActivityManager.validateBranchProximity === 'function') {
+          const prox = ActivityManager.validateBranchProximity(currentAct.branch, loc, 150);
+          if (!prox.isValid) {
+            throw new Error(prox.errorMessage || 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل');
+          }
+        }
 
         // Process batch and extract rich EXIF metadata
         const processedBatch = await CameraCompressor.processFilesBatch(files, `Follow-up #${nextRound}`);
@@ -1140,7 +1255,13 @@ const user = AuthManager.checkAuthGuard();
 
       try {
         showToast('جاري التحقق من إذن الموقع وفحص بصمة الصورة...', 'info');
-        const loc = await requestDeviceLocation();
+        const loc = await requestDeviceLocation(branchCombo ? branchCombo.getValue() : defaultBranch);
+        if (ActivityManager && typeof ActivityManager.validateBranchProximity === 'function') {
+          const prox = ActivityManager.validateBranchProximity(branchCombo ? branchCombo.getValue() : defaultBranch, loc, 150);
+          if (!prox.isValid) {
+            throw new Error(prox.errorMessage || 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل');
+          }
+        }
         const batch = await CameraCompressor.processFilesBatch(files, 'Round 1');
         initialProcessedPhotos = batch;
 
@@ -1209,40 +1330,56 @@ const user = AuthManager.checkAuthGuard();
       const actDateEl = document.getElementById('f-activity-date');
       const actDateVal = actDateEl ? actDateEl.value : '';
 
-      const payload = {
-        coordinatorId: user.employeeId,
-        coordinatorName: user.fullName,
-        client: clientVal,
-        branch: branchVal,
-        coordinatorBranch: coordBranchVal,
-        activity: activityVal,
-        activityType: activityTypeVal,
-        activityCount: activityCountVal,
-        brands: distinctBrands,
-        products: selectedProducts,
-        skuVariant: skuVal,
-        activityDate: actDateVal || undefined,
-        magazineDate: activityVal === 'فرشة مجلة' ? (magStartVal + (magEndVal ? ' إلى ' + magEndVal : '')) : '',
-        magazineStartDate: activityVal === 'فرشة مجلة' ? magStartVal : null,
-        magazineEndDate: activityVal === 'فرشة مجلة' ? magEndVal : null,
-        photoUrl: initialProcessedPhotos[0].photoUrl,
-        photoHash: initialProcessedPhotos[0].photoHash,
-        initialPhotos: initialProcessedPhotos,
-        location: currentDeviceLocation
-      };
-
       const btn = document.getElementById('submit-activity-btn');
       btn.disabled = true;
-      btn.innerHTML = `<span>جاري اعتماد البيانات...</span>`;
+      btn.innerHTML = `<span>جاري التحقق من الموقع الجغرافي (GPS)...</span>`;
 
       try {
+        // Ensure live device GPS coordinates are captured via navigator.geolocation.getCurrentPosition
+        if (!currentDeviceLocation) {
+          await requestDeviceLocation(branchVal);
+        }
+
+        // Validate Haversine proximity against branch coordinates (max 150m)
+        if (ActivityManager && typeof ActivityManager.validateBranchProximity === 'function') {
+          const proxCheck = ActivityManager.validateBranchProximity(branchVal, currentDeviceLocation, 150);
+          if (!proxCheck.isValid) {
+            throw new Error(proxCheck.errorMessage || 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل');
+          }
+        }
+
+        const payload = {
+          coordinatorId: user.employeeId,
+          coordinatorName: user.fullName,
+          client: clientVal,
+          branch: branchVal,
+          coordinatorBranch: coordBranchVal,
+          activity: activityVal,
+          activityType: activityTypeVal,
+          activityCount: activityCountVal,
+          brands: distinctBrands,
+          products: selectedProducts,
+          skuVariant: skuVal,
+          activityDate: actDateVal || undefined,
+          magazineDate: activityVal === 'فرشة مجلة' ? (magStartVal + (magEndVal ? ' إلى ' + magEndVal : '')) : '',
+          magazineStartDate: activityVal === 'فرشة مجلة' ? magStartVal : null,
+          magazineEndDate: activityVal === 'فرشة مجلة' ? magEndVal : null,
+          photoUrl: initialProcessedPhotos[0].photoUrl,
+          photoHash: initialProcessedPhotos[0].photoHash,
+          initialPhotos: initialProcessedPhotos,
+          latitude: currentDeviceLocation ? currentDeviceLocation.latitude : undefined,
+          longitude: currentDeviceLocation ? currentDeviceLocation.longitude : undefined,
+          location: currentDeviceLocation
+        };
+
+        btn.innerHTML = `<span>جاري اعتماد البيانات...</span>`;
         const res = await ActivityManager.submitActivity(payload);
-        showToast('تم تسجيل بطاقة النشاط بنجاح', 'success');
+        showToast('تم التحقق من نطاق الفرع وتسجيل بطاقة النشاط بنجاح', 'success');
         setTimeout(() => {
           window.location.href = `./activity-card.html?id=${res.record.id}`;
         }, 400);
       } catch (err) {
-        showToast(err.message, 'error');
+        showToast(err.message, 'error', 5000);
         btn.disabled = false;
         btn.innerHTML = `<img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" /><span>اعتماد وإرسال بطاقة النشاط</span>`;
       }

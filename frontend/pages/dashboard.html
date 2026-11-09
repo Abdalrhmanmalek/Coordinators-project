@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#15803d" />
+  <meta name="theme-color" content="#0f766e" />
   <title>لوحة المنسق الميداني | ADCO Field Portal</title>
   <link rel="stylesheet" href="../css/variables.css" />
   <link rel="stylesheet" href="../css/base.css" />
@@ -22,7 +22,7 @@
     <div class="db-s1">
       <div>
         <h1 class="db-s2" id="welcome-title">لوحة المتابعة الميدانية</h1>
-        <p id="welcome-role">استعراض الأنشطة الترويجية ومتابعة تقييمات الجودة المعتمدة</p>
+        <p id="welcome-role">استعراض بطاقات الفروع والأنشطة الترويجية ومتابعة تقييمات الجودة المعتمدة</p>
       </div>
       <a href="./activity-card.html" class="btn btn-primary">
         <img src="../assets/icons/plus-circle.svg" class="ui-icon" alt="" />
@@ -48,38 +48,44 @@
         </div>
         <div>
           <div class="kpi-num db-s4" id="kpi-accepted">0</div>
-          <div class="kpi-title">الانشطه المقبوله</div>
+          <div class="kpi-title">الأنشطة المقبولة</div>
         </div>
       </div>
 
       <div class="kpi-card">
         <div class="kpi-icon-wrap db-s5">
-          <img src="../assets/icons/star.svg" class="ui-icon ui-icon-lg" alt="" />
+          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-lg" alt="" />
         </div>
         <div>
-          <div class="kpi-num db-s6" id="kpi-avg-score">0/100</div>
-          <div class="kpi-title">متوسط التقييم الشامل (من 100)</div>
+          <div class="kpi-num db-s6" id="kpi-under-review">0</div>
+          <div class="kpi-title">إجمالي الأنشطة تحت المراجعه</div>
         </div>
       </div>
     </div>
 
-    <!-- Dedicated Filter Bar for Coordinator Supervisor (Tier 2 RBAC) -->
+    <!-- Dedicated Filter Bar for Manager & Coordinator Supervisor (Parent Client & Branch) -->
     <div id="sup-filter-toolbar" class="card db-s7 is-hidden">
       <div class="db-s8">
         <div class="db-s9">
           <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>تصفية الفروع والمنسقين التابعين للمشرف: <strong id="sup-client-tag">فتح الله جملة ماركت (Fathalla)</strong></span>
+          <span id="sup-toolbar-title">تصفية الفروع والسلاسل التجارية: <strong id="sup-client-tag">جميع العملاء (العميل الأم)</strong></span>
         </div>
-        <span class="badge badge-mint" id="sup-branch-count-badge">كل فروع العميل</span>
+        <span class="badge badge-mint" id="sup-branch-count-badge">كل الفروع</span>
       </div>
       <div class="responsive-form-grid db-s10">
+        <div class="form-group db-s11" id="group-filter-parent-client">
+          <label class="form-label db-s12" for="filter-parent-client">اسم العميل الأم (Parent Client)</label>
+          <select id="filter-parent-client" class="form-select db-s13">
+            <option value="ALL">جميع السلاسل والعملاء</option>
+          </select>
+        </div>
         <div class="form-group db-s11">
-          <label class="form-label db-s12" for="filter-sup-branch">فرع العميل</label>
+          <label class="form-label db-s12" for="filter-sup-branch">اسم فرع العميل (Client Branch)</label>
           <select id="filter-sup-branch" class="form-select db-s13">
             <option value="ALL">كل فروع العميل</option>
           </select>
         </div>
-        <div class="form-group db-s11">
+        <div class="form-group db-s11" id="group-filter-sup-coord">
           <label class="form-label db-s12" for="filter-sup-coord">المنسق الميداني</label>
           <select id="filter-sup-coord" class="form-select db-s13">
             <option value="ALL">كل المنسقين</option>
@@ -88,21 +94,44 @@
       </div>
     </div>
 
+    <!-- Master Branch Cards Section -->
+    <div class="section-header-row">
+      <h3 class="section-header-title">
+        <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-sm" alt="" />
+        <span>بطاقات الفروع الرئيسية وفروع الشركة الموردة للبضاعة</span>
+      </h3>
+      <button type="button" id="reset-branch-card-filter" class="btn btn-outline btn-sm is-hidden">
+        <span>إظهار كافة الفروع</span>
+      </button>
+    </div>
+    <div id="master-branches-mount" class="master-branches-grid"></div>
+
     <!-- Filter Bar -->
     <div class="filter-bar">
       <div class="filter-chips">
-        <button type="button" class="filter-chip active" data-filter="ALL">الكل</button>
+        <button type="button" class="filter-chip active" data-filter="ALL">
+          <span>الكل</span>
+          <span class="chip-count-pill" id="cnt-all">0</span>
+        </button>
         <button type="button" class="filter-chip" data-filter="Under Review">
           <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
           <span>قيد المراجعة</span>
+          <span class="chip-count-pill" id="cnt-review">0</span>
         </button>
         <button type="button" class="filter-chip" data-filter="Accepted">
           <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
           <span>مقبول</span>
+          <span class="chip-count-pill" id="cnt-accepted">0</span>
         </button>
         <button type="button" class="filter-chip" data-filter="Rejected">
           <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>مرفوض</span>
+          <span>المرفوضة</span>
+          <span class="chip-count-pill" id="cnt-rejected">0</span>
+        </button>
+        <button type="button" class="filter-chip" data-filter="CLOSED">
+          <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>المنتهية</span>
+          <span class="chip-count-pill" id="cnt-closed">0</span>
         </button>
       </div>
 

@@ -4,6 +4,71 @@
  */
 
 export class Validators {
+  static MAX_BRANCH_PROXIMITY_METERS = 150;
+
+  /**
+   * Haversine Formula: Calculates great-circle distance in meters between two GPS coordinates
+   */
+  static calculateHaversineDistanceMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // Earth mean radius in meters
+    const toRad = (deg) => (Number(deg) * Math.PI) / 180;
+    const dLat = toRad(Number(lat2) - Number(lat1));
+    const dLon = toRad(Number(lon2) - Number(lon1));
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.round(R * c);
+  }
+
+  /**
+   * Validates Coordinator Device GPS Proximity against Registered Branch Coordinates
+   * Throws/returns clear Arabic error if distance > threshold (default 150 meters)
+   */
+  static validateBranchProximity(branchCoords, deviceCoords, maxMeters = Validators.MAX_BRANCH_PROXIMITY_METERS) {
+    if (!deviceCoords || deviceCoords.latitude === undefined || deviceCoords.longitude === undefined) {
+      return {
+        isValid: false,
+        distanceMeters: null,
+        maxAllowedMeters: maxMeters,
+        errorMessage: 'تعذر التحقق من الموقع الجغرافي (GPS): يرجى تفعيل خدمة الموقع لمنح الإحداثيات الحالية'
+      };
+    }
+
+    if (!branchCoords || branchCoords.latitude === undefined || branchCoords.longitude === undefined) {
+      return {
+        isValid: true,
+        distanceMeters: 0,
+        maxAllowedMeters: maxMeters,
+        errorMessage: null
+      };
+    }
+
+    const distanceMeters = this.calculateHaversineDistanceMeters(
+      branchCoords.latitude,
+      branchCoords.longitude,
+      deviceCoords.latitude,
+      deviceCoords.longitude
+    );
+
+    const threshold = Number(maxMeters) || Validators.MAX_BRANCH_PROXIMITY_METERS;
+    if (distanceMeters > threshold) {
+      return {
+        isValid: false,
+        distanceMeters,
+        maxAllowedMeters: threshold,
+        errorMessage: 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل'
+      };
+    }
+
+    return {
+      isValid: true,
+      distanceMeters,
+      maxAllowedMeters: threshold,
+      errorMessage: null
+    };
+  }
+
   /**
    * Validates Egyptian national mobile number (010, 011, 012, 015)
    */
