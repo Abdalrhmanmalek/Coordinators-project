@@ -92,7 +92,7 @@ The system enforces 3 distinct operational tiers with strict data scoping and au
     * **Dynamic Database Binding (`ActivityManager.fetchSupplyingBranch`):** Whenever the coordinator selects or changes **Client (`العميل`)** or **Client Branch (`فرع العميل`)**, the form automatically queries `GET /api/v1/branches/supplying-branch?client=...&branch=...` (with instant relational database lookup via `ADCO_CATALOGS.supplyingBranchMap` and activity records) and auto-populates `#f-supplying-branch-readonly` as a **read-only, database-bound field** (`تلقائي من قاعدة البيانات`) to guarantee data accuracy and prevent manual entry errors.
   * `activity`: Activity type from catalog (e.g. `عقد`, `فرشة مجلة`, `إضافي`, `افتتاح فرع جديد`, `مهرجان`, `موسمي`).
   * `activityType` (`activityCategory`): Category options include `جندولة`, `دريس اب`, `سايد جندولة`, `ستاند`, `بوديوم`, `بيلر`, **`كات مان`**, `سي ثرو`, **`لايت بوكس`**, `عرض أرضي`.
-  * `activityCount`: Integer from 1 to 10 (stepper control).
+  * `activityCount`: Defaults to 1 (manual counter field removed from creation view to streamline submissions).
   * `activityDate`: Datetime-Local. Defaults to current Egypt timestamp (`Africa/Cairo`), editable at creation time.
 
 * **Conditional Magazine Date Range (`فرشة مجلة`):**

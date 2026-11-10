@@ -420,6 +420,52 @@ input::placeholder,
   color: var(--adco-gray-800);
 }
 
+/* =========================================================
+   TASK 2 & 6: Full-Screen Mobile Takeover for All Modals & Dialogs
+   On mobile devices, modals take over the full screen (page takeover)
+   ========================================================= */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  .modal-sheet,
+  .modal-sheet.sp-s10,
+  .modal-sheet.sp-s51,
+  .modal-sheet.ac-s33,
+  .modal-sheet.ac-s49,
+  .modal-sheet.ac-s70,
+  .custom-modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 18px 16px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    z-index: 25;
+    margin-top: -6px;
+    padding-top: 6px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
+}
+
 /* Lightbox Modal */
 .lightbox-overlay {
   position: fixed;

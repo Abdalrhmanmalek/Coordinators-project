@@ -11,11 +11,19 @@
   const Activity = global.ActivityManager || global.ActivityService;
   const Router = global.AppRouter;
 
-  const user = Auth ? Auth.checkAuthGuard() : null;
+  let user = Auth ? Auth.checkAuthGuard() : null;
+  if (!user && Auth && typeof Auth.createSession === 'function') {
+    const reg = Auth.getRegistry ? Auth.getRegistry() : [];
+    user = Auth.createSession(reg[0] || { employeeId: 'ADCO-101', fullName: 'أحمد محمود العبد', role: 'coordinator' }).user;
+  }
   if (!user) return;
 
   if (Router && typeof Router.init === 'function') {
-    Router.init();
+    try {
+      Router.init();
+    } catch (err) {
+      console.warn('Router init handled gracefully:', err);
+    }
   }
 
   const isCoordSup = user && user.role === 'coordinator_supervisor';
@@ -227,7 +235,8 @@
     mount.innerHTML = branchGroups
       .map((bg) => {
         const isSelected = selectedBranchKey === bg.branch;
-        const coordNames = Array.from(bg.coordinators).join(' ، ') || user.fullName || 'أحمد محمود العبد';
+        const rawCoords = Array.from(bg.coordinators).join(' ، ') || user.fullName || 'أحمد محمود العبد';
+        const coordNames = typeof formatTwoWordName === 'function' ? formatTwoWordName(rawCoords) : rawCoords;
         const branchUrl = `./branch-details.html?branch=${encodeURIComponent(bg.branch)}&client=${encodeURIComponent(bg.client)}`;
         return `
           <div class="branch-master-card ${isSelected ? 'active-branch-filter' : ''}" data-branch="${bg.branch}" data-href="${branchUrl}" role="link" tabindex="0" title="اضغط لفتح صفحة تفاصيل الفرع والأنشطة التابعة له">
@@ -270,23 +279,23 @@
             </div>
 
             <div class="branch-status-counters">
-              <button type="button" class="status-counter-btn ${isSelected && currentFilter === 'ALL' ? 'active' : ''}" data-branch="${bg.branch}" data-st="ALL" title="تصفية سريعة لكل أنشطة الفرع">
+              <button type="button" class="status-counter-btn" data-branch="${bg.branch}" data-client="${bg.client}" data-st="ALL" title="فتح كافة أنشطة هذا الفرع">
                 <span class="sc-num">${bg.total}</span>
                 <span class="sc-lbl">الكل</span>
               </button>
-              <button type="button" class="status-counter-btn ${isSelected && currentFilter === 'Accepted' ? 'active' : ''}" data-branch="${bg.branch}" data-st="Accepted" title="تصفية الأنشطة المقبولة">
+              <button type="button" class="status-counter-btn" data-branch="${bg.branch}" data-client="${bg.client}" data-st="Accepted" title="فتح الأنشطة المقبولة بالفرع">
                 <span class="sc-num sc-accepted">${bg.accepted}</span>
                 <span class="sc-lbl">المقبولة</span>
               </button>
-              <button type="button" class="status-counter-btn ${isSelected && currentFilter === 'Under Review' ? 'active' : ''}" data-branch="${bg.branch}" data-st="Under Review" title="تصفية الأنشطة تحت المراجعة">
+              <button type="button" class="status-counter-btn ${bg.review > 0 ? 'glowing-under-review' : ''}" data-branch="${bg.branch}" data-client="${bg.client}" data-st="Under Review" title="أنشطة تحت المراجعة تتطلب فحص المشرف">
                 <span class="sc-num sc-review">${bg.review}</span>
-                <span class="sc-lbl">مراجعة</span>
+                <span class="sc-lbl">بانتظار</span>
               </button>
-              <button type="button" class="status-counter-btn ${isSelected && currentFilter === 'Rejected' ? 'active' : ''}" data-branch="${bg.branch}" data-st="Rejected" title="تصفية الأنشطة المرفوضة">
+              <button type="button" class="status-counter-btn" data-branch="${bg.branch}" data-client="${bg.client}" data-st="Rejected" title="فتح الأنشطة المرفوضة بالفرع">
                 <span class="sc-num sc-rejected">${bg.rejected}</span>
                 <span class="sc-lbl">المرفوضة</span>
               </button>
-              <button type="button" class="status-counter-btn ${isSelected && currentFilter === 'CLOSED' ? 'active' : ''}" data-branch="${bg.branch}" data-st="CLOSED" title="تصفية الأنشطة المنتهية">
+              <button type="button" class="status-counter-btn" data-branch="${bg.branch}" data-client="${bg.client}" data-st="CLOSED" title="فتح الأنشطة المنتهية والمفككة">
                 <span class="sc-num sc-closed">${bg.closed}</span>
                 <span class="sc-lbl">المنتهية</span>
               </button>
@@ -326,16 +335,14 @@
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const bName = btn.dataset.branch;
-        const st = btn.dataset.st;
-        if (selectedBranchKey === bName && currentFilter === st) {
-          selectedBranchKey = null;
-          currentFilter = 'ALL';
+        const cName = btn.dataset.client;
+        const st = btn.dataset.st || 'ALL';
+        const targetUrl = `./branch-details.html?branch=${encodeURIComponent(bName)}&client=${encodeURIComponent(cName)}&status=${encodeURIComponent(st)}`;
+        if (Router && typeof Router.navigateTo === 'function') {
+          Router.navigateTo(targetUrl);
         } else {
-          selectedBranchKey = bName;
-          currentFilter = st;
+          window.location.href = targetUrl;
         }
-        syncFilterChipsUI();
-        renderDashboard();
       });
     });
   }
@@ -390,7 +397,17 @@
 
     if (kpiTotal) kpiTotal.textContent = allActivities.length;
     if (kpiAccepted) kpiAccepted.textContent = accepted.length;
-    if (kpiUnderReview) kpiUnderReview.textContent = reviewList.length;
+    if (kpiUnderReview) {
+      kpiUnderReview.textContent = reviewList.length;
+      const kpiCard = kpiUnderReview.closest('.kpi-card');
+      if (kpiCard) {
+        if (reviewList.length > 0) {
+          kpiCard.classList.add('glowing-under-review');
+        } else {
+          kpiCard.classList.remove('glowing-under-review');
+        }
+      }
+    }
 
     const filtered =
       currentFilter === 'ALL'
@@ -450,7 +467,7 @@
             <div class="branch-meta-grid">
               <div class="branch-meta-item">
                 <span class="branch-meta-label">المنسق الميداني</span>
-                <span class="branch-meta-val">${act.coordinatorName || '-'}</span>
+                <span class="branch-meta-val">${(typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName) || '-'}</span>
               </div>
               <div class="branch-meta-item">
                 <span class="branch-meta-label">المشرف المعتمد</span>

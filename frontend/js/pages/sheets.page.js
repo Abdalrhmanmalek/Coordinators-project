@@ -14,7 +14,11 @@ const Auth = global.AuthManager || global.AuthService;
       Auth.checkAuthGuard('supervisor');
     }
     if (Router && typeof Router.init === 'function') {
-      Router.init();
+      try {
+        Router.init();
+      } catch (err) {
+        console.warn('Router init handled gracefully:', err);
+      }
     }
 
     const searchInput = document.getElementById('sheet-search');

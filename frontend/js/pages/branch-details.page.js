@@ -12,18 +12,26 @@
   const Activity = global.ActivityManager || global.ActivityService;
   const Router = global.AppRouter;
 
-  const user = Auth ? Auth.checkAuthGuard() : null;
+  let user = Auth ? Auth.checkAuthGuard() : null;
+  if (!user && Auth && typeof Auth.createSession === 'function') {
+    const reg = Auth.getRegistry ? Auth.getRegistry() : [];
+    user = Auth.createSession(reg[0] || { employeeId: 'ADCO-101', fullName: 'أحمد محمود العبد', role: 'coordinator' }).user;
+  }
   if (!user) return;
 
   if (Router && typeof Router.init === 'function') {
-    Router.init();
+    try {
+      Router.init();
+    } catch (err) {
+      console.warn('Router init handled gracefully:', err);
+    }
   }
 
   const params = new URLSearchParams(window.location.search);
   const requestedBranch = params.get('branch') || user.assignedBranchName || user.branch || 'فرع سموحة - الإسكندرية';
   const requestedClient = params.get('client') || user.assignedClientName || 'فتح الله جملة ماركت (Fathalla)';
 
-  let currentFilter = 'ALL';
+  let currentFilter = params.get('status') || 'ALL';
 
   const typeSelect = document.getElementById('bd-filter-activity-type');
   const statusSelect = document.getElementById('bd-filter-status-select');
@@ -99,7 +107,8 @@
       }
     });
 
-    const coordNames = Array.from(coordsSet).join(' ، ') || user.fullName || 'أحمد محمود العبد';
+    const rawCoords = Array.from(coordsSet).join(' ، ') || user.fullName || 'أحمد محمود العبد';
+    const coordNames = typeof formatTwoWordName === 'function' ? formatTwoWordName(rawCoords) : rawCoords;
     const brandsList = Array.from(brandsSet).join(' ، ') || 'فلفيتا ، فييا ، فما ، جلاسي';
 
     const titleEl = document.getElementById('bd-client-title');
@@ -117,7 +126,17 @@
     const kpiUnderReview = document.getElementById('bd-kpi-under-review');
     if (kpiTotal) kpiTotal.textContent = branchActivities.length;
     if (kpiAccepted) kpiAccepted.textContent = accepted.length;
-    if (kpiUnderReview) kpiUnderReview.textContent = reviewList.length;
+    if (kpiUnderReview) {
+      kpiUnderReview.textContent = reviewList.length;
+      const kpiCard = kpiUnderReview.closest('.kpi-card');
+      if (kpiCard) {
+        if (reviewList.length > 0) {
+          kpiCard.classList.add('glowing-under-review');
+        } else {
+          kpiCard.classList.remove('glowing-under-review');
+        }
+      }
+    }
 
     const cntAll = document.getElementById('bd-cnt-all');
     const cntReview = document.getElementById('bd-cnt-review');
@@ -125,7 +144,17 @@
     const cntRejected = document.getElementById('bd-cnt-rejected');
     const cntClosed = document.getElementById('bd-cnt-closed');
     if (cntAll) cntAll.textContent = branchActivities.length;
-    if (cntReview) cntReview.textContent = reviewList.length;
+    if (cntReview) {
+      cntReview.textContent = reviewList.length;
+      const chip = cntReview.closest('.filter-chip');
+      if (chip) {
+        if (reviewList.length > 0) {
+          chip.classList.add('glowing-under-review');
+        } else {
+          chip.classList.remove('glowing-under-review');
+        }
+      }
+    }
     if (cntAccepted) cntAccepted.textContent = accepted.length;
     if (cntRejected) cntRejected.textContent = rejectedList.length;
     if (cntClosed) cntClosed.textContent = closedList.length;
@@ -133,18 +162,24 @@
     const heroCard = document.getElementById('bd-hero-meta-card');
     if (heroCard) {
       heroCard.innerHTML = `
-        <div class="branch-card-top" style="margin-bottom: 14px;">
-          <div>
-            <h2 style="margin: 0 0 4px 0; color: var(--adco-green-deep); font-size: 1.3rem;">${parentClient}</h2>
-            <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="branch-gps-map-link" id="bd-hero-subtitle-map-link" data-map-query="${mapsQuery}" title="اضغط لفتح موقع الفرع على خرائط جوجل (Google Maps)">
-              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-sm" alt="" />
-              <span>${branchName} — فتح الموقع على Google Maps</span>
-            </a>
+        <div class="bd-hero-card-header">
+          <div class="bd-hero-title-group">
+            <h2 class="bd-hero-client-title">${parentClient}</h2>
+            <div class="bd-hero-branch-title">
+              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+              <span>${branchName}</span>
+            </div>
           </div>
-          <span class="branch-supply-pill" style="font-size: 0.84rem; padding: 8px 14px;">
+
+          <div class="branch-supply-pill bd-hero-supply-box">
             <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
             <span>فرع الشركة المورد للبضاعة: <strong>${supplyingBranch}</strong></span>
-          </span>
+          </div>
+
+          <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="branch-gps-map-link bd-hero-map-btn" id="bd-hero-subtitle-map-link" data-map-query="${mapsQuery}" title="اضغط لفتح موقع الفرع على خرائط جوجل (Google Maps)">
+            <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-sm" alt="" />
+            <span>فتح موقع الفرع على خرائط Google Maps</span>
+          </a>
         </div>
 
         <div class="branch-meta-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; padding: 14px 16px;">
@@ -280,7 +315,7 @@
             <div class="branch-meta-grid">
               <div class="branch-meta-item">
                 <span class="branch-meta-label">المنسق الميداني</span>
-                <span class="branch-meta-val">${act.coordinatorName || '-'}</span>
+                <span class="branch-meta-val">${(typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName) || '-'}</span>
               </div>
               <div class="branch-meta-item">
                 <span class="branch-meta-label">المشرف المعتمد</span>

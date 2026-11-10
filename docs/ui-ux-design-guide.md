@@ -103,3 +103,72 @@ This master design guide defines the enterprise visual standards, clean light-mo
   * `.circular-charts-row`, `.analytics-dashboard-grid`, `.vbar-chart-grid`, `.histogram-chart-grid`, `.pie-chart-layout`, `.chart-inline-filters`, and `.chart-kpi-strip` scale fluidly on mobile phones and tablets without horizontal overflow or layout shifts.
 * **Staggered Slide-Up Box Entrance Animations (`@keyframes adcoSlideUpBox`):**
   * Cards, KPI boxes, branch cards, circular rings, and chart containers load and slide up from bottom to top like neatly stacking boxes (`translateY(18px) -> translateY(0)` over `0.28s` with `cubic-bezier(0.16, 1, 0.3, 1)` and subtle `0.02s–0.17s` stagger delays).
+
+### 2.9 Full-Screen Mobile Modals & Desktop Outside-Click Dismissal (`frontend/css/components.css` & `frontend/js/app.js`)
+* **Full-Screen Mobile Takeover (`<= 768px`):**
+  * Opening any modal (`#review-modal`, `#activity-audit-modal`, `#timeline-modal`, `#product-picker-modal`, `#profile-modal`, etc.) takes over the **full screen** (`width: 100%`, `height: 100dvh`, `border-radius: 0`, `padding: 18px 16px`) instead of appearing as a cramped floating dialog box, ensuring breathing room for typography, smooth touch scrolling, and easy navigation back and forth.
+* **Desktop Outside-Click Dismissal (`initDesktopOutsideModalDismissal`):**
+  * On desktop viewports, clicking anywhere outside the bounds of an active floating window automatically closes/dismisses it immediately without requiring manual interaction with the 'X' button.
+
+### 2.10 Branch-Centric Activities & Glowing Under-Review Badges (`frontend/pages/dashboard.html` & `frontend/css/dashboard.css`)
+* **Elimination of Standalone Activities Feed:**
+  * Standalone loose activity cards floating outside branches have been removed from the dashboard. Activities are exclusively accessed by opening their respective **Master Branch Card** (navigating to `branch-details.html`).
+* **Glowing Under-Review Badge (`@keyframes adcoReviewPulse`):**
+  * Master Branch Cards feature a high-visibility pulsing glow effect on the "Under Review" (`مراجعة`) status button whenever that branch contains pending activities requiring supervisor review.
+
+### 2.11 Uniform Chart Bar Baselines & Supervisor Review Mobile Positioning (`frontend/css/analytics.css` & `frontend/css/supervisor.css`)
+* **Uniform Chart Bar Baselines:**
+  * Fixed vertical bar chart label containers to a uniform height (`height: 36px`) so two-line labels flow naturally without elevating or misaligning the bar tracks above. All bars remain anchored to an identical baseline.
+* **Supervisor Mobile Positioning:**
+  * In mobile supervisor cards, coordinator metadata and avatar appear prominently at the top (`order: 1`), action buttons in the middle (`order: 2`), and the numerical rating card/box is anchored to the absolute bottom of the container (`order: 3; margin-top: auto`).
+
+### 2.12 Layout Shift Prevention & Stable Scrollbar Reservation (`frontend/css/base.css` & `frontend/css/enhancements.css`)
+* **Global Scrollbar Gutter Reservation:**
+  * Applied `scrollbar-gutter: stable;` and `overflow-y: scroll;` globally on the root `html` element. This permanently reserves the vertical scrollbar track across all desktop and mobile browsers, guaranteeing that the viewport width remains identical when navigating between short pages (e.g. login) and long pages (e.g. dashboard, branch details), eliminating content horizontal jumps and flickering.
+* **Custom Light Mode Scrollbars:**
+  * Sleek `#f1f5f9` track with rounded `#cbd5e1` thumb matching the corporate Light Mode palette.
+* **Page Transition Continuity:**
+  * `body.page-is-leaving` maintains `overflow-y: scroll !important;` so scroll dimensions do not collapse during the 150ms transition exit animation.
+
+### 2.13 Fixed Persistent Top Navigation Bar (`frontend/css/layout.css` & `frontend/js/app.js`)
+* **Persistent Fixed Header:**
+  * `#app-header-mount` is permanently anchored to the top of the viewport (`position: sticky; top: 0; left: 0; right: 0; width: 100%; z-index: 1000;`) across all application pages during vertical scrolling and page transitions.
+  * Frosted glass background (`rgba(255, 255, 255, 0.94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(226, 232, 240, 0.85); box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);`) smoothly blurs all content passing underneath it without any gaps or overlapping glitches.
+* **Layout Offset & Breathing Room:**
+  * `.web-main-workspace` features standard top padding (`28px 32px 48px;` desktop, `20px 14px 40px;` mobile) ensuring page titles and headings are never covered or cut off by the fixed header.
+
+### 2.14 Stacked Chart Data Labels Alignment (`frontend/js/pages/analytics.page.js` & `frontend/css/analytics.css`)
+* **Elimination of Text Collisions Above Chart Bars:**
+  * Previously, values and percentage badges were rendered horizontally side-by-side on a single line (`<span class="vbar-val">${share} (${pct}%)</span>`) which exceeded column widths (~30px–45px in an 8-column layout), causing adjacent labels to collide into an unreadable overlapped string.
+  * Refactored into a vertically-stacked container (`.vbar-val-box`):
+    * **Top Line (`.vbar-num`):** Bold numerical metric (`7.9` or raw count) centered directly above the bar.
+    * **Bottom Line (`.vbar-pct`):** Subtle teal percentage badge (`(21%)`) neatly placed under the value.
+* **Responsive Scaling Across Devices:**
+  * Desktop: `.vbar-num` at `0.76rem`, `.vbar-pct` at `0.62rem`, `.vbar-val-box` min-height `28px`.
+  * Tablet/Mobile (`<= 768px`): Scaled to `0.66rem` / `0.56rem`, min-height `24px`.
+  * Small Mobile (`<= 480px`): Compact `0.60rem` / `0.52rem`, min-height `22px`.
+  * Guarantees crystal-clear readability for all 8 official ADCO brand columns and display types with zero overlap or truncation.
+
+### 2.15 Leaderboard Podium Hierarchy & Responsive Mobile Ordering (`frontend/css/leaderboard.css` & `frontend/js/pages/leaderboard.page.js`)
+* **3-Tier Stepped Podium Layout (Desktop):**
+  * **1st Place (المركز الأول):** Positioned directly in the center (`order: 2`), elevated with highest card level (`height: 360px`, `top: -16px`), gold border (`#f59e0b`), gold drop shadow, gold rank badge, and a 52px tall gold pedestal base marked "1".
+  * **2nd Place (المركز الثاني):** Positioned on the right in RTL (`order: 1`), middle height level (`height: 300px`, `top: -4px`), silver border (`#cbd5e1`), silver rank badge, and a 40px silver pedestal base marked "2".
+  * **3rd Place (المركز الثالث):** Positioned on the left in RTL (`order: 3`), base/lowest height level (`height: 250px`, `top: 0`), warm bronze border (`#fed7aa`), bronze rank badge, and a 28px bronze pedestal base marked "3".
+  * Cards are anchored along `align-items: flex-end` so that all pedestals share a common baseline floor, producing an unmistakable 2-1-3 athletic championship stepped silhouette.
+* **Foolproof Mobile Stacking (<= 768px):**
+  * Cards stack vertically (`flex-direction: column !important; width: 100% !important; height: auto !important; top: 0 !important;`).
+  * Explicit ordering guarantees 1st Place is anchored at the top (`order: 1 !important;`), followed by 2nd Place (`order: 2 !important;`), and 3rd Place (`order: 3 !important;`), reinforced by natural DOM sequence `[top3[0], top3[1], top3[2]]`.
+  * Staggered slide-up box animation (`.podium-wrap > *:nth-child(...)`) integrated smoothly into entrance transitions.
+
+### 2.16 Mobile Branch Header Hierarchy, Glowing Pulse Indicator & Two-Word Coordinator Formatting
+* **Mobile Branch Header Sequence (`.bd-hero-card-header`):**
+  * On mobile viewports (`<= 768px`), elements inside the branch hero card stack in a clean, vertical sequence:
+    1. Parent Client & Branch title group (`.bd-hero-title-group`).
+    2. Supplying Branch Box (`.bd-hero-supply-box`) occupying 100% width with shield vector icon.
+    3. Google Maps location button (`.bd-hero-map-btn`) rendered as a full-width clickable action button.
+    4. Metadata grid (`.branch-meta-grid`) dynamically reorganizing into a single 100%-width column.
+* **High-Visibility Glowing Pulse Indicator (`.glowing-under-review` & `@keyframes adcoReviewPulse`):**
+  * Applied across all pending review counters ("بانتظار" / Under Review), including master branch status counters, filter chips (`#sp-cnt-review`, `#bd-cnt-review`), KPI cards (`#kpi-card-under-review`), and top navigation drawer badges whenever pending items require supervisor review.
+  * Emits an attention-grabbing amber glow (`rgba(245, 158, 11, 0.7)`), 1.8s smooth pulse animation, and bold `#b45309` typography.
+* **Two-Word Coordinator Name Formatting (`UIHelpers.formatTwoWordName`):**
+  * On all external master branch cards and list views, coordinator names are truncated strictly to First and Last Name (اسم ثنائي - e.g. "أحمد العبد" instead of "أحمد محمود العبد"), while smartly preserving compound prefixes (e.g. "عبد الرحمن", "عبد العزيز") and handling multi-coordinator comma-separated lists.

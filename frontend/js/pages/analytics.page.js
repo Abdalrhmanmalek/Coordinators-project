@@ -8,7 +8,13 @@
 
 (function (global) {
   AuthManager.checkAuthGuard('supervisor');
-  AppRouter.init();
+  try {
+    if (typeof AppRouter !== 'undefined' && typeof AppRouter.init === 'function') {
+      AppRouter.init();
+    }
+  } catch (err) {
+    console.warn('Router init handled gracefully:', err);
+  }
 
   const clientFilter = document.getElementById('bi-client-filter');
   const displayFilter = document.getElementById('bi-display-filter');
@@ -148,7 +154,10 @@
         const sharePctOfBrand = totalShare > 0 ? Math.round((b.share / totalShare) * 100) : 0;
         return `
           <div class="vbar-col ${b.isSelectedType ? 'is-highlighted' : ''}">
-            <span class="vbar-val">${b.share.toFixed(1)} (${sharePctOfBrand}%)</span>
+            <div class="vbar-val-box">
+              <span class="vbar-num">${b.share.toFixed(1)}</span>
+              <span class="vbar-pct">(${sharePctOfBrand}%)</span>
+            </div>
             <div class="vbar-track">
               <div class="vbar-fill ${idx % 3 === 1 ? 'alt-amber' : ''}" style="height: ${pct}%;"></div>
             </div>
@@ -319,7 +328,9 @@
         const pct = Math.max(14, Math.round((t.count / maxC) * 100));
         return `
           <div class="vbar-col">
-            <span class="vbar-val">${t.count}</span>
+            <div class="vbar-val-box">
+              <span class="vbar-num">${t.count}</span>
+            </div>
             <div class="vbar-track">
               <div class="vbar-fill ${idx % 2 === 1 ? 'alt-amber' : ''}" style="height: ${pct}%;"></div>
             </div>

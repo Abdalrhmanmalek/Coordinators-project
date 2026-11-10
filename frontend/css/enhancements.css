@@ -4,6 +4,15 @@
    CSS View Transitions & Fluid Page Navigation Wrappers
    ========================================================= */
 
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+body.page-is-leaving {
+  overflow-y: scroll !important;
+}
+
 @view-transition {
   navigation: auto;
 }
@@ -90,7 +99,8 @@
 .circular-charts-row > *:nth-child(1),
 .analytics-dashboard-grid > *:nth-child(1),
 .activity-cards-grid > *:nth-child(1),
-#supervisor-cards-mount > *:nth-child(1) {
+#supervisor-cards-mount > *:nth-child(1),
+.podium-wrap > *:nth-child(1) {
   animation-delay: 0.02s;
 }
 
@@ -100,7 +110,8 @@
 .circular-charts-row > *:nth-child(2),
 .analytics-dashboard-grid > *:nth-child(2),
 .activity-cards-grid > *:nth-child(2),
-#supervisor-cards-mount > *:nth-child(2) {
+#supervisor-cards-mount > *:nth-child(2),
+.podium-wrap > *:nth-child(2) {
   animation-delay: 0.05s;
 }
 
@@ -109,7 +120,8 @@
 .branch-cards-grid > *:nth-child(3),
 .circular-charts-row > *:nth-child(3),
 .activity-cards-grid > *:nth-child(3),
-#supervisor-cards-mount > *:nth-child(3) {
+#supervisor-cards-mount > *:nth-child(3),
+.podium-wrap > *:nth-child(3) {
   animation-delay: 0.08s;
 }
 
@@ -343,5 +355,193 @@ button:active:not(:disabled),
     height: 2px;
     border-radius: 2px;
     background: linear-gradient(90deg, var(--adco-green-primary), transparent);
+  }
+}
+
+/* =========================================================
+   Global Glowing Pulse for Pending / Under Review Indicators
+   ========================================================= */
+@keyframes adcoReviewPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7), 0 4px 12px rgba(245, 158, 11, 0.25);
+    border-color: #f59e0b;
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(245, 158, 11, 0), 0 6px 18px rgba(245, 158, 11, 0.4);
+    border-color: #d97706;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0), 0 4px 12px rgba(245, 158, 11, 0.25);
+    border-color: #f59e0b;
+  }
+}
+
+.glowing-under-review {
+  animation: adcoReviewPulse 1.8s infinite ease-in-out !important;
+}
+
+.status-counter-btn.glowing-under-review {
+  background: #fffdf5 !important;
+  border: 1.8px solid #f59e0b !important;
+  position: relative;
+  z-index: 2;
+}
+
+.status-counter-btn.glowing-under-review .sc-num {
+  color: #b45309 !important;
+  font-weight: 900 !important;
+}
+
+.status-counter-btn.glowing-under-review .sc-lbl {
+  color: #92400e !important;
+  font-weight: 800 !important;
+}
+
+.filter-chip.glowing-under-review {
+  background: #fffdf5 !important;
+  border: 1.8px solid #f59e0b !important;
+  color: #92400e !important;
+}
+
+.filter-chip.glowing-under-review .chip-count-pill {
+  background: #f59e0b !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+.kpi-card.glowing-under-review {
+  border: 1.8px solid #f59e0b !important;
+  background: linear-gradient(180deg, #fffdf5 0%, #ffffff 100%) !important;
+}
+
+.kpi-card.glowing-under-review .kpi-num {
+  color: #b45309 !important;
+  font-weight: 900 !important;
+}
+
+.nav-pending-badge {
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  border-radius: 999px;
+  padding: 2px 7px;
+  line-height: 1.1;
+  margin-right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d97706;
+}
+
+/* Branch Detail Hero Header Mobile Hierarchy */
+.bd-hero-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--adco-gray-100, #f1f5f9);
+}
+
+.bd-hero-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 200px;
+}
+
+.bd-hero-client-title {
+  margin: 0;
+  color: var(--adco-green-deep, #064e3b);
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.bd-hero-branch-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--adco-gray-700, #334155);
+}
+
+.bd-hero-supply-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 0.84rem;
+  border-radius: 12px;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.bd-hero-map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .bd-hero-card-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .bd-hero-title-group {
+    width: 100% !important;
+    gap: 4px !important;
+  }
+
+  .bd-hero-client-title {
+    font-size: 1.15rem !important;
+  }
+
+  .bd-hero-branch-title {
+    font-size: 0.88rem !important;
+  }
+
+  .bd-hero-supply-box {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 10px 14px !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
+    font-size: 0.82rem !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  .bd-hero-map-btn {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 10px 14px !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
+    font-size: 0.84rem !important;
+    text-align: center !important;
+  }
+
+  .branch-meta-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
   }
 }

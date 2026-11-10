@@ -52,13 +52,13 @@
         </div>
       </div>
 
-      <div class="kpi-card">
+      <div class="kpi-card" id="kpi-card-under-review">
         <div class="kpi-icon-wrap db-s5">
           <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-lg" alt="" />
         </div>
         <div>
           <div class="kpi-num db-s6" id="kpi-under-review">0</div>
-          <div class="kpi-title">إجمالي الأنشطة تحت المراجعه</div>
+          <div class="kpi-title">بانتظار المراجعة والتقييم</div>
         </div>
       </div>
     </div>
@@ -94,55 +94,23 @@
       </div>
     </div>
 
-    <!-- Master Branch Cards Section -->
+    <!-- Master Branch Cards Section (Branch-Centric Navigation) -->
     <div class="section-header-row">
       <h3 class="section-header-title">
         <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-sm" alt="" />
         <span>بطاقات الفروع الرئيسية وفروع الشركة الموردة للبضاعة</span>
       </h3>
-      <button type="button" id="reset-branch-card-filter" class="btn btn-outline btn-sm is-hidden">
-        <span>إظهار كافة الفروع</span>
-      </button>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <button type="button" id="reset-branch-card-filter" class="btn btn-outline btn-sm is-hidden">
+          <span>إظهار كافة الفروع</span>
+        </button>
+        <a class="btn btn-secondary btn-sm" href="./leaderboard.html" title="عرض لوحة المتصدرين">
+          <img src="../assets/icons/trophy.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>المتصدرين</span>
+        </a>
+      </div>
     </div>
     <div id="master-branches-mount" class="master-branches-grid"></div>
-
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-      <div class="filter-chips">
-        <button type="button" class="filter-chip active" data-filter="ALL">
-          <span>الكل</span>
-          <span class="chip-count-pill" id="cnt-all">0</span>
-        </button>
-        <button type="button" class="filter-chip" data-filter="Under Review">
-          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>قيد المراجعة</span>
-          <span class="chip-count-pill" id="cnt-review">0</span>
-        </button>
-        <button type="button" class="filter-chip" data-filter="Accepted">
-          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>مقبول</span>
-          <span class="chip-count-pill" id="cnt-accepted">0</span>
-        </button>
-        <button type="button" class="filter-chip" data-filter="Rejected">
-          <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>المرفوضة</span>
-          <span class="chip-count-pill" id="cnt-rejected">0</span>
-        </button>
-        <button type="button" class="filter-chip" data-filter="CLOSED">
-          <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>المنتهية</span>
-          <span class="chip-count-pill" id="cnt-closed">0</span>
-        </button>
-      </div>
-
-      <a class="db-s14" href="./leaderboard.html">
-        <img src="../assets/icons/trophy.svg" class="ui-icon ui-icon-sm" alt="" />
-        <span>عرض لوحة المتصدرين</span>
-      </a>
-    </div>
-
-    <!-- Activities Cards Grid (Full-Width Responsive Multi-Column) -->
-    <div id="activities-list"></div>
   </main>
 
   <script src="../js/ui-helpers.js"></script>

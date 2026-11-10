@@ -4,6 +4,15 @@
  */
 
 (function (global) {
+  // Prevent browser from restoring scroll down on refresh & ensure page starts at top
+  try {
+    if (typeof history !== 'undefined' && 'scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+  } catch (_) {}
   class AppRouter {
     static init() {
       this.cleanupLegacyCaches();
@@ -23,7 +32,34 @@
       this.ensureProfileModal();
       this.initSmoothPageTransitions();
       this.triggerSlideUpBoxes();
+      this.initDesktopOutsideModalDismissal();
       this.registerServiceWorker();
+    }
+
+    /**
+     * Desktop Outside-Click Dismissal (TASK 6.2):
+     * When any floating window or modal is open, clicking anywhere outside the window bounds
+     * automatically closes/dismisses it without needing to click the 'X' button.
+     */
+    static initDesktopOutsideModalDismissal() {
+      if (this._outsideDismissalInit) return;
+      this._outsideDismissalInit = true;
+
+      document.addEventListener('click', (e) => {
+        const overlay = e.target;
+        if (!overlay) return;
+
+        // If clicked directly on the modal overlay / backdrop outside the modal window
+        if (
+          overlay.classList &&
+          (overlay.classList.contains('modal-overlay') || overlay.classList.contains('lightbox-overlay'))
+        ) {
+          overlay.classList.remove('active');
+          if (overlay.classList.contains('custom-modal-backdrop') || overlay.id === 'product-picker-modal') {
+            overlay.classList.add('is-hidden');
+          }
+        }
+      });
     }
 
     /**
@@ -45,16 +81,10 @@
     }
 
     /**
-     * Smooth Page Transitions, Scroll Restoration & History Routing
+     * Smooth Page Transitions & Top Scroll Guarantee
      */
     static navigateTo(targetUrl) {
       if (!targetUrl) return;
-      try {
-        sessionStorage.setItem(
-          `ADCO_SCROLL_${window.location.pathname}`,
-          String(window.scrollY || document.documentElement.scrollTop || 0)
-        );
-      } catch (_) {}
 
       if (document.body) {
         document.body.classList.add('page-is-leaving');
@@ -69,23 +99,25 @@
       if (this._transitionsInitialized) return;
       this._transitionsInitialized = true;
 
-      // Enable browser scroll restoration + restore saved scroll on back/forward navigation
+      // Disable browser auto scroll restoration so refresh and page loads ALWAYS start cleanly at the top (0,0)
       try {
         if ('scrollRestoration' in history) {
-          history.scrollRestoration = 'auto';
+          history.scrollRestoration = 'manual';
         }
       } catch (_) {}
 
-      window.addEventListener('pageshow', (e) => {
+      // Guarantee immediate top alignment on page load and refresh
+      if (typeof window !== 'undefined') {
+        window.scrollTo(0, 0);
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
+      }
+
+      window.addEventListener('pageshow', () => {
         if (document.body) {
           document.body.classList.remove('page-is-leaving');
         }
-        if (e.persisted) {
-          try {
-            const savedY = Number(sessionStorage.getItem(`ADCO_SCROLL_${window.location.pathname}`) || 0);
-            if (savedY > 0) window.scrollTo({ top: savedY, behavior: 'instant' });
-          } catch (_) {}
-        }
+        window.scrollTo(0, 0);
       });
 
       // Intercept internal same-origin navigation links for smooth fade/slide exit
@@ -145,6 +177,7 @@
       }
 
       const user = global.AuthManager ? global.AuthManager.getCurrentUser() : null;
+      const Activity = global.ActivityManager || global.ActivityService || (typeof window !== 'undefined' ? window.ActivityManager : null);
       const isManager = user && (user.role === 'marketing_manager' || user.role === 'coordination_manager' || user.role === 'supervisor');
       const isCoordSupervisor = user && user.role === 'coordinator_supervisor';
       const isSupervisor = isManager;
@@ -169,6 +202,15 @@
       ];
 
       const navLinks = isSupervisor ? supervisorLinks : coordinatorLinks;
+      let pendingReviewCount = 0;
+      try {
+        if (Activity && typeof Activity.getAllActivities === 'function') {
+          const allActs = Activity.getAllActivities();
+          pendingReviewCount = allActs.filter((a) => !a.isClosed && a.status === 'Under Review').length;
+        }
+      } catch (err) {
+        console.warn('Navbar pending review count error:', err);
+      }
 
       const avatarSrc = isSupervisor
         ? `${assetsPrefix}images/avatar-supervisor.svg`
@@ -194,10 +236,12 @@
               ${navLinks
                 .map((link) => {
                   const isActive = path.includes(link.id);
+                  const showPendingBadge = isSupervisor && link.id === 'supervisor' && pendingReviewCount > 0;
                   return `
                     <a href="${link.href}" class="web-nav-item ${isActive ? 'active' : ''}">
                       <img src="${assetsPrefix}icons/${link.icon}" class="ui-icon ui-icon-md" alt="" />
                       <span>${link.label}</span>
+                      ${showPendingBadge ? `<span class="nav-pending-badge glowing-under-review" title="${pendingReviewCount} أنشطة بانتظار التقييم">${pendingReviewCount}</span>` : ''}
                     </a>
                   `;
                 })
@@ -259,10 +303,12 @@
             ${navLinks
               .map((link) => {
                 const isActive = path.includes(link.id);
+                const showPendingBadge = isSupervisor && link.id === 'supervisor' && pendingReviewCount > 0;
                 return `
                   <a href="${link.href}" class="web-nav-item ${isActive ? 'active' : ''} cm-s1">
                     <img src="${assetsPrefix}icons/${link.icon}" class="ui-icon ui-icon-md" alt="" />
                     <span>${link.label}</span>
+                    ${showPendingBadge ? `<span class="nav-pending-badge glowing-under-review" title="${pendingReviewCount} أنشطة بانتظار التقييم">${pendingReviewCount}</span>` : ''}
                   </a>
                 `;
               })

@@ -258,6 +258,43 @@
   white-space: nowrap;
 }
 
+/* Glowing Pulse for Under-Review Status Counter on Master Branch Cards */
+@keyframes adcoReviewPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.6), 0 2px 6px rgba(217, 119, 6, 0.2);
+    border-color: #f59e0b;
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(217, 119, 6, 0), 0 4px 12px rgba(217, 119, 6, 0.4);
+    border-color: #d97706;
+    transform: scale(1.03);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0), 0 2px 6px rgba(217, 119, 6, 0.2);
+    border-color: #f59e0b;
+    transform: scale(1);
+  }
+}
+
+.status-counter-btn.glowing-under-review {
+  background: #fffdf5 !important;
+  border: 1.5px solid #f59e0b !important;
+  position: relative;
+  animation: adcoReviewPulse 2s infinite ease-in-out;
+  z-index: 2;
+}
+
+.status-counter-btn.glowing-under-review .sc-num {
+  color: #b45309 !important;
+  font-weight: 900 !important;
+}
+
+.status-counter-btn.glowing-under-review .sc-lbl {
+  color: #92400e !important;
+  font-weight: 800 !important;
+}
+
 /* Interactive Google Maps Link Pill */
 .branch-gps-map-link {
   display: inline-flex;

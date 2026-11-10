@@ -2,17 +2,56 @@
    mobile-pwa.css — Responsive Breakpoints & Mobile Touch Tuning
    ========================================================= */
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
+  .web-main-workspace {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    padding-top: 20px !important;
+    padding-bottom: 40px !important;
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
   .responsive-cards-grid,
   #activities-list,
   #supervisor-cards-mount,
   .master-branches-grid {
     grid-template-columns: 1fr !important;
-    gap: 14px;
+    gap: 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  .card {
-    padding: 18px 16px;
-    border-radius: 16px;
+  .card,
+  .branch-master-card,
+  .activity-card-item,
+  .supervisor-activity-card {
+    padding: 16px 14px !important;
+    border-radius: 16px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+  }
+
+  .branch-status-counters {
+    gap: 3px !important;
+  }
+
+  .status-counter-btn {
+    padding: 6px 2px !important;
+  }
+
+  .sc-num {
+    font-size: 0.82rem !important;
+  }
+
+  .sc-lbl {
+    font-size: 0.58rem !important;
   }
 }

@@ -83,6 +83,38 @@ localStorage.setItem(FALLBACK_QUEUE_KEY, JSON.stringify(list));
 }
 }
 
+function formatTwoWordName(fullName) {
+  if (!fullName || typeof fullName !== 'string') return fullName || '';
+  if (fullName.includes('،') || fullName.includes(',')) {
+    const delim = fullName.includes('،') ? '،' : ',';
+    return fullName
+      .split(delim)
+      .map((part) => formatTwoWordName(part.trim()))
+      .filter(Boolean)
+      .join(' ، ');
+  }
+
+  const clean = fullName.replace(/\(.*?\)/g, '').trim();
+  const words = clean.split(/\s+/).filter(Boolean);
+  if (words.length <= 2) return clean;
+
+  const compoundPrefixes = ['عبد', 'أبو', 'ابو', 'أم', 'ام', 'ابن', 'آل'];
+  let first = words[0];
+  let startIndex = 1;
+
+  if (compoundPrefixes.includes(words[0]) && words.length > 2) {
+    first = `${words[0]} ${words[1]}`;
+    startIndex = 2;
+  }
+
+  let last = words[words.length - 1];
+  if (words.length > startIndex + 1 && compoundPrefixes.includes(words[words.length - 2])) {
+    last = `${words[words.length - 2]} ${words[words.length - 1]}`;
+  }
+
+  return `${first} ${last}`;
+}
+
 function formatDateTime(isoOrDate) {
   const d = isoOrDate ? new Date(isoOrDate) : new Date();
   if (isNaN(d.getTime())) return String(isoOrDate || '');
@@ -580,6 +612,7 @@ global.initDB = initDB;
 global.queueOfflineItem = queueOfflineItem;
 global.getOfflineQueue = getOfflineQueue;
 global.removeOfflineItem = removeOfflineItem;
+global.formatTwoWordName = formatTwoWordName;
 global.formatDateTime = formatDateTime;
 global.getEgyptDateTimeLocalString = getEgyptDateTimeLocalString;
 global.showToast = showToast;
@@ -626,7 +659,9 @@ global.setupNetworkListener = setupNetworkListener;
 
   function start() {
     scan();
-    new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+    if (typeof MutationObserver !== 'undefined' && document && document.body) {
+      new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);

@@ -6,7 +6,13 @@
 
 (function (global) {
 const user = AuthManager.checkAuthGuard();
-    AppRouter.init();
+    try {
+      if (typeof AppRouter !== 'undefined' && typeof AppRouter.init === 'function') {
+        AppRouter.init();
+      }
+    } catch (err) {
+      console.warn('Router init handled gracefully:', err);
+    }
 
     // 3-Tier Scoped Comboboxes (Coordinator vs Coordinator Supervisor vs Coordination Manager)
     const isCoordSup = user && user.role === 'coordinator_supervisor';
@@ -202,14 +208,20 @@ const user = AuthManager.checkAuthGuard();
     });
 
     const countSelect = document.getElementById('f-activity-count');
-    document.getElementById('count-dec-btn').addEventListener('click', () => {
-      const current = Number(countSelect.value) || 1;
-      if (current > 1) countSelect.value = String(current - 1);
-    });
-    document.getElementById('count-inc-btn').addEventListener('click', () => {
-      const current = Number(countSelect.value) || 1;
-      if (current < 10) countSelect.value = String(current + 1);
-    });
+    const countDecBtn = document.getElementById('count-dec-btn');
+    const countIncBtn = document.getElementById('count-inc-btn');
+    if (countDecBtn && countSelect) {
+      countDecBtn.addEventListener('click', () => {
+        const current = Number(countSelect.value) || 1;
+        if (current > 1) countSelect.value = String(current - 1);
+      });
+    }
+    if (countIncBtn && countSelect) {
+      countIncBtn.addEventListener('click', () => {
+        const current = Number(countSelect.value) || 1;
+        if (current < 10) countSelect.value = String(current + 1);
+      });
+    }
 
         // --- 4-Level Product Picker & Brand Share Manager ---
     const shareBadgeEl = document.getElementById('live-brand-share-badge');
@@ -468,6 +480,24 @@ const user = AuthManager.checkAuthGuard();
         modal.style.display = 'none';
       }
     };
+
+    if (prodModal) {
+      prodModal.addEventListener('click', (e) => {
+        if (e.target === prodModal) window.closeProductModal();
+      });
+    }
+
+    if (timelineModal) {
+      timelineModal.addEventListener('click', (e) => {
+        if (e.target === timelineModal) timelineModal.classList.remove('active');
+      });
+    }
+
+    if (closureModal) {
+      closureModal.addEventListener('click', (e) => {
+        if (e.target === closureModal) closureModal.classList.remove('active');
+      });
+    }
 
     // Keyboard ESC listener
     window.addEventListener('keydown', (e) => {
@@ -1304,7 +1334,7 @@ const user = AuthManager.checkAuthGuard();
       const coordBranchVal = coordBranchCombo.getValue();
       const activityVal = activityCombo.getValue();
       const activityTypeVal = activityTypeCombo.getValue();
-      const activityCountVal = Number(countSelect.value) || 1;
+      const activityCountVal = countSelect ? (Number(countSelect.value) || 1) : 1;
       const distinctBrands = [...new Set(selectedProducts.map((p) => p.brand).filter(Boolean))];
       const skuVal = selectedProducts.map((p) => p.sku).join(' | ');
       const magStartVal = magStartInput ? magStartInput.value : '';

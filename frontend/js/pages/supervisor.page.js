@@ -6,7 +6,13 @@
 
 (function (global) {
 const user = AuthManager.checkAuthGuard('supervisor');
-    AppRouter.init();
+    try {
+      if (global.AppRouter && typeof global.AppRouter.init === 'function') {
+        global.AppRouter.init();
+      }
+    } catch (err) {
+      console.warn('Router init handled gracefully:', err);
+    }
 
     let statusFilter = 'ALL';
     let customSearchActive = false;
@@ -126,7 +132,8 @@ const user = AuthManager.checkAuthGuard('supervisor');
       mount.innerHTML = groups
         .map((bg) => {
           const isSelected = selectedBranchKey === bg.branch;
-          const coordsText = Array.from(bg.coordinators).join(' ، ') || '-';
+          const rawCoords = Array.from(bg.coordinators).join(' ، ') || '-';
+          const coordsText = typeof formatTwoWordName === 'function' ? formatTwoWordName(rawCoords) : rawCoords;
           const branchUrl = `./branch-details.html?branch=${encodeURIComponent(bg.branch)}&client=${encodeURIComponent(bg.client)}`;
           return `
             <div class="branch-master-card ${isSelected ? 'active-branch-filter' : ''}" data-branch="${bg.branch}" data-href="${branchUrl}" role="link" tabindex="0" title="اضغط لفتح صفحة تفاصيل الفرع والأنشطة التابعة له">
@@ -177,7 +184,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
                   <span class="sc-num sc-accepted">${bg.accepted}</span>
                   <span class="sc-lbl">المقبولة</span>
                 </button>
-                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'Under Review' ? 'active' : ''}" data-branch="${bg.branch}" data-st="Under Review">
+                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'Under Review' ? 'active' : ''} ${bg.review > 0 ? 'glowing-under-review' : ''}" data-branch="${bg.branch}" data-st="Under Review">
                   <span class="sc-num sc-review">${bg.review}</span>
                   <span class="sc-lbl">بانتظار</span>
                 </button>
@@ -337,9 +344,17 @@ const user = AuthManager.checkAuthGuard('supervisor');
     document.getElementById('close-review-modal').addEventListener('click', () => {
       modal.classList.remove('active');
     });
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+
     document.getElementById('close-audit-modal').addEventListener('click', () => {
       auditModal.classList.remove('active');
     });
+    auditModal.addEventListener('click', (e) => {
+      if (e.target === auditModal) auditModal.classList.remove('active');
+    });
+
     document.getElementById('close-lightbox-btn').addEventListener('click', () => {
       lightboxModal.classList.remove('active');
     });
@@ -387,7 +402,18 @@ const user = AuthManager.checkAuthGuard('supervisor');
 
       if (cntAllEl) cntAllEl.textContent = activePool.length;
       if (cntClosureEl) cntClosureEl.textContent = activePool.filter((a) => a.closureRequested).length;
-      if (cntReviewEl) cntReviewEl.textContent = activePool.filter((a) => a.status === 'Under Review').length;
+      const reviewPendingCount = activePool.filter((a) => a.status === 'Under Review').length;
+      if (cntReviewEl) {
+        cntReviewEl.textContent = reviewPendingCount;
+        const reviewChip = cntReviewEl.closest('.filter-chip');
+        if (reviewChip) {
+          if (reviewPendingCount > 0) {
+            reviewChip.classList.add('glowing-under-review');
+          } else {
+            reviewChip.classList.remove('glowing-under-review');
+          }
+        }
+      }
       if (cntAcceptedEl) cntAcceptedEl.textContent = activePool.filter((a) => a.status === 'Accepted').length;
       if (cntRejectedEl) cntRejectedEl.textContent = activePool.filter((a) => a.status === 'Rejected').length;
       if (cntClosedEl) cntClosedEl.textContent = closedPool.length;
@@ -455,12 +481,12 @@ const user = AuthManager.checkAuthGuard('supervisor');
           const shareFormatted = `${(1 / brandCount).toFixed(2)} (${Math.round((1 / brandCount) * 100)}%)`;
 
           return `
-            <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; ${act.isClosed ? 'border: 1.5px solid #86efac; background: #f0fdf4;' : act.closureRequested ? 'border: 2px solid #f59e0b; background: #fffdf7;' : ''}">
-              <div>
+            <div class="card supervisor-activity-card ${act.isClosed ? 'sp-card-closed' : act.closureRequested ? 'sp-card-pending' : ''}">
+              <div class="sp-card-body">
                 ${
                   act.isClosed
                     ? `
-                  <div style="background: #ffffff; border: 1px solid #86efac; border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #166534; font-weight: 700;">
+                  <div style="background: #ffffff; border: 1px solid #86efac; border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #166534; font-weight: 700;">
                     <span style="display: flex; align-items: center; gap: 6px;">
                       <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-xs" alt="" />
                       <span>نشاط منتهي ومفكك (${act.closureReasonType || 'بقرار المشرف'})</span>
@@ -470,7 +496,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
                 `
                     : act.closureRequested
                     ? `
-                  <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 12px;">
+                  <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
                       <div style="font-size: 0.84rem; color: #92400e; font-weight: 700; display: flex; align-items: center; gap: 6px;">
                         <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
@@ -494,39 +520,51 @@ const user = AuthManager.checkAuthGuard('supervisor');
                     : ''
                 }
 
-                <div style="display:flex; gap:14px; margin-bottom:12px;">
+                <!-- Coordinator info & status header at top -->
+                <div class="sp-coord-header-row">
+                  <div class="sp-coord-badge">
+                    <img src="../assets/icons/user.svg" class="ui-icon ui-icon-xs" alt="" />
+                    <span>المنسق: <strong>${typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName}</strong></span>
+                  </div>
+                  <span class="badge badge-mint">${act.coordinatorBranch || 'قطاع وسط'}</span>
+                </div>
+
+                <!-- Media row: Photo & Branch/Activity details -->
+                <div class="sp-card-media-row">
                   <img src="${act.photoUrl}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl}" data-title="${act.client}" style="width:96px; height:96px; border-radius:12px; object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
-                  <div style="flex:1; min-width:0;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:2px;">
-                      <strong style="color:var(--adco-green-deep); font-size:0.98rem;">${act.client}</strong>
+                  <div class="sp-card-details-col">
+                    <div class="sp-card-client-line">
+                      <strong class="sp-card-client-title">${act.client}</strong>
                       ${renderStatusBadge(act.status)}
                     </div>
                     <div class="branch-card-sub" style="margin-bottom:4px;">
                       <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
                       <span>${act.branch}</span>
                     </div>
-                    <p style="font-size:0.8rem; margin:3px 0;">النشاط: <strong>${act.activity || '-'} (${act.activityType || '-'} × ${act.activityCount || 1})</strong></p>
+                    <p class="sp-card-activity-line">النشاط: <strong>${act.activity || '-'} (${act.activityType || '-'} × ${act.activityCount || 1})</strong></p>
                     <div class="branch-supply-pill" style="margin: 4px 0;">
                       <span>فرع الشركة المورد للبضاعة: <strong>${act.coordinatorBranch || 'الإسكندرية - قطاع وسط'}</strong></span>
                     </div>
-                    <p style="font-size:0.76rem; color:var(--adco-gray-700); margin:3px 0;">المنسق: <strong>${act.coordinatorName}</strong> | المشرف: <strong>${act.reviewerName || 'أيمن الروبي'}</strong></p>
-                    <p style="font-size:0.75rem; color:var(--adco-green-dark); margin-top:2px;">العلامات: ${(act.brands || []).join('، ')} (حصة: ${shareFormatted})</p>
+                    <p style="font-size:0.75rem; color:var(--adco-gray-600); margin:2px 0;">المشرف المعتمد: <strong>${act.reviewerName || 'أيمن الروبي'}</strong></p>
+                    <p class="sp-card-brands-line">العلامات: ${(act.brands || []).join('، ')} (حصة: ${shareFormatted})</p>
                   </div>
-                </div>
-
-                <div style="background:#fffbeb; border:1px solid #fde68a; padding:10px 12px; border-radius:var(--radius-sm); font-size:0.8rem; margin-bottom:14px; color:#92400e;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
-                    <div style="display:flex; align-items:center; gap:6px;">
-                      <img src="../assets/icons/star.svg" class="ui-icon ui-icon-sm" alt="" />
-                      <strong>${ratingStats.badgeText}</strong>
-                    </div>
-                    <span style="font-size:0.75rem; color:#b45309; white-space:nowrap;">(${ratingStats.totalSessions} ${ratingStats.totalSessions === 1 ? 'متابعة' : 'متابعات'})</span>
-                  </div>
-                  ${act.supervisorNotes ? `<div style="margin-top:4px; color:#475569; font-size:0.78rem;">${act.supervisorNotes}</div>` : ''}
                 </div>
               </div>
 
-              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <!-- Numerical Rating Box (Placed at absolute bottom on mobile screens) -->
+              <div class="sp-rating-box">
+                <div class="sp-rating-box-inner">
+                  <div class="sp-rating-badge">
+                    <img src="../assets/icons/star.svg" class="ui-icon ui-icon-sm" alt="" />
+                    <strong>${ratingStats.badgeText}</strong>
+                  </div>
+                  <span class="sp-rating-sessions">(${ratingStats.totalSessions} ${ratingStats.totalSessions === 1 ? 'متابعة' : 'متابعات'})</span>
+                </div>
+                ${act.supervisorNotes ? `<div class="sp-rating-notes">${act.supervisorNotes}</div>` : ''}
+              </div>
+
+              <!-- Action buttons -->
+              <div class="sp-card-actions">
                 <button type="button" class="btn btn-primary btn-sm open-eval-btn" data-id="${act.id}" style="flex:1;">
                   <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-sm" alt="" />
                   <span>فحص وتقييم</span>
@@ -661,7 +699,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
         <div class="responsive-form-grid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; font-size: 0.78rem; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid var(--adco-gray-200);">
           <div>
             <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">المنسق الميداني:</span>
-            <strong>${act.coordinatorName}</strong>
+            <strong>${typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName}</strong>
           </div>
           <div>
             <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">قطاع المنسق:</span>
@@ -959,7 +997,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
           </div>
           <div style="font-size: 0.84rem; color: #475569;">
             <span>كود النشاط: <strong>${act.id}</strong></span> |
-            <span>المنسق: <strong>${act.coordinatorName}</strong></span> |
+            <span>المنسق: <strong>${typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName}</strong></span> |
             <span>الفرع: <strong>${act.branch}</strong></span>
           </div>
           <div style="font-size: 0.8rem; color: var(--adco-green-dark); margin-top: 4px;">

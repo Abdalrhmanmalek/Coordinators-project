@@ -70,6 +70,9 @@
   }
   if (closeResetBtn && resetModal) {
     closeResetBtn.addEventListener('click', () => resetModal.classList.remove('active'));
+    resetModal.addEventListener('click', (e) => {
+      if (e.target === resetModal) resetModal.classList.remove('active');
+    });
   }
   if (sendResetOtpBtn) {
     sendResetOtpBtn.addEventListener('click', async () => {
