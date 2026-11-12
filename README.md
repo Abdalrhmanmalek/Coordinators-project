@@ -53,6 +53,7 @@ All architectural specifications, database schemas, API contracts, and design to
 | Document | Scope & Contents |
 |:---|:---|
 | 📋 [**File Structure & Inventory (`docs/file-structure.md`)**](./docs/file-structure.md) | Exhaustive file-by-file inventory mapping every active asset, stylesheet, page, component, and service to its architectural responsibility. |
+| 🛡️ [**Agent & Developer Guardrails (`docs/agent-guardrails.md`)**](./docs/agent-guardrails.md) | Mandatory engineering guardrails, prerequisite reading requirements, zero-emojis rules, modular layer boundaries, and locked evaluation schemas. |
 | 🔌 [**REST API Specifications & DTOs (`docs/endpoints.md`)**](./docs/endpoints.md) | Complete backend API contract detailing HTTP verbs, module routing, request DTOs, Zod validation schemas, and PostgreSQL 16 response structures. |
 | 📊 [**Evaluation & Bayesian Leaderboard Engine (`docs/evaluation.md`)**](./docs/evaluation.md) | Mathematical formulas and specification for the 100-point scoring criteria (40/20/25/15), anti-cheat deduction rules, and Bayesian volume-weighted ranking algorithm. |
 | 🏛️ [**System Architecture & Data Flows (`docs/system-architecture.md`)**](./docs/system-architecture.md) | In-depth engineering blueprint covering 3-tier RBAC security, $1/N$ multi-brand row multiplication algorithms, and end-to-end data lifecycle. |

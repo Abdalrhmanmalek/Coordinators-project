@@ -38,6 +38,21 @@
     const isSub = typeof window !== 'undefined' && window.location.pathname.includes('/pages/');
     const detailsUrl = isSub ? `./activity-details.html?id=${act.id}` : `./pages/activity-details.html?id=${act.id}`;
     const newFollowUpUrl = isSub ? `./activity-details.html?id=${act.id}&action=new-followup` : `./pages/activity-details.html?id=${act.id}&action=new-followup`;
+    const closureReqUrl = isSub ? `./activity-details.html?id=${act.id}&action=request-closure` : `./pages/activity-details.html?id=${act.id}&action=request-closure`;
+
+    // Role check: ONLY coordinator or coordinator_supervisor can request closure on active/accepted activities
+    const Auth = global.Auth || global.AuthManager || global.AuthService;
+    const user = (Auth && typeof Auth.getCurrentUser === 'function')
+      ? Auth.getCurrentUser()
+      : (typeof global !== 'undefined' && global.currentUser ? global.currentUser : null);
+    const userRole = (user && user.role) || 'coordinator';
+    const isCoordOrSupervisor = (
+      userRole === 'coordinator' ||
+      userRole === 'coordinator_supervisor' ||
+      userRole === 'supervisor'
+    ) && userRole !== 'marketing_manager' && userRole !== 'admin';
+    const isActivityActive = !act.isClosed && (act.status === 'Accepted' || act.status === 'نشط' || !act.status);
+    const canRequestClosure = isCoordOrSupervisor && isActivityActive && !act.closureRequested;
 
     return `
       <div class="activity-card-item" data-act-id="${act.id}" role="button" tabindex="0" style="cursor: pointer;" title="اضغط لفتح سجل المراجعات وتفاصيل النشاط بالكامل" onclick="if(!event.target.closest('button')) { window.location.href='${detailsUrl}'; }">
@@ -131,6 +146,12 @@
             <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
             <span>إضافة متابعة</span>
           </button>
+          ${canRequestClosure ? `
+            <button type="button" class="btn btn-secondary btn-sm btn-card-closure-req" data-act-id="${act.id}" title="تقديم طلب إنهاء وتفكيك النشاط لمدير التسويق" onclick="event.stopPropagation(); window.location.href='${closureReqUrl}';">
+              <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-xs" alt="" />
+              <span>طلب إنهاء</span>
+            </button>
+          ` : ''}
         </div>
       </div>
     `;

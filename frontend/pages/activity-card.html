@@ -113,7 +113,6 @@
                     الصنف)</span>
                 </div>
                 <div class="product-actions-group">
-                  <span class="badge badge-mint" id="live-brand-share-badge">حصة البراند: 1.00 (100%)</span>
                   <button type="button" class="btn btn-primary btn-sm" id="btn-open-product-modal"
                     onclick="openProductModal()">
                     <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-sm" alt="" />
@@ -345,13 +344,10 @@
           </summary>
           <div style="padding: 12px 14px; border-top: 1px solid var(--adco-gray-200);">
             <p style="font-size: 0.78rem; color: var(--adco-gray-600); margin-bottom: 10px;">
-              حدد العلامات التجارية والأصناف المتواجدة حالياً على الستاند في هذه المتابعة. يتم تلقائياً إعادة حساب حصة العلامة (1/N):
+              حدد العلامات التجارية والأصناف المتواجدة حالياً على الستاند في هذه المتابعة:
             </p>
             <div id="fv-brands-checklist" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
               <!-- Populated dynamically with ADCO brands -->
-            </div>
-            <div id="fv-share-recalc-notice" style="font-size: 0.76rem; color: var(--adco-green-deep); font-weight: 600; background: rgba(15, 118, 110, 0.08); padding: 6px 10px; border-radius: 6px;">
-              حصة كل علامة تجارية في هذه المتابعة: <strong id="fv-calculated-share">1.00 (100%)</strong>
             </div>
           </div>
         </details>
@@ -372,7 +368,7 @@
 
 
   <!-- 4-Level Cascading Product Picker Modal -->
-  <div class="modal-overlay custom-modal-backdrop ac-s69 is-hidden" id="product-picker-modal"
+  <div class="modal-overlay custom-modal-backdrop ac-s69" id="product-picker-modal"
     onclick="if(event.target === this) { if(window.closeProductModal) window.closeProductModal(); else { this.style.display='none'; this.classList.remove('active'); } }">
     <div class="modal-sheet custom-modal-card ac-s70" onclick="event.stopPropagation()">
       <div class="ac-s71">
@@ -386,7 +382,7 @@
       </div>
       <div class="ac-s34">
         <p class="ac-s74">
-          حدد البراند والمجموعات للوصول للصنف بدقة، وسيتم إدراجه تلقائياً وتحديث حصة البراند ($1/N):
+          حدد البراند والمجموعات للوصول للصنف بدقة، وسيتم إدراجه تلقائياً:
         </p>
         <div class="ac-s75">
           <!-- 1. Brand -->
@@ -464,6 +460,7 @@
   <script src="../js/services/activity-lifecycle.service.js"></script>
   <script src="../js/activity-manager.js"></script>
   <script src="../js/app.js"></script>
+  <script src="../js/components/product-modal.js"></script>
   <script src="../js/pages/activity-card.page.js"></script>
 </body>
 

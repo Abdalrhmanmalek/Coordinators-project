@@ -4,176 +4,226 @@
  * with instant dependency cascade, resilient exit handlers, and product selection dispatch.
  */
 
-import { ADCO_PRODUCT_HIERARCHY, ADCO_CATALOGS } from '../config/catalogs.js';
+(function (global) {
+  'use strict';
 
-export class ProductModalComponent {
-  static ensureModalContainer() {
-    if (typeof document === 'undefined') return null;
-    let modal = document.getElementById('product-picker-modal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'product-picker-modal';
-      modal.className = 'modal-overlay';
-      document.body.appendChild(modal);
+  class ProductModalComponent {
+    static getHierarchy() {
+      const catalogs = global.ADCO_CATALOGS || (typeof ADCO_CATALOGS !== 'undefined' ? ADCO_CATALOGS : {});
+      return (
+        global.ADCO_PRODUCT_HIERARCHY ||
+        catalogs.productHierarchy ||
+        {
+          'فلفيتا': {
+            'منظفات ومطهرات ومعطرات الأقمشة': {
+              'معطر ملابس مركز': [
+                'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر',
+                'فلفيتا معطر أقمشة مركز لافندر 1 لتر',
+                'فلفيتا معطر أقمشة مركز عبير الشرق 1 لتر'
+              ]
+            }
+          }
+        }
+      );
     }
-    return modal;
-  }
 
-  static open(onConfirm) {
-    const modal = this.ensureModalContainer();
-    const hierarchy = ADCO_PRODUCT_HIERARCHY || (window.ADCO_CATALOGS && window.ADCO_CATALOGS.productHierarchy);
-
-    modal.innerHTML = `
-      <div class="modal-sheet ac-s70">
-        <div class="modal-header">
-          <h3 class="ac-s71">
-            <span class="ac-s72">+</span>
-            <span>إضافة منتج عبر الهيكل الرباعي</span>
-          </h3>
-          <button type="button" class="close-modal-btn" id="btn-close-product-modal">&times;</button>
-        </div>
-
-        <p class="ac-s73">
-          حدد البراند والمجموعات للوصول للصنف بدقة، وسيتم إدراجه تلقائياً وتحديث حصة البراند (1/N$):
-        </p>
-
-        <form id="product-picker-form">
-          <!-- 1. Brand -->
-          <div class="form-group">
-            <label class="form-label ac-s74" for="picker-brand">1. اسم البراند (Brand Name) *</label>
-            <select id="picker-brand" class="form-select ac-s75"></select>
-          </div>
-
-          <!-- 2. Main Group -->
-          <div class="form-group">
-            <label class="form-label ac-s74" for="picker-main-group">2. مجموعة رئيسية (Main Group) *</label>
-            <select id="picker-main-group" class="form-select ac-s75"></select>
-          </div>
-
-          <!-- 3. Sub Group -->
-          <div class="form-group">
-            <label class="form-label ac-s74" for="picker-sub-group">3. مجموعة فرعية (Sub Group) *</label>
-            <select id="picker-sub-group" class="form-select ac-s75"></select>
-          </div>
-
-          <!-- 4. Item / SKU -->
-          <div class="form-group">
-            <label class="form-label ac-s74" for="picker-sku">4. الصنف (Item / SKU) *</label>
-            <select id="picker-sku" class="form-select ac-s75"></select>
-          </div>
-
-          <div class="ac-s76">
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-product-modal">إلغاء</button>
-            <button type="button" class="btn btn-primary btn-sm" id="btn-confirm-add-product">
-              <span class="ac-s77">+</span>
-              <span>إضافة الصنف</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    `;
-
-    modal.classList.add('active');
-
-    const brandEl = document.getElementById('picker-brand');
-    const mainEl = document.getElementById('picker-main-group');
-    const subEl = document.getElementById('picker-sub-group');
-    const skuEl = document.getElementById('picker-sku');
-    const confirmBtn = document.getElementById('btn-confirm-add-product');
-    const closeBtn = document.getElementById('btn-close-product-modal');
-    const cancelBtn = document.getElementById('btn-cancel-product-modal');
-
-    const syncCascade = (chosenBrand, chosenMain, chosenSub, chosenSku) => {
-      const brandsList = Object.keys(hierarchy);
-      const b = chosenBrand && brandsList.includes(chosenBrand) ? chosenBrand : (brandEl.value || brandsList[0]);
-
-      // 1. Populate Brand
-      brandEl.innerHTML = brandsList
-        .map((item) => `<option value="${item}" ${item === b ? 'selected' : ''}>${item}</option>`)
-        .join('');
-
-      // 2. Populate Main Group
-      const brandData = hierarchy[b] || {};
-      const mainGroups = Object.keys(brandData);
-      const mg = chosenMain && mainGroups.includes(chosenMain) ? chosenMain : (mainGroups[0] || 'عام');
-      mainEl.innerHTML = mainGroups
-        .map((mgItem) => `<option value="${mgItem}" ${mgItem === mg ? 'selected' : ''}>${mgItem}</option>`)
-        .join('');
-
-      // 3. Populate Sub Group
-      const subGroupsData = brandData[mg] || {};
-      const subGroups = Object.keys(subGroupsData);
-      const sg = chosenSub && subGroups.includes(chosenSub) ? chosenSub : (subGroups[0] || 'افتراضي');
-      subEl.innerHTML = subGroups
-        .map((sgItem) => `<option value="${sgItem}" ${sgItem === sg ? 'selected' : ''}>${sgItem}</option>`)
-        .join('');
-
-      // 4. Populate SKU / Item
-      const skus = Array.isArray(subGroupsData[sg]) ? subGroupsData[sg] : [];
-      const chosen = chosenSku && skus.includes(chosenSku) ? chosenSku : (skus[0] || '');
-      skuEl.innerHTML = skus
-        .map((skuItem) => `<option value="${skuItem}" ${skuItem === chosen ? 'selected' : ''}>${skuItem}</option>`)
-        .join('');
-
-      if (confirmBtn) {
-        confirmBtn.disabled = skus.length === 0;
+    static ensureModalContainer() {
+      if (typeof document === 'undefined') return null;
+      let modal = document.getElementById('product-picker-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'product-picker-modal';
+        modal.className = 'modal-overlay custom-modal-backdrop';
+        document.body.appendChild(modal);
       }
-    };
+      return modal;
+    }
 
-    // Initial cascade population
-    syncCascade('فلفيتا');
+    static open(onConfirm) {
+      const modal = this.ensureModalContainer();
+      if (!modal) return;
+      const hierarchy = this.getHierarchy();
 
-    // Wire onchange events
-    brandEl.addEventListener('change', () => syncCascade(brandEl.value));
-    mainEl.addEventListener('change', () => syncCascade(brandEl.value, mainEl.value));
-    subEl.addEventListener('change', () => syncCascade(brandEl.value, mainEl.value, subEl.value));
+      modal.classList.remove('is-hidden');
+      modal.classList.add('active');
+      modal.style.display = 'flex';
 
-    const closeModal = () => modal.classList.remove('active');
+      // Check if modal already has form selects defined
+      let brandEl = document.getElementById('picker-brand');
+      let mainEl = document.getElementById('picker-main-group');
+      let subEl = document.getElementById('picker-sub-group');
+      let skuEl = document.getElementById('picker-sku');
+      let confirmBtn = document.getElementById('btn-confirm-add-product');
+      let closeBtn = document.getElementById('close-product-modal-btn') || document.getElementById('btn-close-product-modal');
+      let cancelBtn = document.getElementById('btn-cancel-product-modal');
 
-    closeBtn.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
+      if (!brandEl || !mainEl || !subEl || !skuEl) {
+        modal.innerHTML = `
+          <div class="modal-sheet custom-modal-card ac-s70 modal-content modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+              <h3 class="ac-s71" style="display: flex; align-items: center; gap: 8px;">
+                <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-md" alt="" style="filter: brightness(0) invert(1);" />
+                <span>إضافة منتج عبر الهيكل الرباعي</span>
+              </h3>
+              <button type="button" class="close-modal-btn ac-s73" id="close-product-modal-btn">&times;</button>
+            </div>
 
-    const keyHandler = (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('active')) {
-        closeModal();
-        document.removeEventListener('keydown', keyHandler);
+            <p class="ac-s74" style="color: #64748b; font-size: 0.88rem; margin: 6px 0 16px 0;">
+              حدد البراند والمجموعات للوصول للصنف بدقة، وسيتم إدراجه تلقائياً في قائمة العرض:
+            </p>
+
+            <form id="product-picker-form" onsubmit="event.preventDefault();">
+              <!-- 1. Brand -->
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label ac-s76" for="picker-brand" style="font-weight: 700;">1. اسم البراند (Brand Name) *</label>
+                <select id="picker-brand" class="form-select ac-s77"></select>
+              </div>
+
+              <!-- 2. Main Group -->
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label ac-s76" for="picker-main-group" style="font-weight: 700;">2. مجموعة رئيسية (Main Group) *</label>
+                <select id="picker-main-group" class="form-select ac-s77"></select>
+              </div>
+
+              <!-- 3. Sub Group -->
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label ac-s76" for="picker-sub-group" style="font-weight: 700;">3. مجموعة فرعية (Sub Group) *</label>
+                <select id="picker-sub-group" class="form-select ac-s77"></select>
+              </div>
+
+              <!-- 4. Item / SKU -->
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label ac-s76" for="picker-sku" style="font-weight: 700;">4. الصنف (Item / SKU) *</label>
+                <select id="picker-sku" class="form-select ac-s77"></select>
+              </div>
+
+              <div class="ac-s78" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-product-modal">إلغاء</button>
+                <button type="button" class="btn btn-primary btn-sm" id="btn-confirm-add-product">
+                  <img src="../assets/icons/plus.svg" class="ui-icon ui-icon-sm" alt="" style="filter: brightness(0) invert(1);" />
+                  <span>إضافة الصنف</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        `;
+
+        brandEl = document.getElementById('picker-brand');
+        mainEl = document.getElementById('picker-main-group');
+        subEl = document.getElementById('picker-sub-group');
+        skuEl = document.getElementById('picker-sku');
+        confirmBtn = document.getElementById('btn-confirm-add-product');
+        closeBtn = document.getElementById('close-product-modal-btn');
+        cancelBtn = document.getElementById('btn-cancel-product-modal');
       }
-    };
-    document.addEventListener('keydown', keyHandler);
 
-    // Confirm handler
-    confirmBtn.addEventListener('click', () => {
-      const brandVal = brandEl.value;
-      const mainVal = mainEl.value;
-      const subVal = subEl.value;
-      const skuVal = skuEl.value;
+      const syncCascade = (chosenBrand, chosenMain, chosenSub, chosenSku) => {
+        const brandsList = Object.keys(hierarchy);
+        if (brandsList.length === 0) return;
+        const b = chosenBrand && brandsList.includes(chosenBrand) ? chosenBrand : (brandEl.value && brandsList.includes(brandEl.value) ? brandEl.value : brandsList[0]);
 
-      if (!brandVal || !skuVal) return;
+        // 1. Brand
+        brandEl.innerHTML = brandsList
+          .map((item) => `<option value="${item}" ${item === b ? 'selected' : ''}>${item}</option>`)
+          .join('');
 
-      const product = {
-        brandName: brandVal,
-        mainGroup: mainVal,
-        subGroup: subVal,
-        skuItem: skuVal
+        // 2. Main Group
+        const brandData = hierarchy[b] || {};
+        const mainGroups = Object.keys(brandData);
+        const mg = chosenMain && mainGroups.includes(chosenMain) ? chosenMain : (mainGroups[0] || 'عام');
+        mainEl.innerHTML = mainGroups
+          .map((mgItem) => `<option value="${mgItem}" ${mgItem === mg ? 'selected' : ''}>${mgItem}</option>`)
+          .join('');
+
+        // 3. Sub Group
+        const subGroupsData = brandData[mg] || {};
+        const subGroups = Object.keys(subGroupsData);
+        const sg = chosenSub && subGroups.includes(chosenSub) ? chosenSub : (subGroups[0] || 'افتراضي');
+        subEl.innerHTML = subGroups
+          .map((sgItem) => `<option value="${sgItem}" ${sgItem === sg ? 'selected' : ''}>${sgItem}</option>`)
+          .join('');
+
+        // 4. SKU / Item
+        const skus = Array.isArray(subGroupsData[sg]) ? subGroupsData[sg] : [`${b} - عبوة ترويجية`];
+        const chosen = chosenSku && skus.includes(chosenSku) ? chosenSku : (skus[0] || '');
+        skuEl.innerHTML = skus
+          .map((skuItem) => `<option value="${skuItem}" ${skuItem === chosen ? 'selected' : ''}>${skuItem}</option>`)
+          .join('');
+
+        if (confirmBtn) {
+          confirmBtn.disabled = skus.length === 0;
+        }
       };
 
-      if (typeof onConfirm === 'function') {
-        onConfirm(product);
+      // Populate initial values
+      const curBrand = (brandEl && brandEl.value) || 'فلفيتا';
+      syncCascade(curBrand);
+
+      // Events
+      brandEl.onchange = () => syncCascade(brandEl.value);
+      mainEl.onchange = () => syncCascade(brandEl.value, mainEl.value);
+      subEl.onchange = () => syncCascade(brandEl.value, mainEl.value, subEl.value);
+
+      const closeModal = () => {
+        modal.classList.remove('active');
+        modal.classList.add('is-hidden');
+        modal.style.display = 'none';
+      };
+
+      if (closeBtn) closeBtn.onclick = closeModal;
+      if (cancelBtn) cancelBtn.onclick = closeModal;
+      modal.onclick = (e) => {
+        if (e.target === modal) closeModal();
+      };
+
+      const keyHandler = (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+          closeModal();
+          document.removeEventListener('keydown', keyHandler);
+        }
+      };
+      document.addEventListener('keydown', keyHandler);
+
+      // Confirm
+      if (confirmBtn) {
+        confirmBtn.onclick = (e) => {
+          e.preventDefault();
+          const brandVal = brandEl.value;
+          const mainVal = mainEl.value;
+          const subVal = subEl.value;
+          const skuVal = skuEl.value;
+
+          if (!brandVal || !skuVal) return;
+
+          const product = {
+            brandName: brandVal,
+            brand: brandVal,
+            mainGroup: mainVal,
+            subGroup: subVal,
+            skuItem: skuVal,
+            sku: skuVal
+          };
+
+          if (typeof onConfirm === 'function') {
+            onConfirm(product);
+          }
+          closeModal();
+        };
       }
-      closeModal();
-    });
+    }
+
+    static close() {
+      const modal = document.getElementById('product-picker-modal');
+      if (modal) {
+        modal.classList.remove('active');
+        modal.classList.add('is-hidden');
+        modal.style.display = 'none';
+      }
+    }
   }
 
-  static close() {
-    const modal = document.getElementById('product-picker-modal');
-    if (modal) modal.classList.remove('active');
+  global.ProductModalComponent = ProductModalComponent;
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { ProductModalComponent };
   }
-}
-
-if (typeof window !== 'undefined') {
-  window.ProductModalComponent = ProductModalComponent;
-}
-
+})(typeof window !== 'undefined' ? window : globalThis);

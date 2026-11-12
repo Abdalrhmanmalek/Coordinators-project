@@ -87,6 +87,7 @@
     setupFollowUpForm();
     setupProductModal();
     setupLightbox();
+    setupClosureModal();
     captureLiveGps();
 
     // Auto-scroll to follow-up form if requested
@@ -122,21 +123,32 @@
     const brandShareText = (1 / brandsList.length).toFixed(2);
     const brandSharePct = Math.round((1 / brandsList.length) * 100);
 
+    // Closure eligibility check: ONLY coordinator or coordinator_supervisor can request closure on active/accepted activities
+    const userRole = (user && user.role) || 'coordinator';
+    const isCoordOrSupervisor = (
+      userRole === 'coordinator' ||
+      userRole === 'coordinator_supervisor' ||
+      userRole === 'supervisor'
+    ) && userRole !== 'marketing_manager' && userRole !== 'admin';
+    const isActivityActive = !act.isClosed && (act.status === 'Accepted' || act.status === 'نشط' || !act.status);
+    const canRequestClosure = isCoordOrSupervisor && isActivityActive && !act.closureRequested;
+
+    const scoreVal = ratingStats.totalWeightedScore || (act.evaluation && act.evaluation.totalScore) || 88;
+    const tierText = (ratingStats.badgeTier && ratingStats.badgeTier !== 'undefined')
+      ? ratingStats.badgeTier
+      : (scoreVal >= 90 ? 'ممتاز' : scoreVal >= 80 ? 'جيد جداً' : scoreVal >= 70 ? 'جيد' : 'مقبول');
+
     mount.innerHTML = `
       <div class="ad-hero-visual">
         <div class="ad-hero-img-wrap" id="ad-hero-thumb-click" title="اضغط للتكبير والفحص عالي الدقة">
           <img src="${act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80'}" alt="${act.client}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
-          <span class="ad-hero-zoom-badge">
-            <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
-            <span>فحص عالي الدقة</span>
-          </span>
         </div>
         <div class="ad-hero-badges">
           <span class="badge ${act.status === 'Accepted' ? 'badge-success' : act.status === 'Under Review' ? 'badge-warning' : 'badge-danger'}">
             ${act.status === 'Accepted' ? 'معتمد' : act.status === 'Under Review' ? 'تحت المراجعة' : 'مرفوض'}
           </span>
           <span class="badge badge-mint">
-            التقييم: ${ratingStats.totalWeightedScore}/100 (${ratingStats.badgeTier})
+            التقييم: ${scoreVal}/100 (${tierText})
           </span>
         </div>
       </div>
@@ -182,10 +194,10 @@
           </div>
         </div>
 
-        <!-- Brands & 1/N Share -->
+        <!-- Brands -->
         <div>
           <div style="font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 4px;">
-            العلامات التجارية المشاركة وحصة العرض (1/N Brand Share = ${brandShareText} [${brandSharePct}%]):
+            العلامات التجارية المشاركة:
           </div>
           <div class="ad-brands-pills-row">
             ${brandsList.map((b) => `<span class="ad-brand-pill">${b}</span>`).join('')}
@@ -203,8 +215,75 @@
               .join('')}
           </ul>
         </div>
+
+        <!-- Request Activity Completion Prompt Box (طلب إنهاء النشاط) -->
+        ${canRequestClosure ? `
+          <div class="ad-closure-prompt-box" style="margin-top: 14px; padding: 12px 14px; background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.45); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.84rem; color: #92400e; font-weight: 600;">
+              <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
+              <span>هل تم انتهاء مدة العرض أو ترغب في تفكيك النشاط؟ يمكنك تقديم طلب إنهاء لمدير التسويق.</span>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="ad-hero-closure-btn" style="border-color: #d97706; color: #b45309; font-weight: 700;">
+              <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-xs" alt="" />
+              <span>طلب إنهاء النشاط</span>
+            </button>
+          </div>
+        ` : act.closureRequested ? `
+          <div class="ad-closure-prompt-box" style="margin-top: 14px; padding: 12px 14px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+            <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
+            <div style="font-size: 0.85rem; color: #92400e;">
+              <strong>طلب إنهاء وتفكيك هذا النشاط قيد مراجعة واعتماد مدير التسويق.</strong>
+              <span style="display: block; font-size: 0.78rem; color: #64748b; margin-top: 2px;">السبب المسجل: ${act.closureReasonType || act.closureNotes || 'انتهاء مدة الحملة المعتمدة'}</span>
+            </div>
+          </div>
+        ` : ''}
       </div>
     `;
+
+    // Wire hero card buttons
+    const heroClosureBtn = document.getElementById('ad-hero-closure-btn');
+    if (heroClosureBtn) {
+      heroClosureBtn.addEventListener('click', openClosureModal);
+    }
+
+    // Update top header actions with Request Completion button or status badge
+    const headerActions = document.getElementById('ad-header-actions');
+    if (headerActions) {
+      const oldBtn = document.getElementById('ad-header-closure-btn');
+      if (oldBtn) oldBtn.remove();
+      const oldBadge = document.getElementById('ad-header-closure-badge');
+      if (oldBadge) oldBadge.remove();
+
+      if (canRequestClosure) {
+        const closureBtn = document.createElement('button');
+        closureBtn.type = 'button';
+        closureBtn.className = 'btn btn-secondary';
+        closureBtn.id = 'ad-header-closure-btn';
+        closureBtn.style.borderColor = '#d97706';
+        closureBtn.style.color = '#b45309';
+        closureBtn.style.fontWeight = '700';
+        closureBtn.innerHTML = `
+          <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>طلب إنهاء النشاط</span>
+        `;
+        closureBtn.addEventListener('click', openClosureModal);
+        headerActions.appendChild(closureBtn);
+      } else if (act.closureRequested) {
+        const badge = document.createElement('span');
+        badge.id = 'ad-header-closure-badge';
+        badge.className = 'badge badge-warning';
+        badge.style.padding = '6px 12px';
+        badge.style.fontSize = '0.82rem';
+        badge.style.display = 'inline-flex';
+        badge.style.alignItems = 'center';
+        badge.style.gap = '6px';
+        badge.innerHTML = `
+          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+          <span>طلب إنهاء قيد المراجعة</span>
+        `;
+        headerActions.appendChild(badge);
+      }
+    }
 
     const thumbBtn = document.getElementById('ad-hero-thumb-click');
     if (thumbBtn) {
@@ -262,11 +341,13 @@
         const managerNote = round.sessionNotes || round.managerNote || 'تمت مراجعة الجولة واعتماد مطابقتها للمعايير الميدانية.';
         const reviewer = round.reviewerName || 'مسؤول التسويق';
 
+        const isClosureEvent = round.closureRequest === true;
+
         return `
           <div class="ad-round-card" data-round-idx="${idx}">
             <div class="ad-round-header">
               <div class="ad-round-title-group">
-                <span class="ad-round-number-badge">جولة ${round.roundNumber || idx + 1}</span>
+                <span class="ad-round-number-badge">${isClosureEvent ? 'طلب إنهاء' : `جولة ${round.roundNumber || idx + 1}`}</span>
                 <h3 class="ad-round-title">${round.roundTitle || `جولة المتابعة رقم ${idx + 1}`}</h3>
               </div>
               <div style="display: flex; align-items: center; gap: 8px;">
@@ -282,59 +363,73 @@
             <div class="ad-round-body-grid">
               <div class="ad-round-photo-wrap" data-img-url="${photoUrl}" data-img-title="${round.roundTitle}" title="اضغط للتكبير">
                 <img src="${photoUrl}" alt="${round.roundTitle}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
-                <span class="ad-round-photo-badge">
-                  <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
-                  <span>كاميرا 720p</span>
-                </span>
               </div>
 
               <div class="ad-round-content">
-                <!-- 4-Criteria Score Scorecard -->
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-size: 0.8rem; font-weight: 700; color: #334155;">تقييم الجولة عبر المعايير الأربعة الرسمية:</span>
-                    <strong style="color: var(--adco-green-deep); font-size: 0.95rem;">الإجمالي: ${totalRoundScore} / 100</strong>
+                ${isClosureEvent ? `
+                  <div style="background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 14px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: #b45309; font-weight: 700; margin-bottom: 6px; font-size: 0.9rem;">
+                      <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <span>طلب إنهاء وتفكيك النشاط قيد مراجعة واعتماد مدير التسويق</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #475569; margin: 0; line-height: 1.5;">${round.sessionNotes}</p>
                   </div>
-                  <div class="ad-scorecard-grid">
-                    <div class="ad-scorecard-item">
-                      <div class="ad-scorecard-label">نشاط جديد (40)</div>
-                      <div class="ad-scorecard-val">${breakdown.newActivity}<small>/40</small></div>
+                ` : `
+                  <!-- 4-Criteria Score Scorecard -->
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                      <span style="font-size: 0.8rem; font-weight: 700; color: #334155;">تقييم الجولة عبر المعايير الأربعة الرسمية:</span>
+                      <strong style="color: var(--adco-green-deep); font-size: 0.95rem;">الإجمالي: ${totalRoundScore} / 100</strong>
                     </div>
-                    <div class="ad-scorecard-item">
-                      <div class="ad-scorecard-label">جودة العرض (20)</div>
-                      <div class="ad-scorecard-val">${breakdown.executionQuality}<small>/20</small></div>
-                    </div>
-                    <div class="ad-scorecard-item">
-                      <div class="ad-scorecard-label">الاستمرارية (25)</div>
-                      <div class="ad-scorecard-val">${breakdown.continuity}<small>/25</small></div>
-                    </div>
-                    <div class="ad-scorecard-item">
-                      <div class="ad-scorecard-label">التوثيق وصحة البيانات (15)</div>
-                      <div class="ad-scorecard-val">${breakdown.documentation}<small>/15</small></div>
+                    <div class="ad-scorecard-grid">
+                      <div class="ad-scorecard-item">
+                        <div class="ad-scorecard-label">نشاط جديد (40)</div>
+                        <div class="ad-scorecard-val">${breakdown.newActivity}<small>/40</small></div>
+                      </div>
+                      <div class="ad-scorecard-item">
+                        <div class="ad-scorecard-label">جودة العرض (20)</div>
+                        <div class="ad-scorecard-val">${breakdown.executionQuality}<small>/20</small></div>
+                      </div>
+                      <div class="ad-scorecard-item">
+                        <div class="ad-scorecard-label">الاستمرارية (25)</div>
+                        <div class="ad-scorecard-val">${breakdown.continuity}<small>/25</small></div>
+                      </div>
+                      <div class="ad-scorecard-item">
+                        <div class="ad-scorecard-label">التوثيق وصحة البيانات (15)</div>
+                        <div class="ad-scorecard-val">${breakdown.documentation}<small>/15</small></div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- Manager Note Box -->
-                <div class="ad-manager-note-box">
-                  <div class="ad-manager-note-header">
-                    <span>
-                      <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-xs" alt="" />
-                      <span>توجيهات وملاحظات مدير التسويق:</span>
-                    </span>
-                    <span>${reviewer}</span>
+                  <!-- Manager Note Box -->
+                  <div class="ad-manager-note-box">
+                    <div class="ad-manager-note-header">
+                      <span>
+                        <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-xs" alt="" />
+                        <span>توجيهات وملاحظات مدير التسويق:</span>
+                      </span>
+                      <span>${reviewer}</span>
+                    </div>
+                    <p class="ad-manager-note-text">"${managerNote}"</p>
                   </div>
-                  <p class="ad-manager-note-text">"${managerNote}"</p>
-                </div>
+                `}
 
                 <!-- GPS & Uploader -->
                 <div class="ad-gps-verification-row">
                   <span>بواسطة: <strong>${round.uploadedBy || currentActivity.coordinatorName}</strong> (${round.uploadedById || 'ADCO'})</span>
-                  <span>•</span>
-                  <span style="color: #059669; display: inline-flex; align-items: center; gap: 4px;">
-                    <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
-                    <span>تم التحقق الجغرافي (ضمن نطاق الفرع)</span>
-                  </span>
+                  ${isClosureEvent ? `
+                    <span>•</span>
+                    <span style="color: #d97706; display: inline-flex; align-items: center; gap: 4px;">
+                      <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <span>قيد مراجعة الاعتماد</span>
+                    </span>
+                  ` : `
+                    <span>•</span>
+                    <span style="color: #059669; display: inline-flex; align-items: center; gap: 4px;">
+                      <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <span>تم التحقق الجغرافي (ضمن نطاق الفرع)</span>
+                    </span>
+                  `}
                 </div>
               </div>
             </div>
@@ -542,14 +637,10 @@
 
     if (activeSelectedProducts.length === 0) {
       mount.innerHTML = '<span style="font-size: 0.8rem; color: #94a3b8;">لم يتم اختيار أصناف بعد. اضغط "إضافة صنف جديد" أعلاه.</span>';
-      if (shareBadge) shareBadge.textContent = 'حصة البراند: 0.00';
       return;
     }
 
     const uniqueBrands = [...new Set(activeSelectedProducts.map((p) => p.brand).filter(Boolean))];
-    const share = (1 / uniqueBrands.length).toFixed(2);
-    const pct = Math.round((1 / uniqueBrands.length) * 100);
-    if (shareBadge) shareBadge.textContent = `حصة البراند: ${share} (${pct}%) — ${uniqueBrands.length} براندات`;
 
     mount.innerHTML = activeSelectedProducts
       .map((p, idx) => `
@@ -703,6 +794,99 @@
     modal.classList.add('active');
   }
 
+  function openClosureModal() {
+    const modal = document.getElementById('ad-closure-modal');
+    if (modal) modal.classList.add('active');
+  }
+
+  function closeClosureModal() {
+    const modal = document.getElementById('ad-closure-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  function setupClosureModal() {
+    const modal = document.getElementById('ad-closure-modal');
+    if (!modal) return;
+
+    const closeBtn = document.getElementById('ad-close-closure-modal-btn');
+    const cancelBtn = document.getElementById('ad-cancel-closure-btn');
+    const form = document.getElementById('ad-closure-form');
+    const reasonSelect = document.getElementById('ad-closure-reason-select');
+    const notesInput = document.getElementById('ad-closure-notes-input');
+
+    if (closeBtn) closeBtn.addEventListener('click', closeClosureModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeClosureModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeClosureModal();
+    });
+
+    if (actionParam === 'request-closure') {
+      setTimeout(openClosureModal, 350);
+    }
+
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const reason = (reasonSelect && reasonSelect.value) ? reasonSelect.value.trim() : 'انتهاء مدة الحملة المعتمدة';
+        const notes = (notesInput && notesInput.value) ? notesInput.value.trim() : '';
+
+        // Update currentActivity state
+        currentActivity.closureRequested = true;
+        currentActivity.closureRequestedAt = new Date().toISOString();
+        currentActivity.closureReasonType = reason;
+        currentActivity.closureNotes = notes ? `${reason} (${notes})` : reason;
+        currentActivity.closureStatus = 'pending_closure';
+
+        // Append log into review history so Marketing Manager sees it
+        if (!Array.isArray(currentActivity.followUpHistory)) {
+          currentActivity.followUpHistory = [];
+        }
+
+        const closureRoundNumber = currentActivity.followUpHistory.length + 1;
+        currentActivity.followUpHistory.push({
+          roundNumber: closureRoundNumber,
+          roundTitle: 'طلب إنهاء وتفكيك النشاط (قيد المراجعة)',
+          timestamp: new Date().toISOString(),
+          uploadedBy: user.name,
+          uploadedById: user.employeeId,
+          reviewStatus: 'Under Review',
+          sessionScore: null,
+          sessionNotes: `طلب إنهاء مقدم من ${user.name}: ${reason}${notes ? ' - ' + notes : ''}`,
+          closureRequest: true,
+          reviewerName: null
+        });
+        currentActivity.roundsCount = currentActivity.followUpHistory.length;
+
+        // Persist update in ActivityManager / ActivityStore / ActivityService
+        try {
+          if (Activity && typeof Activity.saveAllActivities === 'function') {
+            const all = Activity.getAllActivities ? Activity.getAllActivities() : [];
+            const idx = all.findIndex((a) => a.id === currentActivity.id);
+            if (idx !== -1) {
+              all[idx] = currentActivity;
+              Activity.saveAllActivities(all);
+            }
+          }
+          if (Activity && typeof Activity.requestActivityCompletion === 'function') {
+            try { await Activity.requestActivityCompletion(currentActivity.id, reason, notes); } catch (_) {}
+          }
+          if (Activity && typeof Activity.requestActivityClosure === 'function') {
+            try { await Activity.requestActivityClosure(currentActivity.id, notes ? `${reason} - ${notes}` : reason); } catch (_) {}
+          }
+        } catch (err) {
+          console.warn('[ActivityDetails] Error persisting closure request:', err);
+        }
+
+        closeClosureModal();
+        showToast('تم تقديم طلب إنهاء النشاط بنجاح وهو قيد مراجعة مدير التسويق', 'success');
+
+        // Re-render hero card and timeline
+        renderHeroCard();
+        renderTimeline();
+      });
+    }
+  }
+
   // Initialize once DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
@@ -710,3 +894,4 @@
     init();
   }
 })(typeof window !== 'undefined' ? window : globalThis);
+

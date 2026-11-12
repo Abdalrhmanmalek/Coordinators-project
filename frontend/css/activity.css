@@ -43,14 +43,7 @@
 }
 
 .timeline-thumb-zoom {
-  position: absolute;
-  bottom: 2px;
-  left: 2px;
-  background: rgba(15, 23, 42, 0.75);
-  color: #ffffff;
-  font-size: 0.65rem;
-  padding: 1px 4px;
-  border-radius: 4px;
+  display: none !important;
 }
 
 /* ---- extracted from pages/activity-card.html <style> ---- */
@@ -155,6 +148,16 @@
     #btn-open-product-modal * {
       white-space: nowrap !important;
       word-break: keep-all !important;
+    }
+    #btn-open-product-modal img,
+    #btn-open-product-modal .ui-icon,
+    #btn-confirm-add-product img,
+    #btn-confirm-add-product .ui-icon,
+    .product-actions-group .btn-primary img,
+    .product-actions-group .btn-primary .ui-icon {
+      filter: brightness(0) invert(1) !important;
+      color: #ffffff !important;
+      stroke: #ffffff !important;
     }
     #btn-open-product-modal:hover {
       transform: translateY(-1px);

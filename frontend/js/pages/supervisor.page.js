@@ -149,12 +149,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
                   <span class="badge badge-mint">${bg.total} نشط</span>
                 </div>
 
-                <div style="margin: 10px 0;">
-                  <span class="branch-supply-pill">
-                    <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
-                    <span>فرع الشركة المورد للبضاعة: <strong>${bg.supplyingBranch}</strong></span>
-                  </span>
-                </div>
+
 
                 <div class="branch-meta-grid">
                   <div class="branch-meta-item">
@@ -527,15 +522,6 @@ const user = AuthManager.checkAuthGuard('supervisor');
                     : ''
                 }
 
-                <!-- Coordinator info & status header at top -->
-                <div class="sp-coord-header-row">
-                  <div class="sp-coord-badge">
-                    <img src="../assets/icons/user.svg" class="ui-icon ui-icon-xs" alt="" />
-                    <span>المنسق: <strong>${typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName}</strong></span>
-                  </div>
-                  <span class="badge badge-mint">${act.coordinatorBranch || 'قطاع وسط'}</span>
-                </div>
-
                 <!-- Media row: Photo & Branch/Activity details -->
                 <div class="sp-card-media-row">
                   <img src="${act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80'}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl}" data-title="${act.client}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';" style="width:96px; height:96px; border-radius:12px; object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
@@ -549,9 +535,8 @@ const user = AuthManager.checkAuthGuard('supervisor');
                       <span>${act.branch}</span>
                     </div>
                     <p class="sp-card-activity-line">النشاط: <strong>${act.activity || '-'} (${act.activityType || '-'} × ${act.activityCount || 1})</strong></p>
-                    <div class="branch-supply-pill" style="margin: 4px 0;">
-                      <span>فرع الشركة المورد للبضاعة: <strong>${act.coordinatorBranch || 'الإسكندرية - قطاع وسط'}</strong></span>
-                    </div>
+
+                    <p style="font-size:0.75rem; color:var(--adco-gray-600); margin:2px 0;">المنسق الميداني: <strong>${typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName}</strong></p>
                     <p style="font-size:0.75rem; color:var(--adco-gray-600); margin:2px 0;">المشرف المعتمد: <strong>${act.reviewerName || 'أيمن الروبي'}</strong></p>
                     <p class="sp-card-brands-line">العلامات: ${(act.brands || []).join('، ')} • حصة البراند: <span dir="ltr">${shareVal}</span> (${sharePct}%)</p>
                   </div>

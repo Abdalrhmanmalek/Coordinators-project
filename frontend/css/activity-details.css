@@ -118,19 +118,7 @@
 }
 
 .ad-hero-zoom-badge {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  background: rgba(15, 23, 42, 0.75);
-  color: #ffffff;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  backdrop-filter: blur(4px);
+  display: none !important;
 }
 
 .ad-hero-details {
@@ -346,18 +334,7 @@
 }
 
 .ad-round-photo-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(16, 185, 129, 0.9);
-  color: #ffffff;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  display: none !important;
 }
 
 .ad-round-content {
@@ -531,3 +508,71 @@
   height: 18px;
   accent-color: var(--adco-green-main);
 }
+
+/* Modals Clean Solid White Container */
+.modal-content,
+.modal-card {
+  background: #ffffff !important;
+  padding: 1.75rem 2rem !important;
+  border-radius: 16px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.08) !important;
+  width: 100% !important;
+  max-width: 520px !important;
+  margin: auto !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 480px) {
+  .modal-content,
+  .modal-card {
+    padding: 1.25rem 1rem !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+}
+
+/* SKU Edit Section & + Add Product Button */
+.ad-sku-edit-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+#ad-open-product-modal-btn {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0 !important;
+  min-width: max-content;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 18px !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+#ad-open-product-modal-btn img {
+  filter: brightness(0) invert(1) !important;
+}
+
+@media (max-width: 600px) {
+  .ad-sku-edit-header-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  #ad-open-product-modal-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 10px 16px !important;
+  }
+}
+

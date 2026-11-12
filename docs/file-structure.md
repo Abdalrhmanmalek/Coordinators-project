@@ -22,6 +22,7 @@ All technical specifications, contracts, and style guides are centralized in `do
 
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
+| `docs/agent-guardrails.md` | Compliance Spec | Permanent engineering guardrails for AI agents and maintainers: mandatory reading, zero emojis, modular layer separation, UMD script compatibility, and locked mathematical schemas. |
 | `docs/endpoints.md` | API Documentation | Comprehensive REST API endpoint contract, module routing, DTO request/response schemas, and HTTP status codes. |
 | `docs/evaluation.md` | Scoring Engine Spec | Technical specifications for 100-point evaluation breakdown (40/20/25/15), anti-cheat deduction rules, Bayesian volume-weighted leaderboard formula, and multi-round review log schema. |
 | `docs/file-structure.md` | Inventory Report | Complete workspace inventory, directory architecture, and active file responsibility mapping. |

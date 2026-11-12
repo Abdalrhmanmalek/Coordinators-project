@@ -467,19 +467,54 @@ const user = AuthManager.checkAuthGuard();
     window.openProductModal = function() {
       const modal = document.getElementById('product-picker-modal');
       if (!modal) return;
-      const bEl = document.getElementById('picker-brand');
-      syncCascade(bEl && bEl.value ? bEl.value : 'فلفيتا');
+      modal.classList.remove('is-hidden');
       modal.classList.add('active');
       modal.style.display = 'flex';
+      const bEl = document.getElementById('picker-brand');
+      syncCascade(bEl && bEl.value ? bEl.value : 'فلفيتا');
     };
 
     window.closeProductModal = function() {
       const modal = document.getElementById('product-picker-modal');
       if (modal) {
         modal.classList.remove('active');
+        modal.classList.add('is-hidden');
         modal.style.display = 'none';
       }
     };
+
+    // Explicitly wire buttons to guarantee click interaction
+    if (openProdModalBtn) {
+      openProdModalBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.openProductModal();
+      });
+    }
+
+    if (closeProdModalBtn) {
+      closeProdModalBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.closeProductModal();
+      });
+    }
+
+    if (cancelProdModalBtn) {
+      cancelProdModalBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.closeProductModal();
+      });
+    }
+
+    if (confirmAddProdBtn) {
+      confirmAddProdBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.confirmAddProduct();
+      });
+    }
 
     if (prodModal) {
       prodModal.addEventListener('click', (e) => {
@@ -667,7 +702,6 @@ const user = AuthManager.checkAuthGuard();
                   (p, pIdx) => `
                 <div class="timeline-thumb-item" data-sidx="${sIdx}" data-pidx="${pIdx}">
                   <img src="${p.photoUrl}" alt="${session.roundTitle}" />
-                  <span class="timeline-thumb-zoom">${p.sizeKb || 180}KB</span>
                 </div>
               `
                 )
@@ -827,7 +861,6 @@ const user = AuthManager.checkAuthGuard();
                       ${(s.photos || []).map((p, pIdx) => `
                         <div class="timeline-thumb-item inline-review-thumb" data-sidx="${sIdx}" data-pidx="${pIdx}" title="اضغط لتكبير الصورة">
                           <img src="${p.photoUrl || act.photoUrl}" alt="${s.roundTitle}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
-                          <span class="timeline-thumb-zoom">${p.sizeKb || 180}KB</span>
                         </div>
                       `).join('')}
                     </div>
@@ -946,7 +979,7 @@ const user = AuthManager.checkAuthGuard();
             <div class="meta-row"><span>النشاط:</span><strong>${act.activity || '-'}</strong></div>
             <div class="meta-row"><span>نوع النشاط:</span><strong>${act.activityType || '-'}</strong></div>
             <div class="meta-row"><span>عدد النشاط:</span><strong>${act.activityCount || 1}</strong></div>
-            <div class="meta-row"><span>العلامات التجارية (${brandCount}):</span><strong>${(act.brands || []).join(' ، ')} (حصة: ${brandShareVal})</strong></div>
+            <div class="meta-row"><span>العلامات التجارية (${brandCount}):</span><strong>${(act.brands || []).join(' ، ')}</strong></div>
             <div class="meta-row"><span>المنتج:</span><strong>${act.skuVariant}</strong></div>
             ${act.magazineDate ? `<div class="meta-row"><span>تاريخ إصدار المجلة:</span><strong></strong></div>` : ''}
             <div class="meta-row"><span>تاريخ إنشاء البطاقة:</span><strong dir="ltr">${formatDateTime(act.createdAt || act.timestamp)}</strong></div>

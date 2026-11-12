@@ -494,6 +494,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--adco-gray-200);
@@ -512,12 +513,28 @@
 }
 
 .activity-card-action-bar .btn {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 110px;
   justify-content: center;
   font-size: 0.82rem;
   padding: 7px 12px;
   border-radius: var(--radius-sm);
   white-space: nowrap;
+}
+
+.btn-card-closure-req {
+  background: #fff7ed !important;
+  color: #c2410c !important;
+  border: 1px solid #fed7aa !important;
+  font-weight: 700 !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer;
+}
+
+.btn-card-closure-req:hover {
+  background: #ffedd5 !important;
+  border-color: #fdba74 !important;
+  transform: translateY(-1px);
 }
 
 .btn-quick-add-photo {
