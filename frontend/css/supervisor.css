@@ -1609,6 +1609,7 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background-color: #f8fafc;
   z-index: 2000;
   overflow-y: auto;

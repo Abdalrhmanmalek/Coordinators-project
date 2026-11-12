@@ -48,4 +48,11 @@
   --shadow-lg: 0 20px 38px -8px rgba(15, 23, 42, 0.1), 0 8px 16px -6px rgba(0, 0, 0, 0.04);
   --header-height: 68px;
   --transition-fast: all 0.2s ease;
+
+  /* Standard Responsive Breakpoints (AGENTS.md Foundation) */
+  --bp-xs: 480px;
+  --bp-sm: 768px;
+  --bp-md: 1024px;
+  --bp-lg: 1280px;
+  --bp-xl: 1536px;
 }

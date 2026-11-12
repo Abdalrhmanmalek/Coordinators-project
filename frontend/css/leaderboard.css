@@ -270,15 +270,14 @@
   overflow: visible;
 }
 
-/* Base Podium Column */
+/* Base Mobile-First Podium Column */
 .podium-col {
-  flex: 1;
-  max-width: 290px;
-  min-width: 210px;
+  width: 100%;
+  max-width: 100%;
   text-align: center;
   background: #ffffff;
   border-radius: 20px;
-  padding: 26px 16px 0;
+  padding: 24px 16px 20px;
   border: 1.5px solid #e2e8f0;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
   display: flex;
@@ -294,59 +293,64 @@
   box-shadow: 0 14px 30px -4px rgba(15, 23, 42, 0.12);
 }
 
-/* 1st Place - Center & Elevated Highest */
+/* 1st Place - Gold Styling */
 .podium-col.rank-1,
 .podium-col.first {
-  height: 380px;
-  min-height: 380px;
-  top: -18px;
   border: 2px solid #f59e0b;
   background: linear-gradient(180deg, #fffdf5 0%, #ffffff 100%);
   box-shadow: 0 18px 40px -8px rgba(245, 158, 11, 0.26), 0 4px 12px rgba(0, 0, 0, 0.03);
   z-index: 2;
 }
 
-/* 2nd Place - Silver Pedestal */
+/* 2nd Place - Silver Styling */
 .podium-col.rank-2,
 .podium-col.second {
-  height: 320px;
-  min-height: 320px;
-  top: -6px;
   border: 1.5px solid #94a3b8;
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
   box-shadow: 0 10px 24px -6px rgba(100, 116, 139, 0.15);
   z-index: 1;
 }
 
-/* 3rd Place - Bronze Pedestal */
+/* 3rd Place - Bronze Styling */
 .podium-col.rank-3,
 .podium-col.third {
-  height: 275px;
-  min-height: 275px;
-  top: 0;
   border: 1.5px solid #f97316;
   background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
   box-shadow: 0 8px 20px -4px rgba(234, 88, 12, 0.12);
   z-index: 1;
 }
 
-/* Desktop Flex Order for RTL Arabic:
-   Order 1: 2nd place (Right side in RTL)
-   Order 2: 1st place (Center - highest elevation)
-   Order 3: 3rd place (Left side in RTL)
-*/
+/* Desktop Flex Order & Heights (RTL Flow) */
 @media (min-width: 769px) {
+  .podium-col {
+    flex: 1;
+    max-width: 290px;
+    min-width: 210px;
+    padding-bottom: 0;
+  }
+
   .podium-col.rank-2,
   .podium-col.second {
     order: 1;
+    height: 320px;
+    min-height: 320px;
+    top: -6px;
   }
+
   .podium-col.rank-1,
   .podium-col.first {
     order: 2;
+    height: 380px;
+    min-height: 380px;
+    top: -18px;
   }
+
   .podium-col.rank-3,
   .podium-col.third {
     order: 3;
+    height: 275px;
+    min-height: 275px;
+    top: 0;
   }
 }
 
@@ -713,10 +717,10 @@
   .podium-col {
     width: 100%;
     max-width: 100%;
-    height: auto !important;
-    min-height: auto !important;
-    top: 0 !important;
-    order: unset !important;
+    height: auto;
+    min-height: auto;
+    top: 0;
+    order: unset;
     padding-bottom: 20px;
   }
 

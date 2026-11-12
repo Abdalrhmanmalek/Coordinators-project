@@ -409,8 +409,9 @@ input::placeholder,
 .modal-sheet {
   background: #ffffff;
   width: 100%;
-  max-width: 600px;
+  max-width: min(600px, calc(100vw - 2rem));
   max-height: 90vh;
+  max-height: 90dvh;
   border-radius: 20px;
   box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   overflow-y: auto;
@@ -431,9 +432,11 @@ input::placeholder,
   background: var(--adco-gray-100);
   border: none;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-size: 1.2rem;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 1.25rem;
   line-height: 1;
   color: var(--adco-gray-600);
   cursor: pointer;
@@ -518,9 +521,10 @@ input::placeholder,
   background: #ffffff;
   color: #1e293b;
   border-radius: 16px;
-  max-width: 900px;
+  max-width: min(900px, calc(100vw - 2rem));
   width: 100%;
   max-height: 90vh;
+  max-height: 90dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -800,4 +804,16 @@ input::placeholder,
 .ui-s1.ui-s1 {
   font-size: 0.76rem;
   color: var(--adco-gray-400);
+}
+
+/* =========================================================
+   Responsive Table Scroll Wrapper (AGENTS.md Rule 34)
+   ========================================================= */
+.table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 16px;
+  border-radius: var(--radius-md, 16px);
 }

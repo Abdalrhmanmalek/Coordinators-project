@@ -13,7 +13,6 @@
 
 html {
   font-size: 16px;
-  overflow-x: hidden;
   overflow-y: scroll; /* Force vertical scrollbar track reservation across all browsers */
   scrollbar-gutter: stable; /* Modern CSS standard: reserves scrollbar gutter without layout shift */
   color-scheme: light;
@@ -157,6 +156,7 @@ p {
 .web-app-shell {
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -178,7 +178,7 @@ p {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 92px 32px 48px;
+  padding: calc(92px + env(safe-area-inset-top, 0px)) calc(32px + env(safe-area-inset-right, 0px)) calc(48px + env(safe-area-inset-bottom, 0px)) calc(32px + env(safe-area-inset-left, 0px));
   flex: 1;
   overflow: visible;
 }
@@ -186,6 +186,6 @@ p {
 @media (max-width: 768px) {
   .pwa-content,
   .web-main-workspace {
-    padding: 78px 14px 32px;
+    padding: calc(78px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px));
   }
 }
