@@ -4,13 +4,23 @@
  */
 
 (function (global) {
-  // Prevent browser from restoring scroll down on refresh & ensure page starts at top
+  // Strictly prevent browser from restoring scroll down on refresh & ensure page starts at top (0,0)
   try {
     if (typeof history !== 'undefined' && 'scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
     if (typeof window !== 'undefined') {
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (typeof document !== 'undefined') {
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
+      }
+      window.addEventListener('load', () => {
+        try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (_) {}
+      });
+      window.addEventListener('pageshow', () => {
+        try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (_) {}
+      });
     }
   } catch (_) {}
   class AppRouter {
@@ -64,18 +74,23 @@
 
     /**
      * Triggers lightweight staggered slide-up box entrance animations on cards & sections
+     * Batched via requestAnimationFrame to eliminate layout thrashing
      */
     static triggerSlideUpBoxes(rootEl) {
       try {
-        const scope = rootEl || document.querySelector('.web-main-workspace') || document.body;
-        if (!scope) return;
-        const boxes = scope.querySelectorAll(
-          '.card, .kpi-card, .branch-master-card, .circular-ring-card, .chart-card, .activity-card-item, .podium-card'
-        );
-        boxes.forEach((box, idx) => {
-          box.classList.add('slide-up-box-item');
-          const delaySec = Math.min(idx * 0.03, 0.18).toFixed(2);
-          box.style.animationDelay = `${delaySec}s`;
+        if (typeof window === 'undefined') return;
+        const batchFn = typeof window.requestAnimationFrame === 'function' ? window.requestAnimationFrame : ((fn) => setTimeout(fn, 16));
+        batchFn(() => {
+          const scope = rootEl || document.querySelector('.web-main-workspace') || document.body;
+          if (!scope) return;
+          const boxes = scope.querySelectorAll(
+            '.card, .kpi-card, .branch-master-card, .circular-ring-card, .chart-card, .activity-card-item, .podium-card'
+          );
+          boxes.forEach((box, idx) => {
+            box.classList.add('slide-up-box-item');
+            const delaySec = Math.min(idx * 0.025, 0.15).toFixed(2);
+            box.style.animationDelay = `${delaySec}s`;
+          });
         });
       } catch (_) {}
     }
@@ -108,7 +123,7 @@
 
       // Guarantee immediate top alignment on page load and refresh
       if (typeof window !== 'undefined') {
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         if (document.documentElement) document.documentElement.scrollTop = 0;
         if (document.body) document.body.scrollTop = 0;
       }
@@ -117,7 +132,7 @@
         if (document.body) {
           document.body.classList.remove('page-is-leaving');
         }
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       });
 
       // Intercept internal same-origin navigation links for smooth fade/slide exit

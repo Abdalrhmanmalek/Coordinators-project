@@ -49,6 +49,9 @@ html {
 
 body {
   font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   background-color: #f8fafc;
   background-image: radial-gradient(circle at 15% 0%, rgba(204, 251, 241, 0.42), transparent 45%),
                     radial-gradient(circle at 85% 100%, rgba(241, 245, 249, 0.9), transparent 50%);
@@ -67,7 +70,7 @@ body {
 /* Visibility & Utility Classes */
 .is-hidden,
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 [hidden] {
@@ -175,7 +178,7 @@ p {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 28px 32px 48px;
+  padding: 92px 32px 48px;
   flex: 1;
   overflow: visible;
 }
@@ -183,6 +186,6 @@ p {
 @media (max-width: 768px) {
   .pwa-content,
   .web-main-workspace {
-    padding: 16px;
+    padding: 78px 14px 32px;
   }
 }

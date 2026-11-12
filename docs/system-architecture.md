@@ -24,11 +24,72 @@ adco-field-app/
 │   ├── assets/                                    # Optimized Icons & Graphics
 │   ├── css/                                       # 14 Decoupled Modular CSS Files
 │   ├── pages/                                     # 8 Semantic Operational HTML Pages
-│   └── js/                                        # Runtime Engines, Services & SRP Page Controllers
+│   └── js/                                        # Modular Hybrid Layer + Feature Architecture
+│       ├── config/                                # Centralized Environment, Catalogs & Constant Keys
+│       ├── store/                                 # Caching, State Merging & Seed Datasets
+│       ├── services/                              # Business Operations, Submissions & Lifecycle Management
+│       ├── utils/                                 # Pure Domain Math, GPS Haversine, Image Compression & Formatters
+│       ├── components/                            # Reusable Pure HTML Template Renderers & Modals
+│       └── pages/                                 # SRP View Controllers (Dashboard, Activity, Evaluation, etc.)
 ├── run-app.bat                                    # Windows Desktop Local Launcher
 ├── vercel.json                                    # Cloud Deployment Routing Configuration
 └── README.md                                      # Documentation Portal & Quick Start Guide
 ```
+
+### 1.1 Modular Frontend Architecture & Data Flow (`Store -> Services/Utils -> Components -> Pages`)
+
+The frontend JavaScript codebase enforces a strict **Hybrid Layer + Feature Architecture** designed for high maintainability and testability:
+
+```mermaid
+flowchart TD
+    subgraph ConfigLayer["1. Configuration Layer (config/)"]
+        ENV["env.config.js<br/>(API URL, 150m GPS threshold, Storage Keys)"]
+        CAT["adco-catalogs.config.js / catalogs.js<br/>(Branches, Clients, Brands, SKUs)"]
+    end
+
+    subgraph StateLayer["2. State & Store Layer (store/)"]
+        STORE["activity.store.js<br/>(localStorage Cache, Auto-merge, RBAC Filter)"]
+        SEEDS["seed-data.js / employee-registry.seed.js<br/>(Deterministic Mock Data)"]
+    end
+
+    subgraph ServiceLayer["3. Domain Utils & Services (services/ & utils/)"]
+        ACT_SUB["activity-submission.service.js<br/>(Submit Activity, Follow-up Rounds)"]
+        ACT_LIFE["activity-lifecycle.service.js<br/>(Closure Requests, Direct Close)"]
+        BRANCH_SVC["branch.service.js<br/>(Supplying Branch & Coordinator Lookup)"]
+        GPS_UTIL["gps-proximity.util.js<br/>(Haversine Distance & <= 150m Proximity)"]
+        BRAND_UTIL["brand-share.util.js<br/>(1/N Multi-Brand Row Multiplication)"]
+        SCORE_UTIL["score.util.js / score-calculator.js<br/>(100-Point Weighted Scoring 40/20/25/15)"]
+        REPORT_SVC["report-export.service.js<br/>(CSV / Excel Spreadsheet with UTF-8 BOM)"]
+    end
+
+    subgraph FacadeLayer["4. Backward-Compatible Facade"]
+        FACADE["activity-manager.js & supervisor.js<br/>(Composes static methods onto window.ActivityManager & SupervisorEngine)"]
+    end
+
+    subgraph ComponentLayer["5. UI Components (components/)"]
+        CARD_COMP["master-branch-card.js<br/>(Branch Card with Glowing Status Counter)"]
+        ITEM_COMP["activity-card-item.js<br/>(Activity Card item & Timeline)"]
+    end
+
+    subgraph PageLayer["6. SRP Page Controllers (pages/)"]
+        DASH_PAGE["dashboard.page.js"]
+        BRANCH_PAGE["branch-details.page.js"]
+        EVAL_PAGE["evaluation.page.js<br/>(Dedicated Standalone Page)"]
+        CARD_PAGE["activity-card.page.js"]
+        SUP_PAGE["supervisor.page.js"]
+    end
+
+    ConfigLayer --> StateLayer
+    StateLayer --> ServiceLayer
+    ServiceLayer --> FacadeLayer
+    FacadeLayer --> PageLayer
+    ComponentLayer --> PageLayer
+```
+
+* **Backward-Compatible Facade Pattern:** All decomposing modules register their methods in `window.ADCO_ACTIVITY_MODULES`. The facade (`frontend/js/activity-manager.js`) composes these static methods onto `window.ActivityManager` at initialization time, guaranteeing zero breaking changes for existing call sites while keeping each module under 250–350 lines.
+* **Standalone Evaluation View (`evaluation.html` + `evaluation.page.js`):** Decoupled from floating modals/popups into an independent full-screen route (`?id=ACT-...`), featuring permanent F5 refresh persistence and zero text clashing.
+
+---
 
 ## 2. Screen-by-Screen Data Inputs & Validation Rules
 

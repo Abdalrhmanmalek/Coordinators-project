@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f766e" />
+  <title>فحص وتقييم بطاقة النشاط | ADCO Field Portal</title>
+  <script>
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+  </script>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/layout.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/evaluation.css" />
+  <link rel="stylesheet" href="../css/enhancements.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+</head>
+<body>
+  <div id="app-header-mount"></div>
+
+  <main class="web-main-workspace">
+    <!-- Top Breadcrumb & Route Back Action -->
+    <div class="eval-page-header">
+      <div class="eval-header-title-col">
+        <h1 class="eval-page-title" id="eval-header-title">
+          <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-md" alt="" />
+          <span id="eval-title-client">فحص وتقييم بطاقة النشاط</span>
+        </h1>
+        <p class="eval-page-subtitle">
+          <span id="eval-title-branch">جاري تحميل بيانات الفرع...</span>
+          <span class="badge badge-mint" id="eval-act-id-badge" style="font-family: monospace;">-</span>
+        </p>
+      </div>
+
+      <div class="eval-header-actions">
+        <a href="./supervisor-panel.html" class="btn btn-secondary" id="eval-back-route-btn" title="العودة لشاشة المراجعة">
+          <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>العودة لقائمة الأنشطة والمراجعة</span>
+        </a>
+        <span class="badge badge-success" id="eval-header-score-badge">100 / 100 نقطة</span>
+        <div id="eval-header-status-badge"></div>
+      </div>
+    </div>
+
+    <!-- 1. TOP SECTION: Branch Details & Master Info (بيانات الفرع والنشاط الرئيسية) -->
+    <section class="eval-card-section" id="section-branch-details">
+      <div class="eval-section-title-row">
+        <h2 class="eval-section-heading-text">
+          <img src="../assets/icons/layout-dashboard.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>بيانات الفرع وتفاصيل النشاط الرئيسية</span>
+        </h2>
+        <span class="badge badge-mint" id="eval-status-display-badge">مطابق للمواصفات</span>
+      </div>
+
+      <!-- Hero Client Banner -->
+      <div class="eval-branch-hero-banner">
+        <div>
+          <h3 class="eval-client-main-name" id="eval-client-name">-</h3>
+          <p class="eval-branch-sub-line">
+            <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span id="eval-branch-name">-</span>
+          </p>
+        </div>
+        <div class="eval-supplying-pill" id="eval-supplying-branch-box">
+          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>فرع الشركة المورد للبضاعة: <strong id="eval-supplying-branch">-</strong></span>
+        </div>
+      </div>
+
+      <!-- Clean, Non-Overlapping Grid for Master Attributes -->
+      <div class="eval-details-grid">
+        <div class="eval-info-box">
+          <span class="eval-box-label">
+            <img src="../assets/icons/user-cog.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>المنسق الميداني المسؤول</span>
+          </span>
+          <span class="eval-box-val" id="eval-coord-name">-</span>
+        </div>
+
+        <div class="eval-info-box">
+          <span class="eval-box-label">
+            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>قطاع / فرع المنسق</span>
+          </span>
+          <span class="eval-box-val" id="eval-coord-sector">-</span>
+        </div>
+
+        <div class="eval-info-box">
+          <span class="eval-box-label">
+            <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>نوع النشاط وطريقة العرض</span>
+          </span>
+          <span class="eval-box-val" id="eval-activity-type">-</span>
+        </div>
+
+        <div class="eval-info-box">
+          <span class="eval-box-label">
+            <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>تاريخ وتوقيت بدء النشاط (مصر)</span>
+          </span>
+          <span class="eval-box-val highlight-date" id="eval-start-date" dir="ltr">-</span>
+        </div>
+
+        <div class="eval-info-box">
+          <span class="eval-box-label">
+            <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>حالة وتاريخ انتهاء النشاط</span>
+          </span>
+          <span class="eval-box-val" id="eval-end-date">-</span>
+        </div>
+
+        <div class="eval-info-box span-full">
+          <span class="eval-box-label">
+            <img src="../assets/icons/star.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>المنتجات والأصناف المشمولة بالعرض (SKU)</span>
+          </span>
+          <span class="eval-box-val" id="eval-sku-variant">-</span>
+        </div>
+
+        <div class="eval-info-box span-full">
+          <span class="eval-box-label">
+            <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>العلامات التجارية وحصة العرض (Brand Share)</span>
+          </span>
+          <span class="eval-box-val highlight-brand" id="eval-brands-share">-</span>
+        </div>
+
+        <div class="eval-info-box span-full is-hidden" id="eval-magazine-box">
+          <span class="eval-box-label">
+            <img src="../assets/icons/sheet.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>تاريخ المجلة وفترة العرض</span>
+          </span>
+          <span class="eval-box-val" id="eval-magazine-date">-</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. MIDDLE SECTION: Photos, Metadata & GPS Proximity Comparison -->
+    <section class="eval-card-section" id="section-media-gps">
+      <div class="eval-section-title-row">
+        <h2 class="eval-section-heading-text">
+          <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>المعاينة الميدانية: صور العرض وفحص مطابقة الموقع (GPS)</span>
+        </h2>
+        <span class="badge badge-mint" id="eval-active-round-badge">الجولة التأسيسية</span>
+      </div>
+
+      <div class="eval-media-workspace">
+        <!-- Column A: Photo Inspection & Metadata -->
+        <div class="eval-photo-card">
+          <div class="eval-photo-card-header">
+            <div class="eval-section-heading-text" style="font-size: 0.95rem;">
+              <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
+              <span id="eval-photo-heading">صورة العرض الميداني</span>
+            </div>
+            <button type="button" class="btn btn-secondary btn-xs" id="eval-header-zoom-btn" title="تكبير الصورة وفحص التفاصيل">
+              <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
+              <span>تكبير وفحص عالي الدقة</span>
+            </button>
+          </div>
+
+          <div class="eval-photo-wrapper" id="eval-photo-click-area" title="اضغط للتكبير والفحص عالي الدقة">
+            <img id="eval-photo-img" src="../assets/images/fathalla-branch.svg" alt="صورة العرض الميداني" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.svg';" />
+          </div>
+
+          <!-- Camera Metadata Box -->
+          <div class="eval-exif-box">
+            <div class="eval-exif-header">
+              <span style="display: flex; align-items: center; gap: 6px;">
+                <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>فحص وبصمة الصورة (Metadata)</span>
+              </span>
+              <span id="eval-photo-origin-badge" class="badge badge-success">كاميرا مباشرة</span>
+            </div>
+            <div id="eval-photo-origin-label" style="font-weight: 700; color: #0f766e;">التقاط مباشر عبر كاميرا هاتف المنسق</div>
+            <div class="eval-exif-row">
+              <span>وقت الالتقاط الفعلي:</span>
+              <strong id="eval-photo-taken-time" dir="ltr">-</strong>
+            </div>
+            <div class="eval-exif-row">
+              <span>الجهاز والكاميرا:</span>
+              <strong id="eval-photo-device-model">-</strong>
+            </div>
+          </div>
+
+          <button type="button" id="eval-view-history-btn" class="btn btn-secondary" style="width: 100%; min-height: 40px;">
+            <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-sm" alt="" />
+            <span>عرض سجل المتابعات والعمليات الكاملة</span>
+          </button>
+        </div>
+
+        <!-- Column B: GPS Validation & Proximity Comparison -->
+        <div class="eval-gps-card">
+          <div class="eval-section-heading-text" style="font-size: 0.95rem;">
+            <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+            <span>فحص ومطابقة الموقع الجغرافي (GPS Proximity)</span>
+          </div>
+
+          <!-- Live Distance Indicator Banner -->
+          <div class="eval-distance-banner" id="eval-distance-banner">
+            <div>
+              <span class="eval-dist-text">المسافة الفعلية بين المنسق والفرع:</span>
+              <span class="eval-dist-val" id="eval-distance-meters">0 متر</span>
+              <span class="badge badge-success" id="eval-proximity-status-badge">ضمن النطاق المعتمد (<= 150م)</span>
+            </div>
+            <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" id="eval-gps-compare-link" title="معاينة المسار على خرائط Google">
+              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+              <span>مقارنة الموقعين على الخريطة</span>
+            </a>
+          </div>
+
+          <!-- Side-by-Side GPS Coordinates Comparison -->
+          <div class="eval-gps-grid">
+            <div class="eval-loc-box coordinator">
+              <div class="eval-loc-title">
+                <span>لوكيشن المنسق (موقع الالتقاط)</span>
+                <span class="badge badge-mint" style="font-size: 0.68rem;">هاتف المنسق</span>
+              </div>
+              <div class="eval-loc-coords" id="eval-coord-coords" dir="ltr">31.21560° N, 29.95530° E</div>
+              <div style="font-size: 0.74rem; color: #64748b;" id="eval-coord-accuracy">دقة الرصد: ±10 متر</div>
+              <a href="#" target="_blank" rel="noopener noreferrer" class="eval-loc-link" id="eval-coord-map-link">
+                <span>فتح لوكيشن المنسق في خرائط Google</span>
+                <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-xs" alt="" />
+              </a>
+            </div>
+
+            <div class="eval-loc-box branch">
+              <div class="eval-loc-title">
+                <span>لوكيشن الفرع المسجل</span>
+                <span class="badge badge-info" style="font-size: 0.68rem;">إحداثيات رسمية</span>
+              </div>
+              <div class="eval-loc-coords" id="eval-branch-coords" dir="ltr">31.21560° N, 29.95530° E</div>
+              <div style="font-size: 0.74rem; color: #64748b;" id="eval-branch-address-label">الفرع المعتمد لدى الشركة</div>
+              <a href="#" target="_blank" rel="noopener noreferrer" class="eval-loc-link" id="eval-branch-map-link">
+                <span>فتح لوكيشن الفرع في خرائط Google</span>
+                <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-xs" alt="" />
+              </a>
+            </div>
+          </div>
+
+          <!-- Field Verification Checkpoints (Eliminates Awkward Blank Space) -->
+          <div class="eval-verification-checklist">
+            <div class="eval-check-item">
+              <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+              <div>
+                <strong>نطاق القرب الجغرافي:</strong>
+                <span id="eval-chk-proximity">مطابق للموقع الرسمي للفرع (ضمن 150م)</span>
+              </div>
+            </div>
+            <div class="eval-check-item">
+              <img src="../assets/icons/circle-check-big.svg" class="ui-icon ui-icon-xs" alt="" />
+              <div>
+                <strong>صحة ومصدر التوثيق:</strong>
+                <span id="eval-chk-meta">التقاط مباشر من كاميرا المنسق</span>
+              </div>
+            </div>
+            <div class="eval-check-item">
+              <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-xs" alt="" />
+              <div>
+                <strong>الربط الإداري الميداني:</strong>
+                <span>معتمد على فرع الشركة المورد</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Accessible Status Buttons -->
+          <div class="eval-quick-status-wrap">
+            <div class="eval-quick-status-label">
+              <span>التقييم السريع (بناءً على فحص الصور والموقع):</span>
+              <strong id="eval-quick-status-current" style="color: #0f766e;">مقبول</strong>
+            </div>
+            <div class="eval-quick-btn-group" role="group" aria-label="خيارات التقييم السريع">
+              <button type="button" class="eval-quick-btn active status-accepted" data-status="Accepted">
+                <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>مقبول</span>
+              </button>
+              <button type="button" class="eval-quick-btn status-rejected" data-status="Rejected">
+                <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>غير مقبول</span>
+              </button>
+              <button type="button" class="eval-quick-btn status-review" data-status="Under Review">
+                <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>تحت المراجعة</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. BOTTOM SECTION: Evaluation Criteria & Scoring (معايير التقييم والدرجات وقرار الاعتماد) -->
+    <!-- STRICTLY PLACED AT THE VERY END OF THE PAGE -->
+    <section class="eval-form-section" id="section-evaluation-form">
+      <div class="eval-section-title-row">
+        <h2 class="eval-section-heading-text">
+          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+          <span>معايير التقييم والدرجات وقرار الاعتماد النهائي (100 نقطة)</span>
+        </h2>
+        <span class="badge badge-success" id="eval-live-total-badge">100 / 100 نقطة</span>
+      </div>
+
+      <form id="evaluation-main-form" style="margin-top: 18px;">
+        <input type="hidden" id="eval-hidden-act-id" />
+
+        <div class="responsive-form-grid" style="margin-bottom: 20px;">
+          <div class="form-group">
+            <label class="form-label" for="eval-activity-date-input">
+              <span>تعديل تاريخ وتوقيت بدء النشاط (صلاحية المشرف المعتمد)</span>
+              <span class="badge badge-mint">بتوقيت مصر</span>
+            </label>
+            <input type="datetime-local" id="eval-activity-date-input" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="eval-round-select">اختر جولة المتابعة المراد تقييمها</label>
+            <select id="eval-round-select" class="form-select"></select>
+          </div>
+        </div>
+
+        <!-- 100 Points Official Evaluation Card -->
+        <div class="eval-scoring-card">
+          <div class="eval-scoring-header">
+            <strong>
+              <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+              <span>توزيع درجات التقييم الرسمي (إجمالي 100 نقطة)</span>
+            </strong>
+            <span class="badge badge-success" id="eval-scoring-card-badge">100 / 100 نقطة</span>
+          </div>
+
+          <div class="eval-scores-grid">
+            <div class="eval-score-input-wrap">
+              <label class="eval-score-label" for="score-new-act">
+                <span>الأنشطة الجديدة المعتمدة</span>
+                <span class="eval-score-weight">40 نقطة</span>
+              </label>
+              <input type="number" id="score-new-act" class="eval-score-num-input" min="0" max="40" step="1" value="40" required />
+            </div>
+
+            <div class="eval-score-input-wrap">
+              <label class="eval-score-label" for="score-quality">
+                <span>جودة التنفيذ الميداني</span>
+                <span class="eval-score-weight">20 نقطة</span>
+              </label>
+              <input type="number" id="score-quality" class="eval-score-num-input" min="0" max="20" step="1" value="18" required />
+            </div>
+
+            <div class="eval-score-input-wrap">
+              <label class="eval-score-label" for="score-continuity">
+                <span>مدة الاستمرارية المثبتة</span>
+                <span class="eval-score-weight">25 نقطة</span>
+              </label>
+              <input type="number" id="score-continuity" class="eval-score-num-input" min="0" max="25" step="1" value="25" required />
+            </div>
+
+            <div class="eval-score-input-wrap">
+              <label class="eval-score-label" for="score-docs">
+                <span>الالتزام بالتوثيق وصحة البيانات</span>
+                <span class="eval-score-weight">15 نقطة</span>
+              </label>
+              <input type="number" id="score-docs" class="eval-score-num-input" min="0" max="15" step="1" value="15" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="eval-decision-select">قرار الاعتماد النهائي</label>
+          <select id="eval-decision-select" class="form-select" required>
+            <option value="Accepted">مقبول — مطابق للمواصفات واكتمال المعايير (Accepted)</option>
+            <option value="Rejected">غير مقبول — يتطلب إعادة تنسيق وتصحيح العرض (Rejected)</option>
+            <option value="Under Review">تحت المراجعة — إبقاء قيد المراجعة والفحص (Under Review)</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 24px;">
+          <label class="form-label" for="eval-notes-textarea">ملاحظات وتوجيهات المشرف الموجهة للمنسق</label>
+          <textarea
+            id="eval-notes-textarea"
+            class="form-textarea"
+            rows="3"
+            placeholder="اكتب ملاحظاتك وتوجيهاتك للمنسق..."
+          ></textarea>
+        </div>
+
+        <div class="eval-submit-btn-row">
+          <button type="submit" class="btn btn-primary eval-primary-submit-btn" id="eval-submit-btn">
+            <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-md" alt="" />
+            <span>اعتماد التقييم وحفظ القرار النهائي وتحديث السجل العام</span>
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- Activity Audit & Actions History Modal -->
+  <div id="activity-audit-modal" class="modal-overlay">
+    <div class="modal-sheet sp-s51">
+      <div class="modal-header">
+        <h3 class="sp-s11" id="audit-modal-title">
+          <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-md" alt="" />
+          <span>سجل إجراءات ومتابعات النشاط الكاملة</span>
+        </h3>
+        <button type="button" class="close-modal-btn" id="close-audit-modal">&times;</button>
+      </div>
+      <div class="sp-s52" id="audit-modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal for Supervisor Photo Zoom Inspection -->
+  <div id="photo-lightbox" class="lightbox-overlay">
+    <div class="lightbox-box">
+      <div class="sp-s53">
+        <div>
+          <strong class="sp-s54" id="lb-round-title">معاينة الصورة الميدانية</strong>
+          <div class="sp-s55" id="lb-timestamp" dir="ltr">2026-10-31 14:20</div>
+        </div>
+        <button type="button" id="close-lightbox-btn" class="close-modal-btn sp-s56">&times;</button>
+      </div>
+      <img id="lb-image" src="" alt="High Resolution Inspection" />
+      <div class="sp-s57">
+        <span id="lb-uploader">المنسق الميداني</span>
+        <span id="lb-specs">1280&times;720 px</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config/env.config.js"></script>
+  <script src="../js/utils/formatters.js"></script>
+  <script src="../js/ui-helpers.js"></script>
+  <script src="../js/store/employee-registry.seed.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/config/adco-catalogs.config.js"></script>
+  <script src="../js/store/seed-data.js"></script>
+  <script src="../js/store/activity.store.js"></script>
+  <script src="../js/services/branch.service.js"></script>
+  <script src="../js/utils/gps-proximity.util.js"></script>
+  <script src="../js/utils/score.util.js"></script>
+  <script src="../js/utils/brand-share.util.js"></script>
+  <script src="../js/services/activity-submission.service.js"></script>
+  <script src="../js/services/activity-lifecycle.service.js"></script>
+  <script src="../js/activity-manager.js"></script>
+  <script src="../js/services/report-export.service.js"></script>
+  <script src="../js/supervisor.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/pages/evaluation.page.js"></script>
+</body>
+</html>

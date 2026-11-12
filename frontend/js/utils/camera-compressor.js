@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ADCO Camera & Compression Engine
  * Canvas scaling (max 1280x720, target ~200KB), SHA-256 byte hashing,
  * EXIF metadata extraction (Camera Make, Model, DateTimeOriginal, GPS),
@@ -261,7 +261,7 @@
      * Resizes an image file/blob to max 1280x720 using HTML5 Canvas & exports JPEG (~200KB)
      * Timestamps watermarked strictly in Egypt Time (Africa/Cairo)
      */
-    static async compressImage(file, maxDimension = 1280, quality = 0.78, roundLabel = 'ADCO Verified') {
+    static async compressImage(file, maxDimension = (global.ADCO_ENV && global.ADCO_ENV.IMAGE_MAX_DIMENSION) || 1280, quality = 0.78, roundLabel = 'ADCO Verified') {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -366,7 +366,7 @@
 
       for (const file of fileArray) {
         const metadata = await this.extractFileMetadata(file);
-        const compressed = await this.compressImage(file, 1280, 0.78, roundLabel);
+        const compressed = await this.compressImage(file, undefined, 0.78, roundLabel);
         const hash = await this.computeSHA256(compressed.blob);
 
         processedPhotos.push({
@@ -385,8 +385,6 @@
   }
 
   global.CameraCompressor = CameraCompressor;
+  global.__ADCO_CameraCompressor = CameraCompressor;
   global.formatToEgyptTime = formatToEgyptTime;
-})(typeof window !== 'undefined' ? window : globalThis);
-
-export const CameraCompressor = typeof window !== 'undefined' ? window.CameraCompressor : null;
-export const formatToEgyptTime = typeof window !== 'undefined' ? window.formatToEgyptTime : null;
+})(window);

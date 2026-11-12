@@ -335,6 +335,11 @@ const user = AuthManager.checkAuthGuard('supervisor');
       } else {
         evalTotalBadge.className = 'badge badge-danger';
       }
+      const headerBadge = document.getElementById('eval-live-total-badge-header');
+      if (headerBadge) {
+        headerBadge.textContent = `${total} / 100 نقطة`;
+        headerBadge.className = evalTotalBadge.className;
+      }
     }
 
     [inputNewAct, inputQuality, inputContinuity, inputDocs].forEach((el) => {
@@ -343,9 +348,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
 
     document.getElementById('close-review-modal').addEventListener('click', () => {
       modal.classList.remove('active');
-    });
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.classList.remove('active');
+      document.body.style.overflow = '';
     });
 
     document.getElementById('close-audit-modal').addEventListener('click', () => {
@@ -531,7 +534,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
 
                 <!-- Media row: Photo & Branch/Activity details -->
                 <div class="sp-card-media-row">
-                  <img src="${act.photoUrl}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl}" data-title="${act.client}" style="width:96px; height:96px; border-radius:12px; object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
+                  <img src="${act.photoUrl}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl}" data-title="${act.client}" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.svg';" style="width:96px; height:96px; border-radius:12px; object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
                   <div class="sp-card-details-col">
                     <div class="sp-card-client-line">
                       <strong class="sp-card-client-title">${act.client}</strong>
@@ -565,10 +568,10 @@ const user = AuthManager.checkAuthGuard('supervisor');
 
               <!-- Action buttons -->
               <div class="sp-card-actions">
-                <button type="button" class="btn btn-primary btn-sm open-eval-btn" data-id="${act.id}" style="flex:1;">
+                <a href="./evaluation.html?id=${act.id}" class="btn btn-primary btn-sm open-eval-btn" data-id="${act.id}" style="flex:1;">
                   <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-sm" alt="" />
                   <span>فحص وتقييم</span>
-                </button>
+                </a>
                 <button type="button" class="btn btn-secondary btn-sm open-audit-btn" data-id="${act.id}" title="عرض سجل كافة المتابعات والإجراءات">
                   <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
                   <span>المتابعات</span>
@@ -767,7 +770,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
       const fallbackUrl = act.photoUrl;
       revImg.onerror = () => {
         revImg.onerror = null;
-        if (fallbackUrl && revImg.src !== fallbackUrl) revImg.src = fallbackUrl;
+        revImg.src = '../assets/images/fathalla-branch.svg';
       };
       revImg.src = photoUrl || fallbackUrl;
       currentModalMedia.photoUrl = revImg.src;
@@ -915,59 +918,18 @@ const user = AuthManager.checkAuthGuard('supervisor');
       auditModal.classList.add('active');
     });
 
-      // Open evaluation modal
+      // Open standalone evaluation page (immune to swipe dismissal & refresh safe)
       document.querySelectorAll('.open-eval-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const act = ActivityManager.getActivityById(btn.dataset.id);
-          if (!act) return;
-          currentEvaluatingActivity = act;
-
-          document.getElementById('rev-act-id').value = act.id;
-          document.getElementById('modal-act-title').innerHTML = `
-            <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-md" alt="" />
-            <span>فحص وتقييم: ${act.client} (${act.id})</span>
-          `;
-
-          // Populate All Activity Details in top right
-          document.getElementById('rev-act-details').innerHTML = renderReviewActDetails(act);
-
-          const sessions = Array.isArray(act.followUpHistory) && act.followUpHistory.length > 0
-            ? act.followUpHistory
-            : [{ roundNumber: 1, roundTitle: 'التوثيق التأسيسي (جولة 1)', sessionScore: act.supervisorScore }];
-
-          roundSelect.innerHTML = sessions
-            .map(
-              (s) => `
-              <option value="${s.roundNumber}">
-                ${s.roundTitle} — ${s.sessionScore !== null && s.sessionScore !== undefined ? `(مقيّمة: ${s.sessionScore}/10)` : '(غير مقيّمة)'}
-              </option>
-            `
-            )
-            .join('');
-
-          const latest = sessions[sessions.length - 1];
-          roundSelect.value = String(latest.roundNumber);
-
-          // Update left column media (photo, location, timestamp)
-          updateReviewModalMedia(latest.roundNumber);
-
-          const evalStats = ActivityManager.computeWeightedEvaluation(act);
-          inputNewAct.value = evalStats.breakdown.newActivity.score;
-          inputQuality.value = evalStats.breakdown.executionQuality.score;
-          inputContinuity.value = evalStats.breakdown.continuity.score;
-          inputDocs.value = evalStats.breakdown.documentation.score;
-          updateEvalTotal();
-
-          const revDateInput = document.getElementById('rev-activity-date');
-          if (revDateInput) {
-            revDateInput.value = getEgyptDateTimeLocalString(act.activityDate || act.timestamp || new Date());
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const actId = btn.dataset.id;
+          if (!actId) return;
+          const targetUrl = `./evaluation.html?id=${encodeURIComponent(actId)}`;
+          if (window.AppRouter && typeof window.AppRouter.navigateTo === 'function') {
+            window.AppRouter.navigateTo(targetUrl);
+          } else {
+            window.location.href = targetUrl;
           }
-
-          const initialStatusVal = act.status || 'Under Review';
-          document.getElementById('rev-status').value = initialStatusVal;
-          syncQuickStatusUI(initialStatusVal);
-          document.getElementById('rev-notes').value = act.supervisorNotes || '';
-          modal.classList.add('active');
         });
       });
     }
@@ -1187,6 +1149,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
       try {
         const res = await SupervisorEngine.reviewActivity(id, status, rawScore, notes, roundNum, breakdown, user, newActivityDate);
         modal.classList.remove('active');
+        document.body.style.overflow = '';
         showToast(`تم التحديث بنجاح! ${res.ratingStats.badgeText}`, 'success');
         renderList();
       } catch (err) {

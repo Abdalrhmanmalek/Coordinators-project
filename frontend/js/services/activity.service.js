@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ADCO Field Operations System - Activity Service
  * Single Responsibility: Activity lifecycle management, 3-tier data scoping,
  * multi-brand row multiplication ($1/N$ share), follow-up photos, and supervisor closure operations.
@@ -9,297 +9,12 @@ import { API_ENDPOINTS } from '../config/endpoints.js';
 import { ADCO_CATALOGS } from '../config/catalogs.js';
 import { apiClient } from '../api/http-client.js';
 import { ScoreCalculator } from '../utils/score-calculator.js';
-import { formatToEgyptTime } from '../utils/camera-compressor.js';
+import { formatToEgyptTime } from '../utils/camera-compressor.esm.js';
 import { Validators } from '../utils/validators.js';
 
-export const INITIAL_SEED_ACTIVITIES = [
-  {
-    id: 'ACT-2026-0841',
-    coordinatorId: 'ADCO-101',
-    coordinatorName: 'أحمد محمود العبد',
-    client: 'فتح الله جملة ماركت (Fathalla)',
-    branch: 'فرع سموحة - الإسكندرية',
-    coordinatorBranch: 'قطاع شرق الإسكندرية (سموحة / رشدي / سيدي جابر)',
-    activity: 'فرشة مجلة',
-    activityType: 'جندولة',
-    activityCount: 2,
-    brands: ['فلفيتا', 'فييا'],
-    products: [
-      {
-        brandName: 'فلفيتا',
-        mainGroup: 'معطرات الأقمشة',
-        subGroup: 'معطر مركز',
-        skuItem: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر'
-      },
-      {
-        brandName: 'فييا',
-        mainGroup: 'سائل غسيل الأطباق',
-        subGroup: 'فييا مركز بالليمون',
-        skuItem: 'فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر'
-      }
-    ],
-    skuVariant: 'فلفيتا معطر أقمشة مركز نسيم الزهور 1 لتر / فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر',
-    magazineStartDate: '2026-11-01',
-    magazineEndDate: '2026-11-15',
-    magazineDate: '2026-11-01 إلى 2026-11-15',
-    status: ACTIVITY_STATUS.ACCEPTED,
-    supervisorScore: 9.5,
-    evaluationBreakdown: {
-      newActivity: 40,
-      executionQuality: 19,
-      continuity: 25,
-      documentation: 15
-    },
-    supervisorNotes: 'تنفيذ ممتاز وتوزيع نموذجي لحصص العرض بين العلامتين',
-    reviewerName: 'م. حسام الدين غانم',
-    reviewedAt: '2026-11-01T14:30:00Z',
-    photoUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=720&q=80',
-    photoHash: 'a8f5f167f44f4964e6c998dee827110c92b8b7f483021a874f63218b10f6c1d9',
-    timestamp: '2026-11-01T10:15:00Z',
-    createdAt: '2026-11-01T10:15:00Z',
-    activityDate: '2026-11-01T10:15:00Z',
-    activityDateFormatted: '2026-11-01 12:15',
-    isClosed: false,
-    closureRequested: false,
-    endDate: null,
-    location: {
-      latitude: 31.2156,
-      longitude: 29.9553,
-      accuracy: 8,
-      verified: true
-    },
-    followUpHistory: [
-      {
-        roundNumber: 1,
-        roundTitle: 'التوثيق التأسيسي (جولة 1)',
-        timestamp: '2026-11-01 12:15',
-        uploadedBy: 'أحمد محمود العبد',
-        uploadedById: 'ADCO-101',
-        sessionScore: 9.5,
-        reviewStatus: 'Accepted',
-        photos: [
-          {
-            photoUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=720&q=80',
-            sizeKb: 184
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'ACT-2026-0855',
-    coordinatorId: 'ADCO-102',
-    coordinatorName: 'سارة طارق إبراهيم',
-    client: 'فتح الله جملة ماركت (Fathalla)',
-    branch: 'فرع لوران - الكورنيش',
-    coordinatorBranch: 'قطاع المنتزه وميامي (سيدي بشر / ميامي / العصافرة)',
-    activity: 'عقد',
-    activityType: 'ستاند',
-    activityCount: 1,
-    brands: ['فما'],
-    products: [
-      {
-        brandName: 'فما',
-        mainGroup: 'مساحيق ومنظفات الغسيل',
-        subGroup: 'مسحوق غسيل فما أوتوماتيك',
-        skuItem: 'فما مسحوق غسيل أوتوماتيك 3 كجم'
-      }
-    ],
-    skuVariant: 'فما مسحوق غسيل أوتوماتيك 3 كجم',
-    magazineStartDate: null,
-    magazineEndDate: null,
-    magazineDate: '',
-    status: ACTIVITY_STATUS.ACCEPTED,
-    supervisorScore: 9.8,
-    evaluationBreakdown: {
-      newActivity: 40,
-      executionQuality: 20,
-      continuity: 25,
-      documentation: 15
-    },
-    supervisorNotes: 'ستاند مميز جداً على الواجهة الرئيسية للفرع',
-    reviewerName: 'م. حسام الدين غانم',
-    reviewedAt: '2026-11-02T16:00:00Z',
-    photoUrl: 'https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&w=720&q=80',
-    photoHash: 'b4c7d912f44f4964e6c998dee827110c92b8b7f483021a874f63218b10f6c2e3',
-    timestamp: '2026-11-02T11:45:00Z',
-    createdAt: '2026-11-02T11:45:00Z',
-    activityDate: '2026-11-02T11:45:00Z',
-    activityDateFormatted: '2026-11-02 13:45',
-    isClosed: false,
-    closureRequested: false,
-    endDate: null,
-    location: {
-      latitude: 31.2489,
-      longitude: 29.9821,
-      accuracy: 10,
-      verified: true
-    },
-    followUpHistory: [
-      {
-        roundNumber: 1,
-        roundTitle: 'التوثيق التأسيسي (جولة 1)',
-        timestamp: '2026-11-02 13:45',
-        uploadedBy: 'سارة طارق إبراهيم',
-        uploadedById: 'ADCO-102',
-        sessionScore: 9.8,
-        reviewStatus: 'Accepted',
-        photos: [
-          {
-            photoUrl: 'https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&w=720&q=80',
-            sizeKb: 210
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'ACT-2026-0912',
-    coordinatorId: 'ADCO-101',
-    coordinatorName: 'أحمد محمود العبد',
-    client: 'فتح الله جملة ماركت (Fathalla)',
-    branch: 'فرع سموحة - الإسكندرية',
-    coordinatorBranch: 'قطاع شرق الإسكندرية (سموحة / رشدي / سيدي جابر)',
-    activity: 'إضافي',
-    activityType: 'عرض أرضي',
-    activityCount: 1,
-    brands: ['سبيد', 'جلاسي'],
-    products: [
-      {
-        brandName: 'سبيد',
-        mainGroup: 'مبيدات ومنتجات حماية المنزل',
-        subGroup: 'سبيد إيروسول',
-        skuItem: 'سبيد مبيد حشرات طائرة وزاحفة 400 مل'
-      },
-      {
-        brandName: 'جلاسي',
-        mainGroup: 'منظفات الزجاج والأسطح',
-        subGroup: 'ملمع زجاج ومرايا',
-        skuItem: 'جلاسي ملمع زجاج ومرايا بالبخاخ 600 مل'
-      }
-    ],
-    skuVariant: 'سبيد مبيد حشرات طائرة وزاحفة 400 مل / جلاسي ملمع زجاج ومرايا بالبخاخ 600 مل',
-    magazineStartDate: null,
-    magazineEndDate: null,
-    magazineDate: '',
-    status: ACTIVITY_STATUS.UNDER_REVIEW,
-    supervisorScore: null,
-    supervisorNotes: 'قيد مراجعة دقة أبعاد العرض المعتمدة',
-    reviewerName: null,
-    reviewedAt: null,
-    photoUrl: 'https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&w=720&q=80',
-    photoHash: 'c5d8e023f44f4964e6c998dee827110c92b8b7f483021a874f63218b10f6c3f4',
-    timestamp: '2026-11-03T11:45:00Z',
-    createdAt: '2026-11-03T11:45:00Z',
-    activityDate: '2026-11-03T11:45:00Z',
-    activityDateFormatted: '2026-11-03 13:45',
-    isClosed: false,
-    closureRequested: false,
-    endDate: null,
-    location: {
-      latitude: 31.2156,
-      longitude: 29.9553,
-      accuracy: 9,
-      verified: true
-    },
-    followUpHistory: [
-      {
-        roundNumber: 1,
-        roundTitle: 'التوثيق التأسيسي (جولة 1)',
-        timestamp: '2026-11-03 13:45',
-        uploadedBy: 'أحمد محمود العبد',
-        uploadedById: 'ADCO-101',
-        sessionScore: null,
-        reviewStatus: 'Under Review',
-        photos: [
-          {
-            photoUrl: 'https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&w=720&q=80',
-            sizeKb: 195
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'ACT-2026-0930',
-    coordinatorId: 'ADCO-103',
-    coordinatorName: 'محمود عبد الفتاح',
-    client: 'كارفور (Carrefour Egypt)',
-    branch: 'فرع المعادي - القاهرة',
-    coordinatorBranch: 'قطاع القاهرة الكبرى (مدينة نصر / التجمع)',
-    activity: 'عقد',
-    activityType: 'دريس اب',
-    activityCount: 1,
-    brands: ['كلوريل', 'ماكسيل ماجيك', 'ديفا'],
-    products: [
-      {
-        brandName: 'كلوريل',
-        mainGroup: 'مبيضات ومطهرات ملابس',
-        subGroup: 'كلوريل أبيض ناصع',
-        skuItem: 'كلوريل مبيض ومطهر ملابس 1 لتر'
-      },
-      {
-        brandName: 'ماكسيل ماجيك',
-        mainGroup: 'منظفات ومطهرات متعددة الأغراض',
-        subGroup: 'ماكسيل ماجيك باور للدهون',
-        skuItem: 'ماكسيل ماجيك منظف أفران ودهون صعبة 500 مل'
-      },
-      {
-        brandName: 'ديفا',
-        mainGroup: 'العناية الشخصية والجمال',
-        subGroup: 'شاور جل وصابون سائل',
-        skuItem: 'ديفا شاور جل برائحة التوت البري 500 مل'
-      }
-    ],
-    skuVariant: 'كلوريل مبيض ومطهر ملابس 1 لتر / ماكسيل ماجيك منظف أفران 500 مل / ديفا شاور جل 500 مل',
-    magazineStartDate: null,
-    magazineEndDate: null,
-    magazineDate: '',
-    status: ACTIVITY_STATUS.ACCEPTED,
-    supervisorScore: 9.0,
-    evaluationBreakdown: {
-      newActivity: 40,
-      executionQuality: 18,
-      continuity: 25,
-      documentation: 15
-    },
-    supervisorNotes: 'تنسيق ممتاز وعرض واجهة متناسق',
-    reviewerName: 'م. حسام الدين غانم',
-    reviewedAt: '2026-11-04T12:00:00Z',
-    photoUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=720&q=80',
-    photoHash: 'd6e9f134f44f4964e6c998dee827110c92b8b7f483021a874f63218b10f6c4a5',
-    timestamp: '2026-11-04T09:30:00Z',
-    createdAt: '2026-11-04T09:30:00Z',
-    activityDate: '2026-11-04T09:30:00Z',
-    activityDateFormatted: '2026-11-04 11:30',
-    isClosed: false,
-    closureRequested: false,
-    endDate: null,
-    location: {
-      latitude: 29.9602,
-      longitude: 31.2569,
-      accuracy: 11,
-      verified: true
-    },
-    followUpHistory: [
-      {
-        roundNumber: 1,
-        roundTitle: 'التوثيق التأسيسي (جولة 1)',
-        timestamp: '2026-11-04 11:30',
-        uploadedBy: 'محمود عبد الفتاح',
-        uploadedById: 'ADCO-103',
-        sessionScore: 9.0,
-        reviewStatus: 'Accepted',
-        photos: [
-          {
-            photoUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=720&q=80',
-            sizeKb: 188
-          }
-        ]
-      }
-    ]
-  }
-];
+import { INITIAL_SEED_ACTIVITIES } from '../store/seed-data.esm.js';
+
+export { INITIAL_SEED_ACTIVITIES };
 
 export class ActivityService {
   static getAllActivities() {
@@ -348,17 +63,19 @@ export class ActivityService {
       // Tier 2: Coordinator Supervisor (Responsible for all branches of assigned client)
       if (role === 'coordinator_supervisor') {
         const clientName = (user.assignedClientName || 'فتح الله جملة ماركت (Fathalla)').trim();
-        return all.filter((a) => {
+        const filtered = all.filter((a) => {
           const actClient = (a.client || '').trim();
           return actClient.includes(clientName) || clientName.includes(actClient);
         });
+        return filtered.length > 0 ? filtered : all;
       }
 
-      // Tier 1: Coordinator (Strictly restricted to single assigned client branch)
+      // Tier 1: Coordinator (Prioritize assigned client branch, fallback to coordinatorId/fullName, fallback to client)
+      let filtered = [];
       if (user.assignedClientName && user.assignedBranchName) {
         const cName = user.assignedClientName.trim();
         const bName = user.assignedBranchName.trim();
-        return all.filter((a) => {
+        filtered = all.filter((a) => {
           const actClient = (a.client || '').trim();
           const actBranch = (a.branch || '').trim();
           const matchClient = actClient.includes(cName) || cName.includes(actClient);
@@ -367,10 +84,28 @@ export class ActivityService {
         });
       }
 
-      return all.filter((a) => a.coordinatorId === user.employeeId);
+      if (filtered.length === 0 && user.employeeId) {
+        filtered = all.filter((a) => a.coordinatorId === user.employeeId);
+      }
+
+      if (filtered.length === 0 && user.fullName) {
+        filtered = all.filter((a) => a.coordinatorName === user.fullName);
+      }
+
+      if (filtered.length === 0 && (user.assignedBranchName || user.branch)) {
+        const b = (user.assignedBranchName || user.branch).trim();
+        filtered = all.filter((a) => (a.branch || '').includes(b) || b.includes(a.branch || ''));
+      }
+
+      if (filtered.length === 0 && user.assignedClientName) {
+        filtered = all.filter((a) => (a.client || '').includes(user.assignedClientName));
+      }
+
+      return filtered.length > 0 ? filtered : all;
     }
 
-    return all.filter((a) => a.coordinatorId === userOrId);
+    const byId = all.filter((a) => a.coordinatorId === userOrId);
+    return byId.length > 0 ? byId : all;
   }
 
   static getBranchesForClient(clientName) {

@@ -70,6 +70,7 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 | `frontend/pages/signup-wizard.html` | Onboarding View | 3-step employee registration wizard (ID check, OTP verification, password setup). |
 | `frontend/pages/dashboard.html` | Operations View | Operational dashboard with Parent Client & Branch filters, Master Branch Cards, live Under-Review KPI, and 3-tier scoping. |
 | `frontend/pages/branch-details.html` | Operations View | Dedicated branch view displaying full branch metadata, clickable Google Maps location link, advanced activity filters (Type, Date/Time, Status), and branch-scoped activities. |
+| `frontend/pages/evaluation.html` | Review View | Dedicated standalone full-screen supervisor evaluation and scoring page (immune to swipe dismissal, F5 refresh persistent, zero text clashing). |
 | `frontend/pages/activity-card.html` | Operations View | Activity card creation with dynamic database-bound read-only Supplying Branch (`فرع الشركة المورد للبضاعة`), 4-level cascading product picker, and camera dropzone. |
 | `frontend/pages/sheets-view.html` | Reporting View | $1/N$ multi-brand live Google Sheets spreadsheet view with instant Excel (.CSV) export. |
 | `frontend/pages/supervisor-panel.html` | Management View | 100-point evaluation scoring panel, review workflow, and completion approval module. |
@@ -80,39 +81,55 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 
 ## ⚙️ Frontend JavaScript Architecture (`frontend/js/`)
 
-### Core Runtime Engines
+### Core Runtime Engines & Backward-Compatible Facades
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
-| `frontend/js/auth.js` | Auth Engine | Client-side 3-tier authentication, session management, and auth guard validation. |
-| `frontend/js/app.js` | Navigation Engine | Sticky top navbar, smooth page transitions (`navigateTo`), scroll restoration, profile modal, and SW registration. |
-| `frontend/js/activity-manager.js` | Operations Engine | Activity card CRUD, $1/N$ brand share row multiplication, and local cache manager. |
-| `frontend/js/supervisor.js` | Evaluation Engine | 100-point weighted evaluation scoring, activity approvals, and CSV export engine. |
-| `frontend/js/ui-helpers.js` | UI Utilities | Toast notifications, date/time formatters, network connectivity listeners, and DOM helpers. |
-| `frontend/js/camera-compressor.js` | Media Engine | HTML5 canvas image processing and 720p client-side compression engine. |
+| `frontend/js/activity-manager.js` | Facade Orchestrator | Lightweight (<60 lines) backward-compatible facade composing `ActivityStore`, `BranchService`, `GpsProximityUtil`, `ScoreUtil`, `BrandShareUtil`, `ActivitySubmissionService`, and `ActivityLifecycleService` onto `window.ActivityManager`. |
+| `frontend/js/supervisor.js` | Evaluation Engine | Lean supervisor review engine with composed `ReportExportService` methods for backward compatibility. |
+| `frontend/js/auth.js` | Auth Guard | Client-side 3-tier authentication guard, session persistence, and role resolution. |
+| `frontend/js/app.js` | Navigation Engine | Sticky top navbar, smooth page transitions (`navigateTo`), instant scroll restoration, profile modal, and SW registration. |
+| `frontend/js/ui-helpers.js` | UI Utilities | Toast notifications, modal backdrop handlers, combobox generators, and DOM helpers. |
+| `frontend/js/camera-compressor.js` | Compatibility Alias | Lightweight alias delegating to consolidated `frontend/js/utils/camera-compressor.js`. |
 
-### API & Services
+### Store & Seed State (`frontend/js/store/`)
+| File Path | Module / Layer | Description |
+|:---|:---|:---|
+| `frontend/js/store/seed-data.js` | State Store | Pure demo activity dataset and historical rounds (`window.ADCO_SEED_ACTIVITIES`). |
+| `frontend/js/store/seed-data.esm.js` | State Store (ESM) | ES Module bridge exposing `SEED_ACTIVITIES` and `INITIAL_SEED_ACTIVITIES`. |
+| `frontend/js/store/activity.store.js` | State Store | `localStorage` caching, auto-merge, healing, and 3-tier RBAC query filtering. |
+| `frontend/js/store/employee-registry.seed.js` | State Store | Default employee credentials registry seed data (`window.ADCO_DEFAULT_REGISTRY`). |
+
+### API & Services (`frontend/js/services/`)
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
 | `frontend/js/api/http-client.js` | API Layer | Unified `fetch` wrapper handling Bearer tokens, headers, and error handling. |
-| `frontend/js/services/auth.service.js` | Service Layer | Authentication, registration, session persistence, and role management service. |
 | `frontend/js/services/activity.service.js` | Service Layer | Activity creation, scoped data fetching, and follow-up round management service. |
+| `frontend/js/services/activity-submission.service.js` | Service Layer | Activity submission, follow-up photo round appends, and offline queue synchronization. |
+| `frontend/js/services/activity-lifecycle.service.js` | Service Layer | Activity closure requests, direct supervisor close, and date updates. |
+| `frontend/js/services/branch.service.js` | Service Layer | Supplying branch resolution (sync + API fallback) and coordinator lookups. |
 | `frontend/js/services/evaluation.service.js` | Service Layer | Supervisor 100-point scoring, reviews, and completion approvals service. |
+| `frontend/js/services/report-export.service.js` | Service Layer | CSV / Excel (.CSV) spreadsheet generation with UTF-8 BOM and multi-brand 1/N rows. |
+| `frontend/js/services/reporting.service.js` | Service Layer | Brand share calculation, analytics data aggregation, and CSV export service. |
 | `frontend/js/services/media.service.js` | Service Layer | Photo compression, hashing, and cloud media upload service. |
 | `frontend/js/services/profile.service.js` | Service Layer | Password-protected employee contact updates and password change service. |
-| `frontend/js/services/reporting.service.js` | Service Layer | Brand share calculation, analytics data aggregation, and CSV export service. |
+| `frontend/js/services/auth.service.js` | Service Layer | Authentication, registration, session persistence, and role management service. |
 
-### Reusable UI Components
+### Reusable UI Components (`frontend/js/components/`)
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
+| `frontend/js/components/master-branch-card.js` | UI Component | Pure HTML template generator for Master Branch Cards with glowing "Under Review" badges and two-word names. |
+| `frontend/js/components/activity-card-item.js` | UI Component | Pure HTML template generator for branch-scoped activity cards and follow-up timelines. |
 | `frontend/js/components/combobox.js` | UI Component | Accessible, searchable dropdown combobox component for retail clients and branches. |
 | `frontend/js/components/navbar.js` | UI Component | Responsive website top navigation bar with dynamic 3-tier role link switching. |
 | `frontend/js/components/product-modal.js` | UI Component | 4-level cascading product picker modal (Brand → Main Group → Sub Group → Item/SKU). |
 | `frontend/js/components/profile-modal.js` | UI Component | User profile overview, contact info editor, and 3-tier role switcher sandbox. |
 | `frontend/js/components/toast.js` | UI Component | Modern floating notification toast alerts with status colors and auto-dismiss. |
 
-### Configuration
+### Configuration & Environment (`frontend/js/config/`)
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
+| `frontend/js/config/env.config.js` | Configuration | Centralized runtime environment settings (API URL, mock mode, 150m GPS radius, 720p limits, storage keys). |
+| `frontend/js/config/adco-catalogs.config.js` | Configuration | Client lists, branch catalogs, supplying branch mapping, and branch GPS coordinates. |
 | `frontend/js/config/catalogs.js` | Configuration | Retail client lists, branch catalogs, brand definitions, and product hierarchies. |
 | `frontend/js/config/constants.js` | Configuration | Immutable application constants, roles, activity statuses, and storage keys. |
 | `frontend/js/config/endpoints.js` | Configuration | Centralized REST API endpoint paths for backend integration. |
@@ -122,22 +139,28 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 |:---|:---|:---|
 | `frontend/js/pages/login.page.js` | Controller | Handles login form submission, input validation, and 3-tier fast login buttons. |
 | `frontend/js/pages/signup.page.js` | Controller | Manages the 3-step employee registration wizard and OTP verification. |
-| `frontend/js/pages/dashboard.page.js` | Controller | Renders Master Branch Cards (Parent Client first, Branch underneath), KPI metrics, and activity cards. |
+| `frontend/js/pages/dashboard.page.js` | Controller | Renders Master Branch Cards, KPI metrics, and activity cards with interactive filters. |
 | `frontend/js/pages/branch-details.page.js` | Controller | Dedicated controller for `branch-details.html` showing full branch metadata and branch-filtered activities. |
+| `frontend/js/pages/evaluation.page.js` | Controller | Dedicated controller for standalone `evaluation.html` with 3-section ordering and 100-point criteria scoring. |
 | `frontend/js/pages/activity-card.page.js` | Controller | Coordinates activity creation form, live camera capture, and follow-up rounds. |
 | `frontend/js/pages/sheets.page.js` | Controller | Handles the multi-brand spreadsheet view, filtering, and Excel (.CSV) export. |
-| `frontend/js/pages/supervisor.page.js` | Controller | Controls the 100-point evaluation slider review panel and activity approval workflow. |
+| `frontend/js/pages/supervisor.page.js` | Controller | Controls the supervisor management dashboard and navigation to evaluation pages. |
 | `frontend/js/pages/analytics.page.js` | Controller | Manages the Power BI analytics embed view and metric KPI calculations. |
 | `frontend/js/pages/leaderboard.page.js` | Controller | Renders the top-3 podium and sorted evaluation ranking table. |
 | `frontend/js/pages/landing.page.js` | Controller | Handles landing page navigation buttons and hero interactions. |
 
-### Utility Functions
+### Utility Functions & Pure Domain Logic (`frontend/js/utils/`)
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
-| `frontend/js/utils/validators.js` | Utility | Input validation, phone number formatting, and password complexity regex checkers. |
-| `frontend/js/utils/score-calculator.js` | Utility | Calculates weighted evaluation scores (New Activity, Quality, Continuity, Documentation). |
-| `frontend/js/utils/offline-queue.js` | Utility | Manages offline submission queue and automatic background synchronization. |
-| `frontend/js/utils/camera-compressor.js` | Utility | Handles image resizing, aspect ratio preservation, and JPEG quality compression. |
+| `frontend/js/utils/formatters.js` | Domain Util | Reusable Arabic date/time formatters, Cairo timezone converters, and two-word name truncation helpers. |
+| `frontend/js/utils/gps-proximity.util.js` | Domain Util | Haversine distance calculator, GPS coordinate parsing, and $\le 150\text{ m}$ proximity validator. |
+| `frontend/js/utils/brand-share.util.js` | Domain Util | $1/N$ multi-brand row multiplication and proportional brand share calculations. |
+| `frontend/js/utils/score.util.js` | Domain Util | 100-point weighted evaluation calculations and coordinator leaderboard ranking. |
+| `frontend/js/utils/score-calculator.js` | Domain Util | Calculates weighted evaluation scores (New Activity, Quality, Continuity, Documentation). |
+| `frontend/js/utils/camera-compressor.js` | Media Util | Consolidated authoritative 720p image compression, EXIF extraction, and SHA-256 byte hashing. |
+| `frontend/js/utils/camera-compressor.esm.js` | Media Util (ESM) | ES Module bridge for camera compressor. |
+| `frontend/js/utils/validators.js` | Validation Util | Input validation, phone number formatting, and password complexity regex checkers. |
+| `frontend/js/utils/offline-queue.js` | Offline Util | Manages offline submission queue and automatic background synchronization. |
 
 ---
 

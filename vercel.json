@@ -1,35 +1,127 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "routes": [
+  "trailingSlash": false,
+  "headers": [
     {
-      "src": "^/(index(\\.html)?)?$",
-      "dest": "/frontend/index.html"
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
     },
     {
-      "src": "^/pages/(.*)",
-      "dest": "/frontend/pages/$1"
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-Deployment-Test",
+          "value": "adco-production-ready"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/frontend/index.html"
     },
     {
-      "src": "^/assets/(.*)",
-      "dest": "/frontend/assets/$1"
+      "source": "/manifest.json",
+      "destination": "/frontend/manifest.json"
     },
     {
-      "src": "^/css/(.*)",
-      "dest": "/frontend/css/$1"
+      "source": "/sw.js",
+      "destination": "/frontend/sw.js"
     },
     {
-      "src": "^/js/(.*)",
-      "dest": "/frontend/js/$1"
+      "source": "/assets/:match*",
+      "destination": "/frontend/assets/:match*"
     },
     {
-      "src": "^/manifest\\.json$",
-      "dest": "/frontend/manifest.json"
+      "source": "/css/:match*",
+      "destination": "/frontend/css/:match*"
     },
     {
-      "src": "^/sw\\.js$",
-      "dest": "/frontend/sw.js"
+      "source": "/js/:match*",
+      "destination": "/frontend/js/:match*"
+    },
+    {
+      "source": "/evaluation",
+      "destination": "/frontend/pages/evaluation.html"
+    },
+    {
+      "source": "/evaluation/:id*",
+      "destination": "/frontend/pages/evaluation.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/frontend/pages/dashboard.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/frontend/pages/login.html"
+    },
+    {
+      "source": "/signup",
+      "destination": "/frontend/pages/signup-wizard.html"
+    },
+    {
+      "source": "/signup-wizard",
+      "destination": "/frontend/pages/signup-wizard.html"
+    },
+    {
+      "source": "/supervisor",
+      "destination": "/frontend/pages/supervisor-panel.html"
+    },
+    {
+      "source": "/supervisor-panel",
+      "destination": "/frontend/pages/supervisor-panel.html"
+    },
+    {
+      "source": "/analytics",
+      "destination": "/frontend/pages/analytics.html"
+    },
+    {
+      "source": "/leaderboard",
+      "destination": "/frontend/pages/leaderboard.html"
+    },
+    {
+      "source": "/branch-details",
+      "destination": "/frontend/pages/branch-details.html"
+    },
+    {
+      "source": "/activity-card",
+      "destination": "/frontend/pages/activity-card.html"
+    },
+    {
+      "source": "/sheets",
+      "destination": "/frontend/pages/sheets-view.html"
+    },
+    {
+      "source": "/sheets-view",
+      "destination": "/frontend/pages/sheets-view.html"
+    },
+    {
+      "source": "/pages/:page",
+      "destination": "/frontend/pages/:page.html"
+    },
+    {
+      "source": "/pages/:page.html",
+      "destination": "/frontend/pages/:page.html"
     }
   ]
 }
-

@@ -83,87 +83,10 @@ localStorage.setItem(FALLBACK_QUEUE_KEY, JSON.stringify(list));
 }
 }
 
-function formatTwoWordName(fullName) {
-  if (!fullName || typeof fullName !== 'string') return fullName || '';
-  if (fullName.includes('،') || fullName.includes(',')) {
-    const delim = fullName.includes('،') ? '،' : ',';
-    return fullName
-      .split(delim)
-      .map((part) => formatTwoWordName(part.trim()))
-      .filter(Boolean)
-      .join(' ، ');
-  }
-
-  const clean = fullName.replace(/\(.*?\)/g, '').trim();
-  const words = clean.split(/\s+/).filter(Boolean);
-  if (words.length <= 2) return clean;
-
-  const compoundPrefixes = ['عبد', 'أبو', 'ابو', 'أم', 'ام', 'ابن', 'آل'];
-  let first = words[0];
-  let startIndex = 1;
-
-  if (compoundPrefixes.includes(words[0]) && words.length > 2) {
-    first = `${words[0]} ${words[1]}`;
-    startIndex = 2;
-  }
-
-  let last = words[words.length - 1];
-  if (words.length > startIndex + 1 && compoundPrefixes.includes(words[words.length - 2])) {
-    last = `${words[words.length - 2]} ${words[words.length - 1]}`;
-  }
-
-  return `${first} ${last}`;
-}
-
-function formatDateTime(isoOrDate) {
-  const d = isoOrDate ? new Date(isoOrDate) : new Date();
-  if (isNaN(d.getTime())) return String(isoOrDate || '');
-  try {
-    return new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Africa/Cairo',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    }).format(d).replace(',', '').trim();
-  } catch {
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-  }
-}
-
-function getEgyptDateTimeLocalString(isoOrDate) {
-  const d = isoOrDate ? new Date(isoOrDate) : new Date();
-  if (isNaN(d.getTime())) return '';
-  try {
-    const p = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Africa/Cairo',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).formatToParts(d);
-    const m = {};
-    p.forEach((x) => (m[x.type] = x.value));
-    return `${m.year}-${m.month}-${m.day}T${m.hour}:${m.minute}`;
-  } catch {
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-  }
-}
+// Formatters live in utils/formatters.js (loaded first); local aliases keep internal calls working.
+const formatTwoWordName = global.formatTwoWordName;
+const formatDateTime = global.formatDateTime;
+const getEgyptDateTimeLocalString = global.getEgyptDateTimeLocalString;
 
 function getIconPrefix() {
 return window.location.pathname.includes('/pages/') ? '../assets/icons/' : './assets/icons/';
@@ -212,11 +135,28 @@ function updateActiveTab() {
 // No-op for backwards compatibility after switching to Web Top Navbar
 }
 
+function normalizeSearchText(str) {
+  if (!str) return '';
+  return String(str)
+    .toLowerCase()
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/[ة]/g, 'ه')
+    .replace(/[ى]/g, 'ي')
+    .replace(/[ًٌٍَُِّْ]/g, '')
+    .trim();
+}
+
 function highlightMatch(text, query) {
-if (!query || !query.trim()) return text;
-const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const regex = new RegExp(`(${escaped})`, 'gi');
-return text.replace(regex, `<span class="match-highlight">$1</span>`);
+  if (!query || !query.trim()) return text;
+  const rawQ = query.trim();
+  const escaped = rawQ.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  try {
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    if (regex.test(text)) {
+      return text.replace(regex, `<span class="match-highlight">$1</span>`);
+    }
+  } catch (_) {}
+  return text;
 }
 
 function createSearchableCombobox({
@@ -260,8 +200,23 @@ const toggleBtn = mount.querySelector('.combobox-toggle-btn');
 const dropdown = mount.querySelector('.combobox-dropdown');
 
 function renderDropdown(query = '') {
-const q = query.trim().toLowerCase();
-filteredOptions = q ? options.filter((opt) => opt.toLowerCase().includes(q)) : [...options];
+  const trimmed = query.trim();
+  if (!trimmed) {
+    filteredOptions = [...options];
+  } else {
+    const normQ = normalizeSearchText(trimmed);
+    filteredOptions = options
+      .filter((opt) => normalizeSearchText(opt).includes(normQ))
+      .sort((a, b) => {
+        const normA = normalizeSearchText(a);
+        const normB = normalizeSearchText(b);
+        const aStarts = normA.startsWith(normQ);
+        const bStarts = normB.startsWith(normQ);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return normA.indexOf(normQ) - normB.indexOf(normQ);
+      });
+  }
 
 if (filteredOptions.length === 0) {
 dropdown.innerHTML =
@@ -472,8 +427,23 @@ if (typeof onChange === 'function') onChange(selectedItems);
 }
 
 function renderDropdown(query = '') {
-const q = query.trim().toLowerCase();
-filteredOptions = q ? options.filter((opt) => opt.toLowerCase().includes(q)) : [...options];
+  const trimmed = query.trim();
+  if (!trimmed) {
+    filteredOptions = [...options];
+  } else {
+    const normQ = normalizeSearchText(trimmed);
+    filteredOptions = options
+      .filter((opt) => normalizeSearchText(opt).includes(normQ))
+      .sort((a, b) => {
+        const normA = normalizeSearchText(a);
+        const normB = normalizeSearchText(b);
+        const aStarts = normA.startsWith(normQ);
+        const bStarts = normB.startsWith(normQ);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return normA.indexOf(normQ) - normB.indexOf(normQ);
+      });
+  }
 
 if (filteredOptions.length === 0) {
 dropdown.innerHTML = `<div class="combobox-empty">لا توجد علامة تجارية مطابقة لـ "${query}"</div>`;

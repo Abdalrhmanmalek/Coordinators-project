@@ -290,7 +290,7 @@
         return `
           <a href="./activity-card.html?id=${act.id}" class="activity-card-item">
             <div class="activity-card-head">
-              <img src="${act.photoUrl}" alt="${act.client}" class="activity-card-thumb" />
+              <img src="${act.photoUrl}" alt="${act.client}" class="activity-card-thumb" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.svg';" />
               <div class="db-s17">
                 <div class="db-s18">
                   <strong class="db-s19">${act.client}</strong>

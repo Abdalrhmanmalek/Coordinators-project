@@ -70,9 +70,9 @@ adco-field-app/
 │   ├── manifest.json                           # Progressive Web App (PWA) manifest
 │   ├── sw.js                                   # Offline Service Worker & cache strategy
 │   ├── assets/                                 # 23 vector icons & branded graphics
-│   ├── css/                                    # 14 decoupled modular CSS stylesheets
-│   ├── pages/                                  # 8 semantic operational HTML views
-│   └── js/                                     # Runtime engines, API client, & SRP controllers
+│   ├── css/                                    # 15 decoupled modular CSS stylesheets (including evaluation.css)
+│   ├── pages/                                  # 9 semantic operational HTML views (including standalone evaluation.html)
+│   └── js/                                     # Modular JavaScript architecture (config/, store/, services/, utils/, components/, pages/)
 │
 ├── run-app.bat                                 # Windows desktop launcher script
 ├── vercel.json                                 # Vercel serverless deployment routing

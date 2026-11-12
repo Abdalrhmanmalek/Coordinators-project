@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ADCO Field Operations System - Evaluation Service
  * Single Responsibility: Supervisor reviews, 100-Point criteria scoring, audit trail logs, and decision workflows
  */
@@ -8,7 +8,7 @@ import { API_ENDPOINTS } from '../config/endpoints.js';
 import { apiClient } from '../api/http-client.js';
 import { ActivityService } from './activity.service.js';
 import { ScoreCalculator } from '../utils/score-calculator.js';
-import { formatToEgyptTime } from '../utils/camera-compressor.js';
+import { formatToEgyptTime } from '../utils/camera-compressor.esm.js';
 
 export class EvaluationService {
   /**

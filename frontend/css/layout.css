@@ -7,11 +7,13 @@
    WEBSITE TOP NAVIGATION BAR (Floating, Sleek, Lightweight Pill)
    ========================================================= */
 #app-header-mount {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
   width: 100%;
-  padding: 12px 24px 4px;
+  padding: 12px 24px 6px;
   pointer-events: none;
   background: transparent;
   border: none;
@@ -28,13 +30,13 @@
   height: 64px;
   margin: 0 auto;
   padding: 0;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.95);
-  outline: 1px solid rgba(15, 118, 110, 0.1);
+  outline: 1px solid rgba(15, 118, 110, 0.12);
   border-radius: 18px;
-  box-shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.06), 0 4px 12px -3px rgba(15, 118, 110, 0.04);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -4px rgba(15, 118, 110, 0.04);
   transition: all 0.2s ease;
 }
 
@@ -51,8 +53,10 @@
 
 @media (max-width: 768px) {
   #app-header-mount {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
     width: 100%;
     padding: 8px 12px 2px;
@@ -64,7 +68,7 @@
     height: 58px;
     border-radius: 14px;
     padding: 0;
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.95);
   }
   .web-navbar-inner {
     padding: 0 14px;

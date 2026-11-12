@@ -47,37 +47,54 @@ body.page-is-leaving {
   }
 }
 
+/* GPU Accelerated Page Entrance (Hardware Compositing) */
 @keyframes adcoPageEnter {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translate3d(0, 8px, 0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 /* =========================================================
-   TASK 3: Staggered Slide-Up Box Entrance Animations
-   Cards and UI boxes slide up from bottom to top like neatly stacking boxes
+   TASK 3 & 4: Staggered Slide-Up Box Entrance Animations & Performance Optimization
+   GPU Accelerated (translate3d), Content Containment to eliminate layout thrashing
    ========================================================= */
 @keyframes adcoSlideUpBox {
   0% {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translate3d(0, 14px, 0);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 .web-main-workspace,
 .pwa-content,
 .auth-floating-card {
-  animation: adcoPageEnter 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  animation: adcoPageEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card,
+.kpi-card,
+.branch-master-card,
+.circular-ring-card,
+.chart-card,
+.activity-card-item,
+.podium-card,
+.supervisor-activity-card {
+  contain: content; /* Isolates DOM tree: zero layout recalculation across outside elements */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .web-main-workspace > *,
@@ -89,7 +106,7 @@ body.page-is-leaving {
 .activity-card-item,
 .podium-card,
 .slide-up-box-item {
-  animation: adcoSlideUpBox 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: adcoSlideUpBox 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Staggered Box Stacking Sequence */

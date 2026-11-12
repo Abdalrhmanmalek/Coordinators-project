@@ -1,10 +1,10 @@
-/**
+﻿/**
  * ADCO Field Operations System - Media Service
  * Single Responsibility: Handling camera streams, client-side 720p image compression,
  * EXIF metadata analysis, live GPS geolocation validation, and media upload dispatching.
  */
 
-import { CameraCompressor } from '../utils/camera-compressor.js';
+import { CameraCompressor } from '../utils/camera-compressor.esm.js';
 import { API_ENDPOINTS } from '../config/endpoints.js';
 import { apiClient } from '../api/http-client.js';
 

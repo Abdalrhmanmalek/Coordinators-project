@@ -3,15 +3,28 @@
  * Single Responsibility: Searchable Combobox & Multi-Select Brands Tag UI
  */
 
+function normalizeSearchText(str) {
+  if (!str) return '';
+  return String(str)
+    .toLowerCase()
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/[ة]/g, 'ه')
+    .replace(/[ى]/g, 'ي')
+    .replace(/[ًٌٍَُِّْ]/g, '')
+    .trim();
+}
+
 function highlightMatch(text, query) {
   if (!query || !query.trim()) return text;
-  const q = query.trim();
-  const idx = text.toLowerCase().indexOf(q.toLowerCase());
-  if (idx === -1) return text;
-  const before = text.substring(0, idx);
-  const match = text.substring(idx, idx + q.length);
-  const after = text.substring(idx + q.length);
-  return `${before}<span class="match-highlight">${match}</span>${after}`;
+  const rawQ = query.trim();
+  const escaped = rawQ.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  try {
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    if (regex.test(text)) {
+      return text.replace(regex, `<span class="match-highlight">$1</span>`);
+    }
+  } catch (_) {}
+  return text;
 }
 
 export function createSearchableCombobox({
@@ -55,8 +68,23 @@ export function createSearchableCombobox({
   const dropdown = mount.querySelector('.combobox-dropdown');
 
   function renderDropdown(query = '') {
-    const q = query.trim().toLowerCase();
-    filteredOptions = q ? options.filter((opt) => opt.toLowerCase().includes(q)) : [...options];
+    const trimmed = query.trim();
+    if (!trimmed) {
+      filteredOptions = [...options];
+    } else {
+      const normQ = normalizeSearchText(trimmed);
+      filteredOptions = options
+        .filter((opt) => normalizeSearchText(opt).includes(normQ))
+        .sort((a, b) => {
+          const normA = normalizeSearchText(a);
+          const normB = normalizeSearchText(b);
+          const aStarts = normA.startsWith(normQ);
+          const bStarts = normB.startsWith(normQ);
+          if (aStarts && !bStarts) return -1;
+          if (!aStarts && bStarts) return 1;
+          return normA.indexOf(normQ) - normB.indexOf(normQ);
+        });
+    }
 
     if (filteredOptions.length === 0) {
       dropdown.innerHTML =
@@ -267,8 +295,23 @@ export function createMultiSelectCombobox({
   }
 
   function renderDropdown(query = '') {
-    const q = query.trim().toLowerCase();
-    filteredOptions = q ? options.filter((opt) => opt.toLowerCase().includes(q)) : [...options];
+    const trimmed = query.trim();
+    if (!trimmed) {
+      filteredOptions = [...options];
+    } else {
+      const normQ = normalizeSearchText(trimmed);
+      filteredOptions = options
+        .filter((opt) => normalizeSearchText(opt).includes(normQ))
+        .sort((a, b) => {
+          const normA = normalizeSearchText(a);
+          const normB = normalizeSearchText(b);
+          const aStarts = normA.startsWith(normQ);
+          const bStarts = normB.startsWith(normQ);
+          if (aStarts && !bStarts) return -1;
+          if (!aStarts && bStarts) return 1;
+          return normA.indexOf(normQ) - normB.indexOf(normQ);
+        });
+    }
 
     if (filteredOptions.length === 0) {
       dropdown.innerHTML = `<div class="combobox-empty">لا توجد علامة تجارية مطابقة لـ "${query}"</div>`;

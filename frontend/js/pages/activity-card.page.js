@@ -891,7 +891,7 @@ const user = AuthManager.checkAuthGuard();
               <span class="badge badge-mint" style="font-size: 0.72rem;">صورة العرض الميداني المعتمدة</span>
             </div>
 
-            <img src="${act.photoUrl}" alt="${act.client}" class="camera-preview-thumb" id="main-card-hero-img" style="cursor: pointer;" title="اضغط للتكبير والفحص" />
+            <img src="${act.photoUrl}" alt="${act.client}" class="camera-preview-thumb" id="main-card-hero-img" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.svg';" style="cursor: pointer;" title="اضغط للتكبير والفحص" />
             <div style="font-size: 0.75rem; color: var(--adco-green-dark); margin-top: 6px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
               <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
               <span>صورة العرض الميداني — اضغط للتكبير والمعاينة</span>
