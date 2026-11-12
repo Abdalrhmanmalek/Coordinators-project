@@ -22,80 +22,56 @@
   <div id="app-header-mount"></div>
 
   <main class="web-main-workspace lb-workspace">
-    <!-- Header Hero Section with Classore Period Tabs -->
-    <header class="lb-hero-header">
-      <div class="lb-hero-text">
-        <div class="lb-hero-badge">
-          <img src="../assets/icons/trophy.svg" class="ui-icon ui-icon-xs" alt="" />
-          <span>منظومة شرف التنافس الميداني (Gamified Leaderboard)</span>
-        </div>
-        <h1 class="lb-hero-title">لوحة شرف وتصنيف منسقي أدكو</h1>
-        <p class="lb-hero-desc">
-          التصنيف التراكمي المعتمد لنقاط الجودة والالتزام الميداني بناءً على الأنشطة المعتمدة وتقييمات المشرفين
-        </p>
+    <!-- Header Title & Filter Bar -->
+    <header class="lb-page-header">
+      <div class="lb-header-info">
+        <h1 class="lb-page-title">المتصدرين في العمليات الميدانية (Top Coordinators)</h1>
+        <p class="lb-page-sub">تصنيف نقاط الأداء وجودة توثيق العروض بناءً على الأنشطة المعتمدة لدى المشرفين</p>
       </div>
 
-      <!-- Classore Signature Period Filter Segmented Tabs -->
-      <div class="lb-tabs-wrap">
-        <div class="lb-period-tabs" role="tablist" aria-label="فترات التصنيف">
-          <button type="button" class="lb-tab-btn active" data-period="month" role="tab" aria-selected="true">
-            <span>هذا الشهر (الدورة الحالية)</span>
-          </button>
-          <button type="button" class="lb-tab-btn" data-period="week" role="tab" aria-selected="false">
-            <span>هذا الأسبوع</span>
-          </button>
-          <button type="button" class="lb-tab-btn" data-period="all" role="tab" aria-selected="false">
-            <span>التصنيف التراكمي (الكل)</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Classore Current User Sticky Rank Banner ("Your Rank / أنت") -->
-    <section class="lb-user-card" id="user-rank-banner" aria-label="ترتيبك الميداني">
-      <!-- Populated dynamically via leaderboard.page.js -->
-    </section>
-
-    <!-- Top-3 Elevated 3D Podium Mount -->
-    <section class="lb-podium-section" aria-label="منصة تتويج الثلاثة الأوائل">
-      <div class="lb-podium-title-row">
-        <div class="lb-section-heading">
-          <img src="../assets/icons/star.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>أبطال التميز الميداني (Top 3 Performers)</span>
-        </div>
-        <div class="lb-stats-chips">
-          <span class="lb-chip" id="lb-chip-total">إجمالي المنسقين: <strong>-</strong></span>
-          <span class="lb-chip" id="lb-chip-avg">متوسط الجودة: <strong>-</strong></span>
-        </div>
-      </div>
-
-      <div class="podium-wrap" id="podium-mount">
-        <!-- Rendered dynamically via leaderboard.page.js -->
-      </div>
-    </section>
-
-    <!-- General Ranking List with Search and Filter Toolbar -->
-    <section class="lb-list-section">
-      <div class="lb-list-toolbar">
-        <div class="lb-section-heading">
-          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>القائمة العامة لترتيب المنسقين</span>
+      <!-- Period Tabs & Quick Search -->
+      <div class="lb-header-actions">
+        <div class="lb-period-segmented" role="tablist" aria-label="فترات التقييم">
+          <button type="button" class="lb-period-btn active" data-period="month" role="tab" aria-selected="true">هذا الشهر</button>
+          <button type="button" class="lb-period-btn" data-period="week" role="tab" aria-selected="false">هذا الأسبوع</button>
+          <button type="button" class="lb-period-btn" data-period="all" role="tab" aria-selected="false">الكل</button>
         </div>
 
-        <div class="lb-search-box">
-          <img src="../assets/icons/search.svg" class="ui-icon ui-icon-xs lb-search-icon" alt="" />
+        <div class="lb-search-input-wrap">
+          <img src="../assets/icons/search.svg" class="ui-icon ui-icon-xs lb-search-ico" alt="" />
           <input
             type="search"
             id="lb-search-input"
-            class="lb-search-input"
-            placeholder="ابحث باسم المنسق أو الفرع..."
+            class="lb-search-control"
+            placeholder="بحث بالاسم أو الفرع..."
             aria-label="البحث في قائمة الترتيب"
           />
         </div>
       </div>
+    </header>
 
-      <div class="lb-table-container">
-        <div id="leaderboard-list" class="lb-cards-list">
+    <!-- TOP 3 CARDS GRID (Fish.Audio Style: 3 Equal-Height Horizontal Cards) -->
+    <section class="top-cards-section" aria-label="أبطال التميز الميداني">
+      <div class="top-cards-grid" id="top-cards-mount">
+        <!-- Rendered dynamically via leaderboard.page.js -->
+      </div>
+    </section>
+
+    <!-- GENERAL RANKING LIST (Fish.Audio Style: Multi-Column Aligned Table) -->
+    <section class="ranking-table-section" aria-label="جدول الترتيب العام">
+      <div class="ranking-table-card">
+        <!-- Table Column Header (Hidden on small mobile, visible tablet/desktop) -->
+        <div class="ranking-table-head">
+          <div class="col-rank">الترتيب</div>
+          <div class="col-user">المنسق الميداني</div>
+          <div class="col-stat">إجمالي النقاط</div>
+          <div class="col-stat">الأنشطة المقبولة</div>
+          <div class="col-stat">الجولات المكتملة</div>
+          <div class="col-stat">معدل الجودة</div>
+        </div>
+
+        <!-- Rows Container -->
+        <div id="leaderboard-list" class="ranking-table-body">
           <!-- Rendered dynamically via leaderboard.page.js -->
         </div>
       </div>

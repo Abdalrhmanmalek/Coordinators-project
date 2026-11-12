@@ -1,6 +1,6 @@
 /**
  * ADCO Field Operations System - leaderboard.page.js
- * Single Responsibility: Isolated DOM rendering and page event controller for the Gamified Leaderboard
+ * Single Responsibility: Isolated DOM rendering and page event controller for the Top Coordinators Leaderboard
  * Universal browser script (Works on both http:// and file:// protocol)
  */
 
@@ -38,10 +38,10 @@
   // Base Data Set
   const computed = Activity && typeof Activity.getLeaderboardData === 'function' ? Activity.getLeaderboardData() : [];
   const extraCoordinators = [
-    { coordinatorId: 'ADCO-501', name: 'أيمن عبد الرحمن الروبي (مشرف منسق)', branch: 'مسؤول فروع فتح الله جملة ماركت - الإسكندرية', acceptedCount: 6, totalScore: 92, submissionsCount: 6, trend: '+2' },
-    { coordinatorId: 'ADCO-104', name: 'محمد عادل الشناوي', branch: 'الإسكندرية - المنتزه', acceptedCount: 7, totalScore: 89, submissionsCount: 8, trend: '+1' },
-    { coordinatorId: 'ADCO-105', name: 'نهى كمال عبد العزيز', branch: 'الإسكندرية - سيدي جابر', acceptedCount: 5, totalScore: 84, submissionsCount: 6, trend: '-1' },
-    { coordinatorId: 'ADCO-106', name: 'كريم طارق الفقي', branch: 'برج العرب', acceptedCount: 4, totalScore: 78, submissionsCount: 5, trend: '0' }
+    { coordinatorId: 'ADCO-501', name: 'أيمن عبد الرحمن الروبي (مشرف منسق)', branch: 'مسؤول فروع فتح الله - الإسكندرية', acceptedCount: 6, totalScore: 92, submissionsCount: 6 },
+    { coordinatorId: 'ADCO-104', name: 'محمد عادل الشناوي', branch: 'الإسكندرية - المنتزه', acceptedCount: 7, totalScore: 89, submissionsCount: 8 },
+    { coordinatorId: 'ADCO-105', name: 'نهى كمال عبد العزيز', branch: 'الإسكندرية - سيدي جابر', acceptedCount: 5, totalScore: 84, submissionsCount: 6 },
+    { coordinatorId: 'ADCO-106', name: 'كريم طارق الفقي', branch: 'برج العرب', acceptedCount: 4, totalScore: 78, submissionsCount: 5 }
   ];
 
   const merged = [...computed];
@@ -51,37 +51,39 @@
     }
   });
 
-  // Assign realistic trends and stats if missing
-  merged.forEach((m, idx) => {
-    if (!m.trend) {
-      m.trend = idx === 0 ? '+1' : (idx % 2 === 0 ? '+2' : (idx % 3 === 0 ? '-1' : '0'));
-    }
-  });
-
   // Dynamic filter state
   let currentPeriod = 'month';
   let searchQuery = '';
 
-  function getFilteredData() {
-    let list = [...merged];
+  function getProcessedData() {
+    let list = merged.map((item) => {
+      let score = item.totalScore || 80;
+      let accepted = item.acceptedCount || 4;
+      let total = item.submissionsCount || accepted;
 
-    // Period multiplier / adjustment for gamified feel
-    if (currentPeriod === 'week') {
-      list = list.map((item) => ({
+      if (currentPeriod === 'week') {
+        score = Math.max(65, Math.round(score * 0.94));
+        accepted = Math.max(1, Math.round(accepted * 0.5));
+        total = Math.max(accepted, Math.round(total * 0.5));
+      } else if (currentPeriod === 'all') {
+        score = Math.min(100, score + 4);
+        accepted = accepted + 5;
+        total = total + 6;
+      }
+
+      const qualityRate = Math.min(100, Math.round((score / 100) * 100));
+
+      return {
         ...item,
-        totalScore: Math.max(60, Math.round(item.totalScore * 0.92)),
-        acceptedCount: Math.max(1, Math.round((item.acceptedCount || 3) * 0.5))
-      }));
-    } else if (currentPeriod === 'all') {
-      list = list.map((item) => ({
-        ...item,
-        totalScore: Math.min(100, item.totalScore + 4),
-        acceptedCount: (item.acceptedCount || 3) + 5
-      }));
-    }
+        totalScore: score,
+        acceptedCount: accepted,
+        submissionsCount: total,
+        qualityRate: `${qualityRate}%`
+      };
+    });
 
     list.sort((a, b) => b.totalScore - a.totalScore);
-    list.forEach((m, idx) => (m.rank = `#${idx + 1}`));
+    list.forEach((m, idx) => (m.rank = idx + 1));
 
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
@@ -96,159 +98,121 @@
   }
 
   function renderView() {
-    const list = getFilteredData();
-    const allSorted = [...merged].sort((a, b) => b.totalScore - a.totalScore);
-    allSorted.forEach((m, idx) => (m.rank = `#${idx + 1}`));
+    const list = getProcessedData();
+    const top3 = list.slice(0, 3);
+    const restList = list.length > 3 ? list.slice(3) : (searchQuery.trim() ? list : []);
 
-    // 1. Stats Chips
-    const totalEl = document.getElementById('lb-chip-total');
-    const avgEl = document.getElementById('lb-chip-avg');
-    if (totalEl) totalEl.innerHTML = `إجمالي المنسقين: <strong>${allSorted.length} منسقاً</strong>`;
-    if (avgEl && allSorted.length > 0) {
-      const avgScore = (allSorted.reduce((acc, curr) => acc + (curr.totalScore || 0), 0) / allSorted.length).toFixed(1);
-      avgEl.innerHTML = `متوسط الجودة: <strong>${avgScore}/100</strong>`;
-    }
+    // 1. Render Top 3 Cards Grid (Fish.audio Style)
+    const topMount = document.getElementById('top-cards-mount');
+    if (topMount) {
+      if (top3.length === 0) {
+        topMount.innerHTML = '';
+      } else {
+        const medalImgs = ['medal-gold.svg', 'medal-silver.svg', 'medal-bronze.svg'];
+        topMount.innerHTML = top3
+          .map((item, idx) => {
+            const initial = item.name ? item.name.trim().charAt(0) : 'م';
+            const medal = medalImgs[idx] || 'medal-gold.svg';
+            const rankLabel = idx === 0 ? 'الأول' : (idx === 1 ? 'الثاني' : 'الثالث');
 
-    // 2. Classore Current User Sticky Rank Banner ("Your Rank / أنت")
-    const userRankBanner = document.getElementById('user-rank-banner');
-    if (userRankBanner) {
-      const userItem = allSorted.find((item) => item.coordinatorId === currentUser.employeeId) || allSorted[allSorted.length - 1] || {
-        rank: '#4',
-        name: currentUser.name || 'أحمد محمود البدري',
-        branch: currentUser.branch || 'محرم بك - الإسكندرية',
-        totalScore: 88,
-        acceptedCount: 5
-      };
+            return `
+              <div class="top-card rank-${item.rank}">
+                <div class="top-card-head">
+                  <div class="top-card-user">
+                    <div class="top-card-avatar" title="${item.name}">
+                      <span>${initial}</span>
+                    </div>
+                    <div class="top-card-meta">
+                      <strong class="top-card-name" title="${item.name}">
+                        ${typeof formatTwoWordName === 'function' ? formatTwoWordName(item.name) : item.name}
+                      </strong>
+                      <span class="top-card-sub" title="${item.branch}">
+                        ${item.branch} • ${item.acceptedCount} أنشطة
+                      </span>
+                    </div>
+                  </div>
+                  <div class="top-card-medal" title="المركز ${rankLabel}">
+                    <img src="${assetsPrefix}images/${medal}" alt="المركز ${item.rank}" />
+                  </div>
+                </div>
 
-      const userRankNum = parseInt(userItem.rank.replace('#', ''), 10) || 4;
-      const pointsDiff = userRankNum > 1 ? Math.max(1, 95 - userItem.totalScore) : 0;
-      const initial = userItem.name ? userItem.name.trim().charAt(0) : 'م';
-
-      userRankBanner.innerHTML = `
-        <div class="lb-user-left">
-          <div class="lb-user-avatar" title="${userItem.name}">
-            <span>${initial}</span>
-          </div>
-          <div class="lb-user-details">
-            <div class="lb-user-badge-row">
-              <span class="lb-user-tag">ترتيبك الميداني</span>
-              <strong class="lb-user-name">${typeof formatTwoWordName === 'function' ? formatTwoWordName(userItem.name) : userItem.name}</strong>
-            </div>
-            <span class="lb-user-meta">${userItem.branch || 'المنسق المعتمد'} • ${userItem.acceptedCount || 0} نشاط معتمد</span>
-          </div>
-        </div>
-
-        <div class="lb-user-right">
-          <div class="lb-user-score-box">
-            <span class="lb-user-score-val">${userItem.totalScore || 0}/100</span>
-            <span class="lb-user-score-label">${userRankNum > 1 ? `تبقى ${pointsDiff} نقطة للمركز الأعلى` : 'متصدر الترتيب 🏆'}</span>
-          </div>
-          <div class="lb-user-rank-pill">
-            <img src="${assetsPrefix}icons/trophy.svg" class="ui-icon ui-icon-xs" alt="" />
-            <span>المركز ${userItem.rank}</span>
-          </div>
-        </div>
-      `;
-    }
-
-    // 3. Top-3 Elevated 3D Podium
-    const top3 = allSorted.slice(0, 3);
-    const podiumMount = document.getElementById('podium-mount');
-    if (podiumMount) {
-      podiumMount.innerHTML = top3
-        .map((p, idx) => {
-          let rankClass = 'rank-1 first';
-          let rankLabel = 'المركز الأول 🥇';
-          let medalImg = 'medal-gold.svg';
-          let stepNum = '1';
-          let badgeClass = 'badge-gold';
-
-          if (idx === 1) {
-            rankClass = 'rank-2 second';
-            rankLabel = 'المركز الثاني 🥈';
-            medalImg = 'medal-silver.svg';
-            stepNum = '2';
-            badgeClass = 'badge-silver';
-          } else if (idx === 2) {
-            rankClass = 'rank-3 third';
-            rankLabel = 'المركز الثالث 🥉';
-            medalImg = 'medal-bronze.svg';
-            stepNum = '3';
-            badgeClass = 'badge-bronze';
-          }
-
-          return `
-            <div class="podium-col podium-card ${rankClass}">
-              <div class="podium-rank-tag">${rankLabel}</div>
-              <div class="podium-avatar-wrap">
-                <img src="${assetsPrefix}images/${medalImg}" alt="${rankLabel}" class="podium-medal-img" />
+                <div class="top-card-stats">
+                  <div class="top-stat-item">
+                    <span class="top-stat-label">إجمالي النقاط:</span>
+                    <span class="top-stat-val highlight">${item.totalScore}/100</span>
+                  </div>
+                  <div class="top-stat-item">
+                    <span class="top-stat-label">الأنشطة المقبولة:</span>
+                    <span class="top-stat-val">${item.acceptedCount}</span>
+                  </div>
+                  <div class="top-stat-item">
+                    <span class="top-stat-label">الجولات المكتملة:</span>
+                    <span class="top-stat-val">${item.submissionsCount}</span>
+                  </div>
+                  <div class="top-stat-item">
+                    <span class="top-stat-label">معدل الجودة:</span>
+                    <span class="top-stat-val">${item.qualityRate}</span>
+                  </div>
+                </div>
               </div>
-              <strong class="podium-name" title="${p.name}">${typeof formatTwoWordName === 'function' ? formatTwoWordName(p.name) : p.name}</strong>
-              <span class="podium-branch" title="${p.branch}">${p.branch}</span>
-              <span class="badge ${badgeClass} podium-score-badge">${p.totalScore}/100 نقطة</span>
-              <div class="podium-pedestal" aria-label="${rankLabel}">
-                <span class="podium-pedestal-num">${stepNum}</span>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
+            `;
+          })
+          .join('');
+      }
     }
 
-    // 4. General Ranking Card Rows
+    // 2. Render General Ranking Rows Table (Fish.audio Style)
     const listMount = document.getElementById('leaderboard-list');
     if (listMount) {
-      if (list.length === 0) {
+      const displayRows = searchQuery.trim() ? list : restList;
+
+      if (displayRows.length === 0) {
         listMount.innerHTML = `
-          <div style="text-align: center; padding: 40px; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; color: #64748b;">
-            <img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-lg" style="opacity: 0.4; margin-bottom: 8px;" alt="" />
+          <div style="text-align: center; padding: 36px 20px; color: #64748b;">
             <p style="margin: 0; font-weight: 700;">لا توجد نتائج مطابقة لـ "${searchQuery}"</p>
           </div>
         `;
         return;
       }
 
-      listMount.innerHTML = list
+      listMount.innerHTML = displayRows
         .map((item) => {
           const isUser = currentUser && currentUser.employeeId === item.coordinatorId;
           const initial = item.name ? item.name.trim().charAt(0) : 'م';
 
-          let trendIcon = '—';
-          let trendClass = 'trend-same';
-          if (item.trend && item.trend.startsWith('+')) {
-            trendIcon = `▲ ${item.trend}`;
-            trendClass = 'trend-up';
-          } else if (item.trend && item.trend.startsWith('-')) {
-            trendIcon = `▼ ${item.trend}`;
-            trendClass = 'trend-down';
-          }
-
           return `
-            <div class="rank-card-row ${isUser ? 'is-current-user' : ''}">
-              <div class="rank-row-left">
-                <div class="rank-badge-wrap">
-                  <span class="rank-num-badge">${item.rank}</span>
-                  <span class="rank-trend ${trendClass}" title="حركة الترتيب">${trendIcon}</span>
-                </div>
+            <div class="ranking-row ${isUser ? 'is-current-user' : ''}">
+              <div class="cell-rank">
+                <span class="rank-circle">${item.rank}</span>
+              </div>
 
-                <div class="rank-avatar" title="${item.name}">
+              <div class="cell-user">
+                <div class="user-avatar-sm" title="${item.name}">
                   <span>${initial}</span>
                 </div>
-
-                <div class="rank-info">
-                  <div class="rank-name-row">
-                    <strong class="rank-name">${typeof formatTwoWordName === 'function' ? formatTwoWordName(item.name) : item.name}</strong>
-                    ${isUser ? '<span class="rank-you-tag">أنت</span>' : ''}
+                <div class="user-info-sm">
+                  <div class="user-name-sm">
+                    <strong>${typeof formatTwoWordName === 'function' ? formatTwoWordName(item.name) : item.name}</strong>
+                    ${isUser ? '<span class="you-pill">أنت</span>' : ''}
                   </div>
-                  <p class="rank-meta">${item.branch} • ${item.acceptedCount || 0} نشاط معتمد</p>
+                  <span class="user-sub-sm">${item.branch}</span>
                 </div>
               </div>
 
-              <div class="rank-row-right">
-                <div class="rank-score-pill">
-                  <img src="${assetsPrefix}icons/star.svg" class="ui-icon ui-icon-xs" alt="" />
-                  <span>${item.totalScore}/100 نقطة</span>
-                </div>
+              <div class="cell-stat points-col">
+                <span>${item.totalScore}/100</span>
+              </div>
+
+              <div class="cell-stat">
+                <span>${item.acceptedCount}</span>
+              </div>
+
+              <div class="cell-stat">
+                <span>${item.submissionsCount}</span>
+              </div>
+
+              <div class="cell-stat">
+                <span>${item.qualityRate}</span>
               </div>
             </div>
           `;
@@ -257,11 +221,11 @@
     }
   }
 
-  // Bind Period Filter Tabs
-  const tabBtns = document.querySelectorAll('.lb-tab-btn');
-  tabBtns.forEach((btn) => {
+  // Bind Period Switcher Tabs
+  const periodBtns = document.querySelectorAll('.lb-period-btn');
+  periodBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
-      tabBtns.forEach((b) => {
+      periodBtns.forEach((b) => {
         b.classList.remove('active');
         b.setAttribute('aria-selected', 'false');
       });
