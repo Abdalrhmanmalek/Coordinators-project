@@ -282,13 +282,20 @@
 
     container.innerHTML = filtered
       .map((act) => {
+        if (global.ActivityCardItem && typeof global.ActivityCardItem.render === 'function') {
+          return global.ActivityCardItem.render(act, {
+            computeRating: Activity.computeOverallRating,
+            renderStatusBadge
+          });
+        }
+
         const ratingStats = Activity.computeOverallRating(act);
-        const actSupplying = act.coordinatorBranch || supplyingBranch;
         const actSupervisor = act.reviewerName || supervisorName;
         const locAddress = (act.location && act.location.address) ? act.location.address : act.branch;
         const roundsCount = act.followUpHistory ? act.followUpHistory.length : 1;
+        const actType = act.activityType || act.activity || 'عرض منتجات';
+        const brandsList = Array.isArray(act.brands) && act.brands.length > 0 ? act.brands : ['فلفيتا', 'فييا'];
 
-        // Extract latest supervisor / marketing manager note
         let latestNotes = '';
         let latestReviewer = act.reviewerName || actSupervisor || 'مدير التسويق';
         if (Array.isArray(act.followUpHistory) && act.followUpHistory.length > 0) {
@@ -307,9 +314,9 @@
         }
 
         return `
-          <div class="activity-card-item" data-act-id="${act.id}" role="button" tabindex="0" style="cursor: pointer;">
+          <div class="activity-card-item" data-act-id="${act.id}" role="button" tabindex="0" style="cursor: pointer;" title="اضغط لفتح سجل المراجعات وتفاصيل النشاط بالكامل">
             <div class="activity-card-head">
-              <img src="${act.photoUrl}" alt="${act.client}" class="activity-card-thumb" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.svg';" />
+              <img src="${act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80'}" alt="${act.client}" class="activity-card-thumb" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
               <div class="db-s17">
                 <div class="db-s18">
                   <strong class="db-s19">${act.client}</strong>
@@ -322,11 +329,20 @@
                   <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
                   <span>${act.branch}</span>
                 </div>
-                <p class="db-s22">
-                  <strong>${act.activity || '-'}</strong> (${act.activityType || '-'} × ${act.activityCount || 1})
+                <p class="db-s22" style="margin-bottom: 4px;">
+                  <strong>${act.activity || '-'}</strong>
                 </p>
-                <div class="branch-supply-pill" style="margin-top: 2px;">
-                  <span>فرع الشركة المورد للبضاعة: <strong>${actSupplying}</strong></span>
+                <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+                  <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <span class="badge badge-mint" style="font-weight: 700; font-size: 0.74rem;">
+                      <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <span>نوع العرض: ${actType}${act.activityCount ? ` × ${act.activityCount}` : ''}</span>
+                    </span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                    <span style="font-size: 0.72rem; color: var(--adco-gray-600); font-weight: 600;">العلامات:</span>
+                    ${brandsList.map((b) => `<span class="badge badge-outline-brand" style="font-size: 0.70rem; padding: 1px 6px; background: rgba(15, 118, 110, 0.06); border: 1px solid rgba(15, 118, 110, 0.2); color: var(--adco-green-deep);">${b}</span>`).join('')}
+                  </div>
                 </div>
               </div>
             </div>
@@ -341,12 +357,11 @@
                 <span class="branch-meta-val">${actSupervisor}</span>
               </div>
               <div class="branch-meta-item full-span">
-                <span class="branch-meta-label">الموقع والعلامات التجارية</span>
-                <span class="branch-meta-val">${locAddress} • ${(act.brands || []).join('، ')}</span>
+                <span class="branch-meta-label">الموقع الجغرافي</span>
+                <span class="branch-meta-val">${locAddress}</span>
               </div>
             </div>
 
-            <!-- Marketing Manager Feedback Preview -->
             ${latestNotes ? `
               <div class="branch-card-feedback-preview">
                 <div class="feedback-preview-header">
@@ -377,15 +392,14 @@
               </span>
             </div>
 
-            <!-- Direct Quick Action Buttons (Outside Card Button) -->
             <div class="activity-card-action-bar">
-              <button type="button" class="btn btn-secondary btn-sm btn-open-card-details" data-act-id="${act.id}">
+              <button type="button" class="btn btn-secondary btn-sm btn-open-card-details" data-act-id="${act.id}" title="فتح سجل المراجعات والجولات وتوجيهات مدير التسويق">
                 <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
                 <span>سجل المراجعات (${roundsCount})</span>
               </button>
-              <button type="button" class="btn btn-primary btn-sm btn-quick-add-photo" data-act-id="${act.id}" title="رفع صورة متابعة جديدة لهذا النشاط">
+              <button type="button" class="btn btn-primary btn-sm btn-quick-add-photo" data-act-id="${act.id}" title="إضافة متابعة جديدة والتقاط الصور لهذا النشاط">
                 <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
-                <span>إضافة صورة 📷</span>
+                <span>إضافة متابعة</span>
               </button>
             </div>
           </div>

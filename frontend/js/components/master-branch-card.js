@@ -1,7 +1,8 @@
 /**
  * ADCO Master Branch Card Component
- * Pure HTML template for a master branch card: client/branch header, supplying-branch pill,
+ * Pure HTML template for a master branch card: client/branch header, activity types & brands,
  * two-word coordinator name, and status counters (incl. glowing "Under Review" indicator).
+ * Supplying branch is hidden on outer cards (kept strictly for internal detail views).
  * Usage: MasterBranchCard.render(branchGroup, { selectedBranchKey, fallbackCoordinatorName })
  */
 
@@ -10,9 +11,16 @@
 
   function render(bg, ctx = {}) {
     const isSelected = (ctx.selectedBranchKey || null) === bg.branch;
-    const rawCoords = Array.from(bg.coordinators).join(' ، ') || ctx.fallbackCoordinatorName || 'أحمد محمود العبد';
+    const rawCoords = Array.from(bg.coordinators || []).join(' ، ') || ctx.fallbackCoordinatorName || 'أحمد محمود العبد';
     const coordNames = typeof formatTwoWordName === 'function' ? formatTwoWordName(rawCoords) : rawCoords;
     const branchUrl = `./branch-details.html?branch=${encodeURIComponent(bg.branch)}&client=${encodeURIComponent(bg.client)}`;
+
+    const typesArr = bg.activityTypes ? Array.from(bg.activityTypes).filter(Boolean) : [];
+    const brandsArr = bg.brands ? Array.from(bg.brands).filter(Boolean) : [];
+
+    const typesText = typesArr.length > 0 ? typesArr.slice(0, 3).join(' ، ') : 'جندولة ، ستاند';
+    const displayedBrands = brandsArr.length > 0 ? brandsArr.slice(0, 4) : ['فلفيتا', 'فييا', 'كلوريل'];
+
     return `
       <div class="branch-master-card ${isSelected ? 'active-branch-filter' : ''}" data-branch="${bg.branch}" data-href="${branchUrl}" role="link" tabindex="0" title="اضغط لفتح صفحة تفاصيل الفرع والأنشطة التابعة له">
         <div>
@@ -27,11 +35,19 @@
             <span class="badge badge-mint">${bg.total} أنشطة</span>
           </div>
 
-          <div style="margin: 10px 0;">
-            <span class="branch-supply-pill">
-              <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
-              <span>فرع الشركة المورد للبضاعة: <strong>${bg.supplyingBranch}</strong></span>
-            </span>
+          <!-- Highlight: Activity Types & Participating Brands (Supplying branch hidden externally) -->
+          <div class="branch-card-showcase-row" style="margin: 10px 0; display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span class="badge badge-mint" style="font-weight: 700; font-size: 0.74rem;">
+                <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>نوع العرض: ${typesText}</span>
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+              <span style="font-size: 0.74rem; color: var(--adco-gray-600); font-weight: 600;">العلامات:</span>
+              ${displayedBrands.map((b) => `<span class="badge badge-outline-brand" style="font-size: 0.72rem; padding: 2px 7px; background: rgba(15, 118, 110, 0.06); border: 1px solid rgba(15, 118, 110, 0.2); color: var(--adco-green-deep);">${b}</span>`).join('')}
+              ${brandsArr.length > 4 ? `<span class="badge" style="font-size: 0.70rem; color: var(--adco-gray-500);">+${brandsArr.length - 4}</span>` : ''}
+            </div>
           </div>
 
           <div class="branch-meta-grid">

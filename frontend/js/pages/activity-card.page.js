@@ -749,9 +749,34 @@ const user = AuthManager.checkAuthGuard();
             ${sessions.map((s, sIdx) => {
               const isPending = !s.sessionScore && (s.reviewStatus === 'Under Review' || !s.reviewStatus);
               const sReviewer = s.reviewerName || act.reviewerName || 'أ. محمد الديب - مدير التسويق';
-              const sScoreDisplay = s.sessionScore !== null && s.sessionScore !== undefined 
-                ? `${s.sessionScore} / 10` 
-                : 'قيد التقييم';
+
+              let roundScore100 = null;
+              let breakdown = null;
+              if (s.scoreBreakdown) {
+                breakdown = s.scoreBreakdown;
+                roundScore100 = (breakdown.newActivity || 0) + (breakdown.executionQuality || 0) + (breakdown.continuity || 0) + (breakdown.documentation || 0);
+              } else if (s.sessionScore !== null && s.sessionScore !== undefined) {
+                const rawNum = Number(s.sessionScore);
+                roundScore100 = rawNum <= 10 ? Math.round(rawNum * 10) : Math.round(rawNum);
+                const r = roundScore100 / 100;
+                breakdown = {
+                  newActivity: Math.min(40, Math.round(40 * r)),
+                  executionQuality: Math.min(20, Math.round(20 * r)),
+                  continuity: Math.min(25, Math.round(25 * r)),
+                  documentation: Math.min(15, Math.round(15 * r))
+                };
+              }
+
+              // Active products / SKUs for this round
+              const roundProducts = Array.isArray(s.products) && s.products.length > 0 
+                ? s.products 
+                : (Array.isArray(act.products) && act.products.length > 0 ? act.products : null);
+              const roundBrands = Array.isArray(s.brands) && s.brands.length > 0
+                ? s.brands
+                : (Array.isArray(act.brands) && act.brands.length > 0 ? act.brands : ['فلفيتا', 'فييا']);
+              const roundSkuText = roundProducts 
+                ? roundProducts.map((p) => (typeof p === 'object' ? `${p.brand ? p.brand + ' - ' : ''}${p.skuItem || p.sku || ''}` : p)).filter(Boolean).join(' ، ')
+                : (act.skuVariant || 'جميع أصناف العرض المعتمدة');
 
               return `
                 <div class="review-round-card">
@@ -772,15 +797,24 @@ const user = AuthManager.checkAuthGuard();
                           <span>موقع الهاتف GPS: ${s.location.latitude}&deg; N, ${s.location.longitude}&deg; E (نطاق معتمد &le; 150م)</span>
                         </div>
                       ` : ''}
+
+                      <!-- Participating Products / SKUs in this round -->
+                      <div class="review-round-skus" style="margin-top: 8px; font-size: 0.78rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <span class="badge badge-mint" style="font-size: 0.72rem; font-weight: 700;">العلامات والأصناف بالجولة:</span>
+                        <span style="color: var(--adco-gray-700); font-weight: 600;">${roundBrands.join(' ، ')} &bull; ${roundSkuText}</span>
+                      </div>
                     </div>
 
                     <div style="text-align: left; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
                       ${renderStatusBadge(s.reviewStatus || act.status)}
-                      ${s.sessionScore !== null && s.sessionScore !== undefined ? `
-                        <span class="badge badge-warning" style="font-size: 0.76rem; font-weight: 800;">
-                          ⭐ التقييم: ${sScoreDisplay}
+                      ${roundScore100 !== null ? `
+                        <span class="badge badge-warning" style="font-size: 0.76rem; font-weight: 800; display: flex; align-items: center; gap: 4px;">
+                          <img src="../assets/icons/star.svg" class="ui-icon ui-icon-xs" alt="" />
+                          <span>التقييم: ${roundScore100} / 100</span>
                         </span>
-                      ` : ''}
+                      ` : `
+                        <span class="badge badge-secondary" style="font-size: 0.74rem;">قيد التقييم</span>
+                      `}
                     </div>
                   </div>
 
@@ -792,14 +826,45 @@ const user = AuthManager.checkAuthGuard();
                     <div class="timeline-thumbs-grid">
                       ${(s.photos || []).map((p, pIdx) => `
                         <div class="timeline-thumb-item inline-review-thumb" data-sidx="${sIdx}" data-pidx="${pIdx}" title="اضغط لتكبير الصورة">
-                          <img src="${p.photoUrl || act.photoUrl}" alt="${s.roundTitle}" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.svg';" />
+                          <img src="${p.photoUrl || act.photoUrl}" alt="${s.roundTitle}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
                           <span class="timeline-thumb-zoom">${p.sizeKb || 180}KB</span>
                         </div>
                       `).join('')}
                     </div>
                   </div>
 
-                  <!-- Marketing Manager Feedback / Notes Box -->
+                  <!-- 4-Criteria Numerical Evaluation Breakdown (Task 2) -->
+                  ${breakdown ? `
+                    <div class="round-criteria-box" style="margin-top: 10px; background: #ffffff; border: 1px solid var(--adco-green-border); border-radius: 8px; padding: 10px 12px;">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--adco-green-deep); display: flex; align-items: center; gap: 5px;">
+                          <img src="../assets/icons/trophy.svg" class="ui-icon ui-icon-xs" alt="" />
+                          <span>تقييم مدير التسويق للجولة (المعايير الأربعة الرسمية):</span>
+                        </span>
+                        <span class="badge badge-success" style="font-size: 0.80rem; font-weight: 800;">${roundScore100} / 100 نقطة</span>
+                      </div>
+                      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px;">
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; display: flex; justify-content: space-between; font-size: 0.74rem;">
+                          <span>نشاط جديد:</span>
+                          <strong style="color: var(--adco-green-deep); font-weight: 700;">${breakdown.newActivity} / 40</strong>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; display: flex; justify-content: space-between; font-size: 0.74rem;">
+                          <span>جودة العرض:</span>
+                          <strong style="color: var(--adco-green-deep); font-weight: 700;">${breakdown.executionQuality} / 20</strong>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; display: flex; justify-content: space-between; font-size: 0.74rem;">
+                          <span>الاستمرارية:</span>
+                          <strong style="color: var(--adco-green-deep); font-weight: 700;">${breakdown.continuity} / 25</strong>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; display: flex; justify-content: space-between; font-size: 0.74rem;">
+                          <span>التوثيق والدقة:</span>
+                          <strong style="color: var(--adco-green-deep); font-weight: 700;">${breakdown.documentation} / 15</strong>
+                        </div>
+                      </div>
+                    </div>
+                  ` : ''}
+
+                  <!-- Marketing Manager Written Guidance / Feedback Box -->
                   <div class="review-supervisor-bubble ${isPending ? 'is-pending' : ''}">
                     <div class="review-bubble-header">
                       <span class="review-bubble-title">
@@ -814,7 +879,7 @@ const user = AuthManager.checkAuthGuard();
 
                     ${isPending ? `
                       <p class="review-bubble-pending-text">
-                        ⏳ هذه الجولة بانتظار فحص واعتماد مدير التسويق. سيتم تحديث التقييم وتوجيهات التحسين فور مراجعتها.
+                        هذه الجولة بانتظار فحص واعتماد مدير التسويق. سيتم تحديث التقييم وتوجيهات التحسين فور مراجعتها.
                       </p>
                     ` : `
                       <p class="review-bubble-notes">
@@ -830,14 +895,16 @@ const user = AuthManager.checkAuthGuard();
           <!-- Callout: Add Follow-up Photo (Directly below reviews) -->
           <div class="add-followup-callout">
             <div class="add-followup-callout-inner">
-              <div class="add-followup-callout-icon">📷</div>
+              <div class="add-followup-callout-icon">
+                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-lg" alt="" />
+              </div>
               <h4 class="add-followup-callout-title">إضافة متابعة ميدانية جديدة بالصور (متابعة #${roundsCount + 1})</h4>
               <p class="add-followup-callout-desc">
                 المنسق المتميز يقوم بتوثيق النشاط بشكل دوري ومستمر لتأكيد استمرارية العرض، ونظافة الستاند، وتوافر جميع الأصناف. كل جولة متابعة جديدة ترفع نقاط تقييمك العام لدى مدير التسويق.
               </p>
               <button type="button" class="btn btn-primary btn-add-followup-cta btn-trigger-followup" id="btn-add-followup-bottom">
                 <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-md" alt="" />
-                <span>📷 التقاط وإضافة متابعة جديدة (متابعة #${roundsCount + 1})</span>
+                <span>التقاط وإضافة متابعة جديدة (متابعة #${roundsCount + 1})</span>
               </button>
             </div>
           </div>
@@ -1145,7 +1212,7 @@ const user = AuthManager.checkAuthGuard();
             (Array.isArray(act.followUpHistory) && act.followUpHistory.some((s) => s.reviewStatus === 'Under Review' || s.sessionScore === null));
 
           if (hasPendingReview) {
-            alert('⚠️ لا يمكن اعتماد إنهاء النشاط:\n\nتوجد جولات متابعة أو تقييمات قيد المراجعة لم يتم فحصها واعتمادها بعد.\nيرجى مراجعة وتقييم النشاط أولاً قبل قبول إنهائه.');
+            alert('لا يمكن اعتماد إنهاء النشاط:\n\nتوجد جولات متابعة أو تقييمات قيد المراجعة لم يتم فحصها واعتمادها بعد.\nيرجى مراجعة وتقييم النشاط أولاً قبل قبول إنهائه.');
             return;
           }
 
@@ -1313,9 +1380,9 @@ const user = AuthManager.checkAuthGuard();
               telGps.parentElement.style.borderColor = '#fca5a5';
             }
             if (err.code === 1 || err.code === err.PERMISSION_DENIED) {
-              reject(new Error('❌ تم رفض إذن الوصول للموقع الجغرافي (Access Denied). لنظام أدكو الرقابي، يلزم منح صلاحية الـ GPS للتحقق من تواجدك داخل نطاق الفرع المسجل.'));
+              reject(new Error('تم رفض إذن الوصول للموقع الجغرافي (Access Denied). لنظام أدكو الرقابي، يلزم منح صلاحية الـ GPS للتحقق من تواجدك داخل نطاق الفرع المسجل.'));
             } else {
-              reject(new Error('❌ تعذر تحديد إحداثيات الـ GPS بدقة. يرجى تفعيل خدمة الموقع في هاتفك أو متصفحك والمحاولة مجدداً.'));
+              reject(new Error('تعذر تحديد إحداثيات الـ GPS بدقة. يرجى تفعيل خدمة الموقع في هاتفك أو متصفحك والمحاولة مجدداً.'));
             }
           },
           { enableHighAccuracy: true, timeout: 9000, maximumAge: 0 }
@@ -1382,6 +1449,37 @@ const user = AuthManager.checkAuthGuard();
         document.getElementById('fv-submit-time').textContent = formatDateTime(new Date());
         document.getElementById('fv-map-link').href = `https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`;
 
+        // Populate optional participating brands checklist (Task 3)
+        const brandsChecklist = document.getElementById('fv-brands-checklist');
+        const calcShareEl = document.getElementById('fv-calculated-share');
+        if (brandsChecklist) {
+          const availableBrands = (ADCO_CATALOGS && ADCO_CATALOGS.brands) || ['فلفيتا', 'فييا', 'كلوريل', 'ماكسيل', 'جلاسي', 'ديفا', 'فما'];
+          const currentActBrands = Array.isArray(currentAct.brands) ? currentAct.brands : [];
+          brandsChecklist.innerHTML = availableBrands.map((b) => {
+            const isChecked = currentActBrands.includes(b);
+            return `
+              <label style="display: flex; align-items: center; gap: 5px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-size: 0.76rem; cursor: pointer;">
+                <input type="checkbox" name="fv_brand_item" value="${b}" ${isChecked ? 'checked' : ''} style="accent-color: var(--adco-green-main);" />
+                <span>${b}</span>
+              </label>
+            `;
+          }).join('');
+
+          const updateCalcShare = () => {
+            const checked = Array.from(brandsChecklist.querySelectorAll('input[name="fv_brand_item"]:checked')).map((cb) => cb.value);
+            const count = Math.max(1, checked.length);
+            const shareVal = (1 / count).toFixed(2);
+            const sharePct = Math.round((1 / count) * 100);
+            if (calcShareEl) {
+              calcShareEl.textContent = `${shareVal} (${sharePct}%) — إجمالي ${count} علامة مختارة`;
+            }
+          };
+          brandsChecklist.querySelectorAll('input[name="fv_brand_item"]').forEach((cb) => {
+            cb.addEventListener('change', updateCalcShare);
+          });
+          updateCalcShare();
+        }
+
         // Requirement 1: Open verification modal with submit button
         followupVerifyModal.classList.add('active');
       } catch (err) {
@@ -1399,7 +1497,16 @@ const user = AuthManager.checkAuthGuard();
       btn.innerHTML = `<span>جاري الاعتماد والرفع...</span>`;
 
       try {
-        const result = await ActivityManager.addFollowUpPhotos(activityId, pendingFollowupBatch, user, pendingFollowupLocation);
+        let updatedProducts = null;
+        const brandsChecklist = document.getElementById('fv-brands-checklist');
+        if (brandsChecklist) {
+          const selectedBrands = Array.from(brandsChecklist.querySelectorAll('input[name="fv_brand_item"]:checked')).map((cb) => cb.value);
+          if (selectedBrands.length > 0) {
+            updatedProducts = selectedBrands.map((b) => ({ brand: b, skuItem: `منتجات ${b}` }));
+          }
+        }
+
+        const result = await ActivityManager.addFollowUpPhotos(activityId, pendingFollowupBatch, user, pendingFollowupLocation, updatedProducts);
         followupVerifyModal.classList.remove('active');
         document.getElementById('followup-camera-input').value = '';
         pendingFollowupBatch = null;

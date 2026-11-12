@@ -188,12 +188,13 @@
       uploader: session ? session.uploadedBy : act.coordinatorName
     };
 
+    const fallbackRetailPhoto = 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';
     const photoImg = document.getElementById('eval-photo-img');
     if (photoImg) {
-      photoImg.src = photoUrl || '../assets/images/fathalla-branch.svg';
+      photoImg.src = photoUrl || fallbackRetailPhoto;
       photoImg.onerror = () => {
         photoImg.onerror = null;
-        photoImg.src = '../assets/images/fathalla-branch.svg';
+        photoImg.src = fallbackRetailPhoto;
       };
     }
 
@@ -338,7 +339,8 @@
   const lightboxModal = document.getElementById('photo-lightbox');
   function openPhotoLightbox() {
     if (!lightboxModal) return;
-    document.getElementById('lb-image').src = currentEvaluatingMedia.photoUrl || '../assets/images/fathalla-branch.svg';
+    const fallbackRetailPhoto = 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';
+    document.getElementById('lb-image').src = currentEvaluatingMedia.photoUrl || fallbackRetailPhoto;
     document.getElementById('lb-round-title').textContent = currentEvaluatingMedia.title || act.client;
     document.getElementById('lb-timestamp').textContent = formatDateTime(currentEvaluatingMedia.timestamp);
     document.getElementById('lb-uploader').textContent = currentEvaluatingMedia.uploader || act.coordinatorName;

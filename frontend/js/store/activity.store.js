@@ -31,25 +31,24 @@
           }
         });
 
-        // Auto-heal Fathallah photo assets to reliable local SVG asset
+        // Upgrade legacy cartoon SVG placeholders to high-res realistic retail shelf photos
+        const realisticPhoto = 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';
         list.forEach((act) => {
-          if (act.client && (act.client.includes('فتح الله') || act.client.includes('Fathalla'))) {
-            if (!act.photoUrl || act.photoUrl.includes('unsplash.com') || act.photoUrl === '') {
-              act.photoUrl = '../assets/images/fathalla-branch.svg';
-              updated = true;
-            }
-            if (Array.isArray(act.followUpHistory)) {
-              act.followUpHistory.forEach((s) => {
-                if (Array.isArray(s.photos)) {
-                  s.photos.forEach((p) => {
-                    if (!p.photoUrl || p.photoUrl.includes('unsplash.com') || p.photoUrl === '') {
-                      p.photoUrl = '../assets/images/fathalla-branch.svg';
-                      updated = true;
-                    }
-                  });
-                }
-              });
-            }
+          if (!act.photoUrl || act.photoUrl.includes('fathalla-branch.svg')) {
+            act.photoUrl = realisticPhoto;
+            updated = true;
+          }
+          if (Array.isArray(act.followUpHistory)) {
+            act.followUpHistory.forEach((s) => {
+              if (Array.isArray(s.photos)) {
+                s.photos.forEach((p) => {
+                  if (!p.photoUrl || p.photoUrl.includes('fathalla-branch.svg')) {
+                    p.photoUrl = realisticPhoto;
+                    updated = true;
+                  }
+                });
+              }
+            });
           }
         });
 

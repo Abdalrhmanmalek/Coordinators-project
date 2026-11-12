@@ -403,7 +403,7 @@ All error responses from the backend follow this standardized JSON schema:
 * **Method & Path:** `POST /api/v1/activities/:id/follow-up`
 * **Target Backend File:** `src/modules/activities/activities.routes.ts` -> `ActivityController.addFollowUpRound`
 * **Required Role:** `COORDINATOR`, `COORDINATOR_SUPERVISOR`, `MARKETING_MANAGER`
-* **Description:** Appends a follow-up inspection round (Round #2, #3, ...) with new photos, EXIF data, and hardware GPS coordinates. Resets card status to `Under Review`.
+* **Description:** Appends a follow-up inspection round (Round #2, #3, ...) with new photos, EXIF data, hardware GPS coordinates, and optional modified participating brands/products. Resets card status to `Under Review`.
 * **Request Body DTO:**
   ```json
   {
@@ -420,7 +420,11 @@ All error responses from the backend follow this standardized JSON schema:
       "latitude": 31.2156,
       "longitude": 29.9553,
       "accuracy": 8
-    }
+    },
+    "products": [
+      { "brand": "فلفيتا", "skuItem": "معطر أقمشة مركز 1 لتر" },
+      { "brand": "فييا", "skuItem": "سائل غسيل أطباق 1 لتر" }
+    ]
   }
   ```
 * **Expected Response:**

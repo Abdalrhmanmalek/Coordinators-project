@@ -108,6 +108,32 @@ This master design guide defines the enterprise visual standards, clean light-mo
 * **Full-Screen Mobile Takeover (`<= 768px`):**
   * Opening any modal (`#review-modal`, `#activity-audit-modal`, `#timeline-modal`, `#product-picker-modal`, `#profile-modal`, etc.) takes over the **full screen** (`width: 100%`, `height: 100dvh`, `border-radius: 0`, `padding: 18px 16px`) instead of appearing as a cramped floating dialog box, ensuring breathing room for typography, smooth touch scrolling, and easy navigation back and forth.
 * **Desktop Outside-Click Dismissal (`initDesktopOutsideModalDismissal`):**
+  * Clicking outside modal contents on desktop dismisses the modal gracefully.
+
+### 2.10 External Card Architecture & Interactive Review Log
+* **External Card Simplification (Hide Supplying Branch Externally):**
+  * Outer Master Branch Cards (`master-branch-card.js`) and Activity Cards (`activity-card-item.js`) hide the Supplying Company Branch (`فرع الشركة المورد للبضاعة`). This detail is kept strictly inside internal detail views (`branch-details.html`, `activity-card.html`, `evaluation.html`) as secondary operational metadata.
+  * External cards prominently highlight **Activity Types / Display Mediums (`نوع النشاط / وسيلة العرض`)** and **Participating ADCO Brands (`العلامات التجارية المشاركة`)** using clean mint pills and outline badges.
+* **Unified Review Log & Per-Round 4-Criteria Breakdown (`activity-card.page.js`):**
+  * Clicking an activity card or its `سجل المراجعات` button opens a dedicated full-page view displaying the complete chronological Review & Follow-Up Log.
+  * Each follow-up round displays:
+    1. Round number, timestamp, submitted photo, and verified coordinator GPS location.
+    2. Numerical evaluation breakdown across the 4 official criteria:
+       * Approved New Activities: Max 40 points
+       * Execution Quality: Max 20 points
+       * Continuity Duration: Max 25 points
+       * Documentation & Data Accuracy: Max 15 points
+       Alongside the total round score (e.g. `94 / 100 نقطة`).
+    3. The Marketing Manager's written guidance and feedback note.
+    4. Active participating products and SKUs for that specific round.
+* **Streamlined "Add New Follow-Up" Submission & Brand Modification:**
+  * By default requires only 2 actions: capturing a new photo (720p client compressor) and live GPS location (Haversine proximity check $\le 150\text{m}$).
+  * An optional collapsible section `تعديل المنتجات والعلامات المشاركة (اختياري)` allows updating products and brands for that round, with automatic live recalculation of the $1/N$ brand share.
+* **Strict Zero Emojis Policy & High-Resolution Retail Photography:**
+  * Zero text emojis across HTML templates, JS components, buttons, and mock data. All icons are rendered via SVG vector assets (`frontend/assets/icons/`).
+  * Cartoon SVG placeholders (`fathalla-branch.svg`) are replaced with high-resolution realistic retail supermarket shelf, gondola, and podium photos from Unsplash.
+* **Sticky Navbar Offset Protection:**
+  * Top padding on `.web-main-workspace` and `.pwa-content` is configured to `calc(108px + env(safe-area-inset-top, 0px))` on desktop and `calc(88px + env(safe-area-inset-top, 0px))` on mobile, completely preventing header text clipping under the 86px floating navbar.
   * On desktop viewports, clicking anywhere outside the bounds of an active floating window automatically closes/dismisses it immediately without requiring manual interaction with the 'X' button.
 
 ### 2.10 Branch-Centric Activities & Glowing Under-Review Badges (`frontend/pages/dashboard.html` & `frontend/css/dashboard.css`)

@@ -117,8 +117,8 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 ### Reusable UI Components (`frontend/js/components/`)
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
-| `frontend/js/components/master-branch-card.js` | UI Component | Pure HTML template generator for Master Branch Cards with glowing "Under Review" badges and two-word names. |
-| `frontend/js/components/activity-card-item.js` | UI Component | Pure HTML template generator for branch-scoped activity cards and follow-up timelines. |
+| `frontend/js/components/master-branch-card.js` | UI Component | Pure HTML template generator for Master Branch Cards with glowing "Under Review" badges, two-word names, activity types & participating brands pills (supplying branch hidden externally). |
+| `frontend/js/components/activity-card-item.js` | UI Component | Pure HTML template generator for branch-scoped activity cards highlighting activity types & brands, supervisor guidance preview, and full review history link (supplying branch hidden externally). |
 | `frontend/js/components/combobox.js` | UI Component | Accessible, searchable dropdown combobox component for retail clients and branches. |
 | `frontend/js/components/navbar.js` | UI Component | Responsive website top navigation bar with dynamic 3-tier role link switching. |
 | `frontend/js/components/product-modal.js` | UI Component | 4-level cascading product picker modal (Brand → Main Group → Sub Group → Item/SKU). |

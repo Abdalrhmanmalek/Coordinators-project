@@ -197,6 +197,8 @@
           branch: branchName,
           client: act.client || 'فتح الله جملة ماركت (Fathalla)',
           supplyingBranch: act.coordinatorBranch || 'الإسكندرية - قطاع وسط',
+          activityTypes: new Set(),
+          brands: new Set(),
           coordinators: new Set(),
           supervisorName: act.reviewerName || (isCoordSup ? user.fullName : 'أيمن عبد الرحمن الروبي'),
           locationLabel: (act.location && act.location.address) ? act.location.address : branchName,
@@ -209,6 +211,11 @@
       }
       const entry = map[branchName];
       if (act.coordinatorName) entry.coordinators.add(act.coordinatorName);
+      if (act.activityType) entry.activityTypes.add(act.activityType);
+      else if (act.activity) entry.activityTypes.add(act.activity);
+      if (Array.isArray(act.brands)) {
+        act.brands.forEach((b) => b && entry.brands.add(b));
+      }
       entry.total += 1;
       if (act.isClosed) {
         entry.closed += 1;
@@ -229,6 +236,8 @@
         branch: defBranch,
         client: defClient,
         supplyingBranch: 'الإسكندرية - قطاع وسط',
+        activityTypes: new Set(['فرشة مجلة', 'جندولة']),
+        brands: new Set(['فلفيتا', 'فييا', 'كلوريل']),
         coordinators: new Set([user.fullName || 'أحمد محمود العبد']),
         supervisorName: 'أيمن عبد الرحمن الروبي',
         locationLabel: defBranch,

@@ -178,7 +178,7 @@ p {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: calc(92px + env(safe-area-inset-top, 0px)) calc(32px + env(safe-area-inset-right, 0px)) calc(48px + env(safe-area-inset-bottom, 0px)) calc(32px + env(safe-area-inset-left, 0px));
+  padding: calc(108px + env(safe-area-inset-top, 0px)) calc(32px + env(safe-area-inset-right, 0px)) calc(48px + env(safe-area-inset-bottom, 0px)) calc(32px + env(safe-area-inset-left, 0px));
   flex: 1;
   overflow: visible;
 }
@@ -186,6 +186,6 @@ p {
 @media (max-width: 768px) {
   .pwa-content,
   .web-main-workspace {
-    padding: calc(78px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px));
+    padding: calc(88px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px));
   }
 }

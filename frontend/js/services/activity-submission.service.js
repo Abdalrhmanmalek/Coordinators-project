@@ -132,7 +132,7 @@
     /**
      * Append Follow-up Photo Session (متابعة بالصور)
      */
-    static async addFollowUpPhotos(activityId, processedPhotos, user, location = null) {
+    static async addFollowUpPhotos(activityId, processedPhotos, user, location = null, updatedProducts = null) {
       await new Promise((r) => setTimeout(r, 300));
       const all = this.getAllActivities();
       const index = all.findIndex((a) => a.id === activityId);
@@ -181,6 +181,17 @@
         location: sessionLocation,
         photos: processedPhotos
       };
+
+      if (Array.isArray(updatedProducts) && updatedProducts.length > 0) {
+        newSession.products = updatedProducts;
+        act.products = updatedProducts;
+        const derivedBrands = [...new Set(updatedProducts.map((p) => (typeof p === 'object' ? p.brand : p)).filter(Boolean))];
+        if (derivedBrands.length > 0) {
+          act.brands = derivedBrands;
+          newSession.brands = derivedBrands;
+          act.skuVariant = updatedProducts.map((p) => (typeof p === 'object' ? p.skuItem || p.brand : p)).join(' / ');
+        }
+      }
 
       act.followUpHistory.push(newSession);
       act.roundsCount = act.followUpHistory.length;

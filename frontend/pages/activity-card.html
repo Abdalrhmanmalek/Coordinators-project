@@ -334,6 +334,28 @@
           </div>
         </div>
 
+        <!-- 3.5 Optional Update Participating Products (Task 3) -->
+        <details class="card" style="margin-bottom: 14px; border: 1px dashed var(--adco-green-border); background: #fcfdfd;" id="fv-products-accordion">
+          <summary style="padding: 10px 14px; font-weight: 700; color: var(--adco-green-deep); cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-xs" alt="" />
+              <span>تعديل المنتجات والعلامات المشاركة (اختياري)</span>
+            </div>
+            <span class="badge badge-mint" style="font-size: 0.72rem;">إذا تغيرت المعروضات</span>
+          </summary>
+          <div style="padding: 12px 14px; border-top: 1px solid var(--adco-gray-200);">
+            <p style="font-size: 0.78rem; color: var(--adco-gray-600); margin-bottom: 10px;">
+              حدد العلامات التجارية والأصناف المتواجدة حالياً على الستاند في هذه المتابعة. يتم تلقائياً إعادة حساب حصة العلامة (1/N):
+            </p>
+            <div id="fv-brands-checklist" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+              <!-- Populated dynamically with ADCO brands -->
+            </div>
+            <div id="fv-share-recalc-notice" style="font-size: 0.76rem; color: var(--adco-green-deep); font-weight: 600; background: rgba(15, 118, 110, 0.08); padding: 6px 10px; border-radius: 6px;">
+              حصة كل علامة تجارية في هذه المتابعة: <strong id="fv-calculated-share">1.00 (100%)</strong>
+            </div>
+          </div>
+        </details>
+
         <!-- 4. Explicit Action Buttons (Submit & Cancel - Requirement 1) -->
         <div class="ac-s66">
           <button type="button" id="btn-confirm-followup-submit" class="btn btn-primary ac-s67">

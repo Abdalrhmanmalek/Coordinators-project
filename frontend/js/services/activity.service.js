@@ -396,7 +396,7 @@ export class ActivityService {
     return all[idx];
   }
 
-  static async addFollowUpPhotos(activityId, photosBatch, user, location = null) {
+  static async addFollowUpPhotos(activityId, photosBatch, user, location = null, updatedProducts = null) {
     const all = this.getAllActivities();
     const idx = all.findIndex((a) => a.id === activityId);
     if (idx === -1) throw new Error('النشاط المطلوب غير موجود');
@@ -428,6 +428,17 @@ export class ActivityService {
       photos: photosBatch,
       location: location || act.location
     };
+
+    if (Array.isArray(updatedProducts) && updatedProducts.length > 0) {
+      newSession.products = updatedProducts;
+      act.products = updatedProducts;
+      const derivedBrands = [...new Set(updatedProducts.map((p) => (typeof p === 'object' ? p.brand : p)).filter(Boolean))];
+      if (derivedBrands.length > 0) {
+        act.brands = derivedBrands;
+        newSession.brands = derivedBrands;
+        act.skuVariant = updatedProducts.map((p) => (typeof p === 'object' ? p.skuItem || p.brand : p)).join(' / ');
+      }
+    }
 
     sessions.push(newSession);
     act.followUpHistory = sessions;

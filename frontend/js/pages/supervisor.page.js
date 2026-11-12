@@ -535,7 +535,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
 
                 <!-- Media row: Photo & Branch/Activity details -->
                 <div class="sp-card-media-row">
-                  <img src="${act.photoUrl}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl}" data-title="${act.client}" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.svg';" style="width:96px; height:96px; border-radius:12px; object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
+                  <img src="${act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80'}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl}" data-title="${act.client}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';" style="width:96px; height:96px; border-radius:12px; object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
                   <div class="sp-card-details-col">
                     <div class="sp-card-client-line">
                       <strong class="sp-card-client-title">${act.client}</strong>
@@ -612,7 +612,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
             (Array.isArray(act.followUpHistory) && act.followUpHistory.some((s) => s.reviewStatus === 'Under Review' || s.sessionScore === null));
 
           if (hasPendingReview) {
-            alert('⚠️ لا يمكن اعتماد إنهاء النشاط:\n\nتوجد جولات متابعة أو تقييمات قيد المراجعة لم يتم فحصها واعتمادها بعد.\n\nيرجى الضغط على زر "فحص وتقييم" واعتماد النشاط أولاً قبل قبول إنهائه.');
+            alert('لا يمكن اعتماد إنهاء النشاط:\n\nتوجد جولات متابعة أو تقييمات قيد المراجعة لم يتم فحصها واعتمادها بعد.\n\nيرجى الضغط على زر "فحص وتقييم" واعتماد النشاط أولاً قبل قبول إنهائه.');
             return;
           }
 
@@ -772,7 +772,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
       const fallbackUrl = act.photoUrl;
       revImg.onerror = () => {
         revImg.onerror = null;
-        revImg.src = '../assets/images/fathalla-branch.svg';
+        revImg.src = 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';
       };
       revImg.src = photoUrl || fallbackUrl;
       currentModalMedia.photoUrl = revImg.src;
