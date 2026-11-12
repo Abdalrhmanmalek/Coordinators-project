@@ -106,7 +106,19 @@
           map[cid].acceptedCount += 1;
         }
         map[cid].weightedScoresSum += stats.totalWeightedScore;
-        map[cid].totalScore = Math.round(map[cid].weightedScoresSum / map[cid].submissionsCount);
+      });
+
+      // Apply Bayesian Volume-Weighted Leaderboard Formula (docs/evaluation.md)
+      const m = 5; // Benchmark rounds
+      const C = 70; // Baseline prior score
+      Object.values(map).forEach((coord) => {
+        const N = coord.submissionsCount;
+        const rawAvg = N > 0 ? coord.weightedScoresSum / N : 0;
+        const weightedBase = ((N * rawAvg) + (m * C)) / (N + m);
+        const effortBonus = Math.min(5, Math.round(Math.log2(N + 1) * 1.25));
+        coord.rawAverage = Math.round(rawAvg);
+        coord.effortBonus = effortBonus;
+        coord.totalScore = Math.min(100, Math.max(0, Math.round(weightedBase + effortBonus)));
       });
 
       const rankingList = Object.values(map).sort((a, b) => b.totalScore - a.totalScore);

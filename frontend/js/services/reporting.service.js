@@ -132,7 +132,15 @@ export class ReportingService {
       const stats = ScoreCalculator.computeWeightedEvaluation(act);
       if (act.status === 'Accepted') map[cid].acceptedCount += 1;
       map[cid].weightedScoresSum += stats.totalWeightedScore;
-      map[cid].totalScore = Math.round(map[cid].weightedScoresSum / map[cid].submissionsCount);
+    });
+
+    // Apply Bayesian Volume-Weighted Leaderboard Formula (docs/evaluation.md)
+    Object.values(map).forEach((coord) => {
+      const rawAvg = coord.submissionsCount > 0 ? coord.weightedScoresSum / coord.submissionsCount : 0;
+      const bayesian = ScoreCalculator.calculateBayesianLeaderboardScore(coord.submissionsCount, rawAvg);
+      coord.rawAverage = Math.round(rawAvg);
+      coord.effortBonus = bayesian.effortBonus;
+      coord.totalScore = bayesian.finalScore;
     });
 
     const sorted = Object.values(map).sort((a, b) => b.totalScore - a.totalScore);

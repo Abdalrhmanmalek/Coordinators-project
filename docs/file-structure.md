@@ -23,6 +23,7 @@ All technical specifications, contracts, and style guides are centralized in `do
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
 | `docs/endpoints.md` | API Documentation | Comprehensive REST API endpoint contract, module routing, DTO request/response schemas, and HTTP status codes. |
+| `docs/evaluation.md` | Scoring Engine Spec | Technical specifications for 100-point evaluation breakdown (40/20/25/15), anti-cheat deduction rules, Bayesian volume-weighted leaderboard formula, and multi-round review log schema. |
 | `docs/file-structure.md` | Inventory Report | Complete workspace inventory, directory architecture, and active file responsibility mapping. |
 | `docs/system-architecture.md` | Architecture Spec | Detailed technical specifications for 3-tier RBAC, data flows, and PostgreSQL 16 schema. |
 | `docs/ui-ux-design-guide.md` | Design System | Enterprise visual identity, color tokens, typography scales, and accessibility standards. |
@@ -156,7 +157,7 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 | `frontend/js/utils/gps-proximity.util.js` | Domain Util | Haversine distance calculator, GPS coordinate parsing, and $\le 150\text{ m}$ proximity validator. |
 | `frontend/js/utils/brand-share.util.js` | Domain Util | $1/N$ multi-brand row multiplication and proportional brand share calculations. |
 | `frontend/js/utils/score.util.js` | Domain Util | 100-point weighted evaluation calculations and coordinator leaderboard ranking. |
-| `frontend/js/utils/score-calculator.js` | Domain Util | Calculates weighted evaluation scores (New Activity, Quality, Continuity, Documentation). |
+| `frontend/js/utils/score-calculator.js` | Domain Util | Calculates 100-point weighted evaluation scores (40/20/25/15), anti-cheat deductions, and Bayesian volume-weighted leaderboard rankings. |
 | `frontend/js/utils/camera-compressor.js` | Media Util | Consolidated authoritative 720p image compression, EXIF extraction, and SHA-256 byte hashing. |
 | `frontend/js/utils/camera-compressor.esm.js` | Media Util (ESM) | ES Module bridge for camera compressor. |
 | `frontend/js/utils/validators.js` | Validation Util | Input validation, phone number formatting, and password complexity regex checkers. |
