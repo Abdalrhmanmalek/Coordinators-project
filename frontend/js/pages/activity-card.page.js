@@ -712,6 +712,138 @@ const user = AuthManager.checkAuthGuard();
       const brandCount = Array.isArray(act.brands) && act.brands.length > 0 ? act.brands.length : 1;
       const brandShareVal = (1 / brandCount).toFixed(2);
 
+      const sessions = Array.isArray(act.followUpHistory) && act.followUpHistory.length > 0 
+        ? act.followUpHistory 
+        : [{
+            roundNumber: 1,
+            roundTitle: 'التوثيق التأسيسي (جولة 1)',
+            timestamp: act.timestamp || new Date().toISOString(),
+            uploadedBy: act.coordinatorName || 'المنسق',
+            uploadedById: act.coordinatorId || 'ADCO',
+            reviewStatus: act.status || 'Under Review',
+            sessionScore: act.supervisorScore || null,
+            sessionNotes: act.supervisorNotes || '',
+            reviewerName: act.reviewerName || 'مدير التسويق',
+            reviewedAt: act.reviewedAt || null,
+            photos: act.initialPhotos || [{ photoUrl: act.photoUrl, sizeKb: 180, width: 1280, height: 720 }]
+          }];
+
+      const reviewsFeedHtml = `
+        <div class="reviews-feed-container" id="reviews-feed-section">
+          <div class="reviews-feed-header">
+            <div>
+              <h3 class="reviews-feed-title">
+                <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-md" alt="" />
+                <span>سجل المراجعات وتوجيهات مدير التسويق (${sessions.length} جولات)</span>
+              </h3>
+              <p class="reviews-feed-subtitle">
+                توجيهات وملاحظات إدارة التسويق المباشرة للمنسق لتحسين ترتيب المعروضات ورفع جودة التنسيق الميداني
+              </p>
+            </div>
+            <span class="badge badge-mint" style="font-weight: 700;">
+              ${sessions.length} ${sessions.length === 1 ? 'جولة توثيق' : 'جولات توثيق'}
+            </span>
+          </div>
+
+          <div class="reviews-feed-list">
+            ${sessions.map((s, sIdx) => {
+              const isPending = !s.sessionScore && (s.reviewStatus === 'Under Review' || !s.reviewStatus);
+              const sReviewer = s.reviewerName || act.reviewerName || 'أ. محمد الديب - مدير التسويق';
+              const sScoreDisplay = s.sessionScore !== null && s.sessionScore !== undefined 
+                ? `${s.sessionScore} / 10` 
+                : 'قيد التقييم';
+
+              return `
+                <div class="review-round-card">
+                  <div class="review-round-top">
+                    <div>
+                      <div class="review-round-heading">
+                        <span style="color: var(--adco-green-main);">#${s.roundNumber || (sIdx + 1)}</span>
+                        <span>${s.roundTitle || `متابعة رقم ${sIdx + 1}`}</span>
+                      </div>
+                      <div class="review-round-meta">
+                        <span>تم الرفع بواسطة: <strong>${s.uploadedBy || act.coordinatorName}</strong></span>
+                        <span>•</span>
+                        <span dir="ltr">${formatDateTime(s.timestamp)}</span>
+                      </div>
+                      ${s.location ? `
+                        <div class="review-round-gps">
+                          <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                          <span>موقع الهاتف GPS: ${s.location.latitude}&deg; N, ${s.location.longitude}&deg; E (نطاق معتمد &le; 150م)</span>
+                        </div>
+                      ` : ''}
+                    </div>
+
+                    <div style="text-align: left; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                      ${renderStatusBadge(s.reviewStatus || act.status)}
+                      ${s.sessionScore !== null && s.sessionScore !== undefined ? `
+                        <span class="badge badge-warning" style="font-size: 0.76rem; font-weight: 800;">
+                          ⭐ التقييم: ${sScoreDisplay}
+                        </span>
+                      ` : ''}
+                    </div>
+                  </div>
+
+                  <!-- Photos Gallery for this round -->
+                  <div style="margin-top: 10px;">
+                    <div style="font-size: 0.75rem; color: var(--adco-gray-600); margin-bottom: 6px; font-weight: 600;">
+                      الصور المرفوعة في هذه الجولة (${(s.photos || []).length} صورة — اضغط للتكبير):
+                    </div>
+                    <div class="timeline-thumbs-grid">
+                      ${(s.photos || []).map((p, pIdx) => `
+                        <div class="timeline-thumb-item inline-review-thumb" data-sidx="${sIdx}" data-pidx="${pIdx}" title="اضغط لتكبير الصورة">
+                          <img src="${p.photoUrl || act.photoUrl}" alt="${s.roundTitle}" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.svg';" />
+                          <span class="timeline-thumb-zoom">${p.sizeKb || 180}KB</span>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+
+                  <!-- Marketing Manager Feedback / Notes Box -->
+                  <div class="review-supervisor-bubble ${isPending ? 'is-pending' : ''}">
+                    <div class="review-bubble-header">
+                      <span class="review-bubble-title">
+                        <img src="../assets/icons/${isPending ? 'clock' : 'clipboard-edit'}.svg" class="ui-icon ui-icon-xs" alt="" />
+                        <span>${isPending ? 'حالة التقييم والتوجيه:' : 'توجيهات مدير التسويق للمنسق:'}</span>
+                      </span>
+                      <div class="review-bubble-meta">
+                        <span class="feedback-reviewer-name">${sReviewer}</span>
+                        ${s.reviewedAt ? `<span dir="ltr">(${formatDateTime(s.reviewedAt)})</span>` : ''}
+                      </div>
+                    </div>
+
+                    ${isPending ? `
+                      <p class="review-bubble-pending-text">
+                        ⏳ هذه الجولة بانتظار فحص واعتماد مدير التسويق. سيتم تحديث التقييم وتوجيهات التحسين فور مراجعتها.
+                      </p>
+                    ` : `
+                      <p class="review-bubble-notes">
+                        "${s.sessionNotes || act.supervisorNotes || 'تم فحص وترتيب العرض، والتأكد من مطابقة المعايير الميدانية المعتمدة.'}"
+                      </p>
+                    `}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Callout: Add Follow-up Photo (Directly below reviews) -->
+          <div class="add-followup-callout">
+            <div class="add-followup-callout-inner">
+              <div class="add-followup-callout-icon">📷</div>
+              <h4 class="add-followup-callout-title">إضافة متابعة ميدانية جديدة بالصور (متابعة #${roundsCount + 1})</h4>
+              <p class="add-followup-callout-desc">
+                المنسق المتميز يقوم بتوثيق النشاط بشكل دوري ومستمر لتأكيد استمرارية العرض، ونظافة الستاند، وتوافر جميع الأصناف. كل جولة متابعة جديدة ترفع نقاط تقييمك العام لدى مدير التسويق.
+              </p>
+              <button type="button" class="btn btn-primary btn-add-followup-cta btn-trigger-followup" id="btn-add-followup-bottom">
+                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-md" alt="" />
+                <span>📷 التقاط وإضافة متابعة جديدة (متابعة #${roundsCount + 1})</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
       document.getElementById('detail-card-mount').innerHTML = `
         <div class="activity-workspace-grid">
           <!-- Right: Metadata & History -->
@@ -730,14 +862,14 @@ const user = AuthManager.checkAuthGuard();
             <h2 style="margin-bottom: 6px;">${act.client}</h2>
             <div style="font-size: 0.8rem; color: var(--adco-gray-600); margin-bottom: 16px;">كود البطاقة: ${act.id}</div>
 
-            <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-              <button type="button" class="btn btn-primary btn-sm" id="btn-add-followup">
+            <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-primary btn-sm btn-trigger-followup" id="btn-add-followup-top">
                 <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-sm" alt="" />
                 <span>إضافة متابعة بالصور (متابعة #${roundsCount + 1})</span>
               </button>
               <button type="button" class="btn btn-secondary btn-sm" id="btn-open-timeline">
                 <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-sm" alt="" />
-                <span>سجل المتابعات (${roundsCount})</span>
+                <span>سجل المراجعات والتوجيهات (${roundsCount})</span>
               </button>
             </div>
 
@@ -766,6 +898,9 @@ const user = AuthManager.checkAuthGuard();
               <span>تاريخ وتوقيت انتهاء النشاط:</span>
               <strong dir="ltr">${act.endDate || (act.closedAt ? formatDateTime(act.closedAt) : '<span class="badge badge-mint" style="font-size:0.75rem;">نشط ومستمر (لم ينتهِ بعد)</span>')}</strong>
             </div>
+
+            <!-- INLINE REVIEWS & MARKETING GUIDANCE SECTION -->
+            ${reviewsFeedHtml}
 
             <!-- Official Evaluation Criteria Breakdown (100 Points) -->
             <div class="card" style="margin-top: 16px; background: #f8fafc; border: 1.5px solid var(--adco-green-border); padding: 16px;">
@@ -936,14 +1071,35 @@ const user = AuthManager.checkAuthGuard();
       `;
 
       const followupInput = document.getElementById('followup-camera-input');
-      document.getElementById('btn-add-followup').addEventListener('click', () => {
-        followupInput.value = '';
-        followupInput.click();
+      document.querySelectorAll('.btn-trigger-followup, #btn-add-followup, #btn-add-followup-top, #btn-add-followup-bottom').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          followupInput.value = '';
+          followupInput.click();
+        });
       });
 
-      document.getElementById('btn-open-timeline').addEventListener('click', () => {
-        renderTimelineModal(act);
-        timelineModal.classList.add('active');
+      const openTimelineBtn = document.getElementById('btn-open-timeline');
+      if (openTimelineBtn) {
+        openTimelineBtn.addEventListener('click', () => {
+          const revSec = document.getElementById('reviews-feed-section');
+          if (revSec) {
+            revSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            renderTimelineModal(act);
+            timelineModal.classList.add('active');
+          }
+        });
+      }
+
+      // Inline review thumbnails click to open lightbox
+      document.querySelectorAll('.inline-review-thumb').forEach((thumb) => {
+        thumb.addEventListener('click', () => {
+          const sIdx = Number(thumb.dataset.sidx);
+          const pIdx = Number(thumb.dataset.pidx);
+          if (sessions[sIdx] && sessions[sIdx].photos && sessions[sIdx].photos[pIdx]) {
+            openLightbox(sessions[sIdx].photos[pIdx], sessions[sIdx]);
+          }
+        });
       });
 
       const mainHeroImg = document.getElementById('main-card-hero-img');
@@ -1059,6 +1215,20 @@ const user = AuthManager.checkAuthGuard();
 
     if (activityId) {
       renderActivityDetailView(activityId);
+
+      // Automatic trigger if navigated with ?action=followup (from outside branch card button)
+      if (params.get('action') === 'followup') {
+        setTimeout(() => {
+          const followupInput = document.getElementById('followup-camera-input');
+          if (followupInput) {
+            followupInput.value = '';
+            followupInput.click();
+            if (typeof showToast === 'function') {
+              showToast('يرجى التقاط أو اختيار صورة المتابعة الجديدة للنشاط', 'info');
+            }
+          }
+        }, 450);
+      }
     } else {
       const detailSec = document.getElementById('detail-view-section');
       const createSec = document.getElementById('create-form-section');

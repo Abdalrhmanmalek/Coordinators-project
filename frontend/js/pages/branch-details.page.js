@@ -286,9 +286,28 @@
         const actSupplying = act.coordinatorBranch || supplyingBranch;
         const actSupervisor = act.reviewerName || supervisorName;
         const locAddress = (act.location && act.location.address) ? act.location.address : act.branch;
+        const roundsCount = act.followUpHistory ? act.followUpHistory.length : 1;
+
+        // Extract latest supervisor / marketing manager note
+        let latestNotes = '';
+        let latestReviewer = act.reviewerName || actSupervisor || 'مدير التسويق';
+        if (Array.isArray(act.followUpHistory) && act.followUpHistory.length > 0) {
+          for (let i = act.followUpHistory.length - 1; i >= 0; i--) {
+            if (act.followUpHistory[i].sessionNotes && act.followUpHistory[i].sessionNotes.trim()) {
+              latestNotes = act.followUpHistory[i].sessionNotes.trim();
+              if (act.followUpHistory[i].reviewerName) {
+                latestReviewer = act.followUpHistory[i].reviewerName;
+              }
+              break;
+            }
+          }
+        }
+        if (!latestNotes && act.supervisorNotes && act.supervisorNotes.trim()) {
+          latestNotes = act.supervisorNotes.trim();
+        }
 
         return `
-          <a href="./activity-card.html?id=${act.id}" class="activity-card-item">
+          <div class="activity-card-item" data-act-id="${act.id}" role="button" tabindex="0" style="cursor: pointer;">
             <div class="activity-card-head">
               <img src="${act.photoUrl}" alt="${act.client}" class="activity-card-thumb" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.svg';" />
               <div class="db-s17">
@@ -327,7 +346,28 @@
               </div>
             </div>
 
-            <div class="db-s23">
+            <!-- Marketing Manager Feedback Preview -->
+            ${latestNotes ? `
+              <div class="branch-card-feedback-preview">
+                <div class="feedback-preview-header">
+                  <span class="feedback-badge-label">
+                    <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-xs" alt="" />
+                    <span>توجيهات مدير التسويق:</span>
+                  </span>
+                  <span class="feedback-reviewer-name">${latestReviewer}</span>
+                </div>
+                <p class="feedback-preview-text">"${latestNotes}"</p>
+              </div>
+            ` : `
+              <div class="branch-card-feedback-preview feedback-pending">
+                <span class="feedback-badge-label">
+                  <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <span>بانتظار مراجعة وتوجيهات مدير التسويق للجولات المرفوعة</span>
+                </span>
+              </div>
+            `}
+
+            <div class="db-s23" style="margin-top: 10px;">
               <span class="badge badge-warning db-s24">
                 <img src="../assets/icons/star.svg" class="ui-icon ui-icon-sm" alt="" />
                 <span>التقييم: ${ratingStats.totalWeightedScore}/100</span>
@@ -336,10 +376,59 @@
                 ${ratingStats.totalSessions} ${ratingStats.totalSessions === 1 ? 'جولة متابعة' : 'جولات متابعة'}
               </span>
             </div>
-          </a>
+
+            <!-- Direct Quick Action Buttons (Outside Card Button) -->
+            <div class="activity-card-action-bar">
+              <button type="button" class="btn btn-secondary btn-sm btn-open-card-details" data-act-id="${act.id}">
+                <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>سجل المراجعات (${roundsCount})</span>
+              </button>
+              <button type="button" class="btn btn-primary btn-sm btn-quick-add-photo" data-act-id="${act.id}" title="رفع صورة متابعة جديدة لهذا النشاط">
+                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
+                <span>إضافة صورة 📷</span>
+              </button>
+            </div>
+          </div>
         `;
       })
       .join('');
+
+    // Attach card click handlers with delegation
+    container.querySelectorAll('.activity-card-item').forEach((card) => {
+      const actId = card.dataset.actId;
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.activity-card-action-bar')) return;
+        window.location.href = `./activity-card.html?id=${actId}`;
+      });
+
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (e.target.closest('.activity-card-action-bar')) return;
+          e.preventDefault();
+          window.location.href = `./activity-card.html?id=${actId}`;
+        }
+      });
+    });
+
+    // Attach "إضافة صورة" quick button handlers
+    container.querySelectorAll('.btn-quick-add-photo').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const actId = btn.dataset.actId;
+        window.location.href = `./activity-card.html?id=${actId}&action=followup`;
+      });
+    });
+
+    // Attach "سجل المراجعات" button handlers
+    container.querySelectorAll('.btn-open-card-details').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const actId = btn.dataset.actId;
+        window.location.href = `./activity-card.html?id=${actId}`;
+      });
+    });
   }
 
   document.querySelectorAll('.filter-chip').forEach((btn) => {
