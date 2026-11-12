@@ -53,6 +53,7 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 | `frontend/css/auth.css` | Authentication UI | Pastel mint/teal light backdrop, floating white auth card, and 3-tier fast login switcher. |
 | `frontend/css/dashboard.css` | Operational Feed | KPI metric cards, Master Branch Cards (`فرع الشركة المورد للبضاعة`), interactive status counters, and activity cards. |
 | `frontend/css/activity.css` | Activity Creator | Responsive 4-level cascading product selector, sticky camera dropzone, and timeline styles. |
+| `frontend/css/activity-details.css` | Activity Details | Standalone activity view, multi-round review log timeline (4-criteria scorecard & manager notes), and integrated follow-up submission. |
 | `frontend/css/sheets.css` | Data Table | Full-bleed spreadsheet grid, multi-parameter filter bar, and brand share pills. |
 | `frontend/css/supervisor.css` | Evaluation UI | Master Branch Overview cards, interactive status counters, 100-point scoring form, and review modal. |
 | `frontend/css/analytics.css` | Intelligence / BI | Circular SVG progress rings, smooth SVG wave/area chart, vertical column bar charts, and horizontal progress bars. |
@@ -73,6 +74,7 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 | `frontend/pages/branch-details.html` | Operations View | Dedicated branch view displaying full branch metadata, clickable Google Maps location link, advanced activity filters (Type, Date/Time, Status), and branch-scoped activities. |
 | `frontend/pages/evaluation.html` | Review View | Dedicated standalone full-screen supervisor evaluation and scoring page (immune to swipe dismissal, F5 refresh persistent, zero text clashing). |
 | `frontend/pages/activity-card.html` | Operations View | Activity card creation with dynamic database-bound read-only Supplying Branch (`فرع الشركة المورد للبضاعة`), 4-level cascading product picker, and camera dropzone. |
+| `frontend/pages/activity-details.html` | Review & Operations | Dedicated standalone activity view with full metadata (supplying branch, activity type, participating brands), chronological Review Log (4-criteria breakdown & manager notes), and integrated follow-up round submission. |
 | `frontend/pages/sheets-view.html` | Reporting View | $1/N$ multi-brand live Google Sheets spreadsheet view with instant Excel (.CSV) export. |
 | `frontend/pages/supervisor-panel.html` | Management View | 100-point evaluation scoring panel, review workflow, and completion approval module. |
 | `frontend/pages/analytics.html` | Intelligence View | Enterprise analytics workspace featuring Power BI integration and KPI trends. |
@@ -144,6 +146,7 @@ All HTML files are decoupled from inline styles, loading modular CSS files from 
 | `frontend/js/pages/branch-details.page.js` | Controller | Dedicated controller for `branch-details.html` showing full branch metadata and branch-filtered activities. |
 | `frontend/js/pages/evaluation.page.js` | Controller | Dedicated controller for standalone `evaluation.html` with 3-section ordering and 100-point criteria scoring. |
 | `frontend/js/pages/activity-card.page.js` | Controller | Coordinates activity creation form, live camera capture, and follow-up rounds. |
+| `frontend/js/pages/activity-details.page.js` | Controller | Manages standalone activity details view, chronological review log rendering (4-criteria scorecard & manager notes), and new follow-up round submissions. |
 | `frontend/js/pages/sheets.page.js` | Controller | Handles the multi-brand spreadsheet view, filtering, and Excel (.CSV) export. |
 | `frontend/js/pages/supervisor.page.js` | Controller | Controls the supervisor management dashboard and navigation to evaluation pages. |
 | `frontend/js/pages/analytics.page.js` | Controller | Manages the Power BI analytics embed view and metric KPI calculations. |

@@ -1,9 +1,10 @@
-const CACHE_NAME = 'adco-field-cache-v6';
+const CACHE_NAME = 'adco-field-cache-v7';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './css/styles.css',
   './css/mobile-pwa.css',
+  './css/activity-details.css',
   './assets/ADCO-logo.png',
   './js/config/env.config.js',
   './js/config/adco-catalogs.config.js',
@@ -30,6 +31,8 @@ const ASSETS_TO_CACHE = [
   './pages/signup-wizard.html',
   './pages/dashboard.html',
   './pages/activity-card.html',
+  './pages/activity-details.html',
+  './js/pages/activity-details.page.js',
   './pages/leaderboard.html',
   './pages/supervisor-panel.html',
   './pages/sheets-view.html',

@@ -175,16 +175,15 @@ This master design guide defines the enterprise visual standards, clean light-mo
   * Small Mobile (`<= 480px`): Compact `0.60rem` / `0.52rem`, min-height `22px`.
   * Guarantees crystal-clear readability for all 8 official ADCO brand columns and display types with zero overlap or truncation.
 
-### 2.15 Leaderboard Podium Hierarchy & Responsive Mobile Ordering (`frontend/css/leaderboard.css` & `frontend/js/pages/leaderboard.page.js`)
-* **3-Tier Stepped Podium Layout (Desktop):**
-  * **1st Place (المركز الأول):** Positioned directly in the center (`order: 2`), elevated with highest card level (`height: 360px`, `top: -16px`), gold border (`#f59e0b`), gold drop shadow, gold rank badge, and a 52px tall gold pedestal base marked "1".
-  * **2nd Place (المركز الثاني):** Positioned on the right in RTL (`order: 1`), middle height level (`height: 300px`, `top: -4px`), silver border (`#cbd5e1`), silver rank badge, and a 40px silver pedestal base marked "2".
-  * **3rd Place (المركز الثالث):** Positioned on the left in RTL (`order: 3`), base/lowest height level (`height: 250px`, `top: 0`), warm bronze border (`#fed7aa`), bronze rank badge, and a 28px bronze pedestal base marked "3".
-  * Cards are anchored along `align-items: flex-end` so that all pedestals share a common baseline floor, producing an unmistakable 2-1-3 athletic championship stepped silhouette.
-* **Foolproof Mobile Stacking (<= 768px):**
-  * Cards stack vertically (`flex-direction: column !important; width: 100% !important; height: auto !important; top: 0 !important;`).
-  * Explicit ordering guarantees 1st Place is anchored at the top (`order: 1 !important;`), followed by 2nd Place (`order: 2 !important;`), and 3rd Place (`order: 3 !important;`), reinforced by natural DOM sequence `[top3[0], top3[1], top3[2]]`.
-  * Staggered slide-up box animation (`.podium-wrap > *:nth-child(...)`) integrated smoothly into entrance transitions.
+### 2.15 Leaderboard Mobile Spotlight Podium & Trend Indicators (`frontend/css/leaderboard.css` & `frontend/js/pages/leaderboard.page.js`)
+* **Redesigned Mobile Spotlight Podium (<= 768px):**
+  * **1st Place Gold Card (المركز الأول):** Spans full width (`grid-column: 1 / -1; order: 1`) at the top of the mobile screen with a gold gradient border (`#f59e0b`), warm gold radial gradient backdrop, and prominent score pill.
+  * **2nd & 3rd Place Cards (المركز الثاني والثالث):** Positioned side-by-side in a balanced 2-column grid directly underneath (`grid-template-columns: repeat(2, minmax(0, 1fr))`), compact, symmetrical, and easy to scan with zero horizontal overflow.
+* **Removal of Letter Avatars:** Circular avatar badges with coordinator initials are completely removed, focusing attention on the name, branch, rank number, and trend badge.
+* **Rank Trend Indicators:**
+  * **Moved Up (صعود):** Green upward arrow SVG (`#10b981` text/icon with soft `#ecfdf5` pill background, e.g., `+2`).
+  * **Moved Down (هبوط):** Red downward arrow SVG (`#ef4444` text/icon with soft `#fef2f2` pill background, e.g., `-1`).
+  * **No Change (ثبات):** Slate horizontal dash/line SVG (`#64748b` with `#f1f5f9` background).
 
 ### 2.16 Mobile Branch Header Hierarchy, Glowing Pulse Indicator & Two-Word Coordinator Formatting
 * **Mobile Branch Header Sequence (`.bd-hero-card-header`):**
@@ -198,3 +197,14 @@ This master design guide defines the enterprise visual standards, clean light-mo
   * Emits an attention-grabbing amber glow (`rgba(245, 158, 11, 0.7)`), 1.8s smooth pulse animation, and bold `#b45309` typography.
 * **Two-Word Coordinator Name Formatting (`UIHelpers.formatTwoWordName`):**
   * On all external master branch cards and list views, coordinator names are truncated strictly to First and Last Name (اسم ثنائي - e.g. "أحمد العبد" instead of "أحمد محمود العبد"), while smartly preserving compound prefixes (e.g. "عبد الرحمن", "عبد العزيز") and handling multi-coordinator comma-separated lists.
+
+### 2.17 Compact Mobile KPI Summary Bars (`frontend/css/dashboard.css` & `frontend/css/mobile-pwa.css`)
+* **2+1 Mobile Summary Grid (<= 768px):**
+  * Top 3 KPI metric cards reconfigure into a compact 2+1 grid on mobile screens (first 2 metrics side-by-side on row 1, and the 3rd metric spanning full width horizontally underneath), reducing mobile scroll time significantly.
+
+### 2.18 Ultra-Light Transitions & Scrollbar Stabilization (`frontend/css/base.css`, `frontend/css/enhancements.css`, `frontend/js/app.js`)
+* **Stable Scrollbar Track:** `html { overflow-y: scroll; scrollbar-gutter: stable; overflow-x: hidden; }` locks the vertical scrollbar track to eliminate page layout shift and pop-in second scrollbars during navigation.
+* **Instant GPU-Accelerated Opacity Fade:** 120ms ease-out opacity transition without vertical transform shifts provides instantaneous page transitions.
+
+### 2.19 Dedicated Activity Details & Follow-Up View (`frontend/pages/activity-details.html`)
+* **Internal View Architecture:** Standalone full-page view navigated to by clicking any activity card, rendering the Supplying Branch Sector (`فرع الشركة المورد للبضاعة`), chronological Review Log with 4-criteria scorecards and manager guidance, and integrated live camera follow-up submission.

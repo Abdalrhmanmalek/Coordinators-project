@@ -195,20 +195,55 @@
   flex: 1;
 }
 
-.top-card-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
-  color: #ffffff;
-  font-size: 1.1rem;
-  font-weight: 800;
+.top-card-rank-indicator {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.2);
-  border: 2px solid #ffffff;
+  gap: 4px;
   flex-shrink: 0;
+}
+
+.top-card-rank-num {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--adco-green-deep, #0f766e);
+  line-height: 1;
+}
+
+.top-card-avatar {
+  display: none;
+}
+
+/* Rank Movement Trend Indicators */
+.rank-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.rank-trend.trend-up {
+  color: #10b981;
+  background: #ecfdf5;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.rank-trend.trend-down {
+  color: #ef4444;
+  background: #fef2f2;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.rank-trend.trend-same {
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
 }
 
 .top-card-meta {
@@ -353,8 +388,10 @@
 /* Cell Elements */
 .cell-rank {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
 }
 
 .rank-circle {
@@ -383,18 +420,7 @@
 }
 
 .user-avatar-sm {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  color: #0f766e;
-  font-size: 0.88rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #cbd5e1;
-  flex-shrink: 0;
+  display: none;
 }
 
 .user-info-sm {
@@ -445,13 +471,111 @@
   font-weight: 800;
 }
 
+/* Points Progress & Pill */
+.cell-points-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.score-pill-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.score-main-val {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0f766e;
+}
+
+.score-total-max {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.points-progress-track {
+  width: 100%;
+  max-width: 80px;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.points-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #0f766e 100%);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
 /* ---------------------------------------------------------
    4. RESPONSIVE MEDIA QUERIES (Mobile & Tablet)
    --------------------------------------------------------- */
-@media (max-width: 960px) {
+@media (max-width: 960px) and (min-width: 769px) {
   .top-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+/* Brand-New Mobile Spotlight Podium (Max-Width 768px) */
+@media (max-width: 768px) {
+  .top-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  /* 1st Place Gold Card: Spans full width at top with spotlight glow */
+  .top-card.rank-1 {
+    grid-column: 1 / -1 !important;
+    order: 1 !important;
+    border: 1.5px solid #f59e0b !important;
+    background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%) !important;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.15) !important;
+  }
+
+  /* 2nd & 3rd Place Cards: Balanced 2-column grid directly underneath */
+  .top-card.rank-2 {
+    grid-column: 1 / 2 !important;
+    order: 2 !important;
+    border: 1px solid #cbd5e1 !important;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%) !important;
+  }
+
+  .top-card.rank-3 {
+    grid-column: 2 / 3 !important;
+    order: 3 !important;
+    border: 1px solid #fed7aa !important;
+    background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%) !important;
+  }
+
+  .top-card {
+    padding: 14px !important;
+  }
+
+  .top-card-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding-top: 10px !important;
+    margin-top: 10px !important;
+  }
+
+  .top-stat-item {
+    padding: 6px 8px !important;
+  }
+
+  .top-stat-label {
+    font-size: 0.68rem !important;
+  }
+
+  .top-stat-val {
+    font-size: 0.88rem !important;
   }
 
   .ranking-table-head {

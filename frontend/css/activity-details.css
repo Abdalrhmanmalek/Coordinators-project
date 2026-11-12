@@ -1,0 +1,533 @@
+/* =========================================================
+   activity-details.css
+   ADCO Field Operations Platform — Standalone Activity View,
+   Multi-Round Review Log & Integrated Follow-Up Submission
+   Corporate Soft Teal Palette (#0f766e) & Clean Light Mode
+   ========================================================= */
+
+.ad-workspace {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-top: calc(108px + env(safe-area-inset-top, 0px));
+  padding-right: 20px;
+  padding-bottom: 60px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .ad-workspace {
+    padding-top: calc(88px + env(safe-area-inset-top, 0px));
+    padding-right: 14px;
+    padding-left: 14px;
+    padding-bottom: 40px;
+    gap: 18px;
+  }
+}
+
+/* Header & Breadcrumb */
+.ad-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 4px;
+}
+
+.ad-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ad-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--adco-gray-900);
+  line-height: 1.25;
+  margin: 0;
+}
+
+.ad-subtitle {
+  font-size: 0.92rem;
+  color: var(--adco-gray-600);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ad-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Hero Metadata Card */
+.ad-hero-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .ad-hero-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+}
+
+.ad-hero-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ad-hero-img-wrap {
+  width: 100%;
+  height: 220px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  position: relative;
+  cursor: pointer;
+}
+
+.ad-hero-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.ad-hero-img-wrap:hover img {
+  transform: scale(1.03);
+}
+
+.ad-hero-zoom-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(15, 23, 42, 0.75);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  backdrop-filter: blur(4px);
+}
+
+.ad-hero-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ad-hero-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ad-supplying-sector-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #166534;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ad-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.ad-meta-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ad-meta-label {
+  font-size: 0.76rem;
+  color: #64748b;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ad-meta-val {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--adco-gray-900);
+}
+
+/* Brands & SKUs Pills */
+.ad-brands-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ad-brand-pill {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ad-sku-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ad-sku-item {
+  font-size: 0.84rem;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ad-sku-item::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--adco-green-main);
+  flex-shrink: 0;
+}
+
+/* Tabs & Sections */
+.ad-section-title-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.ad-section-heading {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--adco-gray-900);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+/* Review Log & Follow-up Timeline */
+.ad-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ad-round-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ad-round-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-md);
+}
+
+.ad-round-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ad-round-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ad-round-number-badge {
+  background: var(--adco-green-soft);
+  color: var(--adco-green-deep);
+  border: 1px solid var(--adco-green-border);
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.ad-round-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--adco-gray-900);
+  margin: 0;
+}
+
+.ad-round-body-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .ad-round-body-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.ad-round-photo-wrap {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  position: relative;
+  cursor: pointer;
+}
+
+.ad-round-photo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ad-round-photo-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(16, 185, 129, 0.9);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ad-round-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 4-Criteria Score Scorecard */
+.ad-scorecard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 680px) {
+  .ad-scorecard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.ad-scorecard-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.ad-scorecard-label {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.ad-scorecard-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--adco-green-deep);
+}
+
+.ad-scorecard-val small {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Manager Feedback Note Box */
+.ad-manager-note-box {
+  background: #f0fdfa;
+  border: 1px solid #ccfbf1;
+  border-right: 4px solid var(--adco-green-main);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ad-manager-note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.ad-manager-note-text {
+  font-size: 0.88rem;
+  color: #134e4a;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* GPS Verification Pill */
+.ad-gps-verification-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+/* Integrated Add Follow-Up Form Card */
+.ad-new-followup-card {
+  background: #ffffff;
+  border: 2px dashed #0f766e;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ad-new-followup-card.highlight-focus {
+  animation: pulseTeal 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseTeal {
+  0%, 100% { border-color: #0f766e; box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.4); }
+  50% { border-color: #14b8a6; box-shadow: 0 0 0 8px rgba(20, 184, 166, 0.15); }
+}
+
+.ad-upload-dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 30px 20px;
+  text-align: center;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.ad-upload-dropzone:hover {
+  border-color: var(--adco-green-main);
+  background: #f0fdf4;
+}
+
+.ad-upload-preview-wrap {
+  width: 100%;
+  max-width: 360px;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  position: relative;
+  margin: 0 auto;
+}
+
+.ad-upload-preview-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Live GPS Location Capture Box */
+.ad-gps-capture-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Optional SKU Modification Section */
+.ad-optional-sku-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.ad-optional-sku-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--adco-green-main);
+}

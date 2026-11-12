@@ -407,30 +407,30 @@
       })
       .join('');
 
-    // Attach card click handlers with delegation
+    // Attach card click handlers with delegation to dedicated activity details page
     container.querySelectorAll('.activity-card-item').forEach((card) => {
       const actId = card.dataset.actId;
       card.addEventListener('click', (e) => {
         if (e.target.closest('.activity-card-action-bar')) return;
-        window.location.href = `./activity-card.html?id=${actId}`;
+        window.location.href = `./activity-details.html?id=${actId}`;
       });
 
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           if (e.target.closest('.activity-card-action-bar')) return;
           e.preventDefault();
-          window.location.href = `./activity-card.html?id=${actId}`;
+          window.location.href = `./activity-details.html?id=${actId}`;
         }
       });
     });
 
-    // Attach "إضافة صورة" quick button handlers
+    // Attach "إضافة متابعة" quick button handlers
     container.querySelectorAll('.btn-quick-add-photo').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         const actId = btn.dataset.actId;
-        window.location.href = `./activity-card.html?id=${actId}&action=followup`;
+        window.location.href = `./activity-details.html?id=${actId}&action=new-followup`;
       });
     });
 
@@ -440,7 +440,7 @@
         e.preventDefault();
         e.stopPropagation();
         const actId = btn.dataset.actId;
-        window.location.href = `./activity-card.html?id=${actId}`;
+        window.location.href = `./activity-details.html?id=${actId}`;
       });
     });
   }

@@ -89,6 +89,14 @@
       "destination": "/frontend/pages/activity-card.html"
     },
     {
+      "source": "/activity-details",
+      "destination": "/frontend/pages/activity-details.html"
+    },
+    {
+      "source": "/activity-details/:id*",
+      "destination": "/frontend/pages/activity-details.html"
+    },
+    {
       "source": "/analytics",
       "destination": "/frontend/pages/analytics.html"
     },

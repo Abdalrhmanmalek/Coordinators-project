@@ -178,6 +178,13 @@ The system enforces 3 distinct operational tiers with strict data scoping and au
   * **Configurable Threshold (`MAX_BRANCH_PROXIMITY_METERS = 150`):** If the calculated distance exceeds `150` meters, the submission is rejected immediately with the error message: **`"موقعك الحالي بعيد جداً عن نطاق الفرع المسجل"`** (Your current location is outside the branch radius).
   * Canvas compression to 720p, progressive JPEG targeting $< 1\text{MB}$, SHA-256 byte integrity hashing, and EXIF timestamp extraction validated against Egypt timezone (`Africa/Cairo`).
 
+### 2.5.1 Standalone Activity Details & Review Log View (`frontend/pages/activity-details.html`)
+* **Dedicated Metadata & Follow-Up Audit View:**
+  * Navigated to directly when clicking any Activity Card or its footer action buttons (`سجل المراجعات`, `إضافة متابعة`).
+  * Displays complete operational metadata: Parent Client, Client Branch, Supplying Sector (`فرع الشركة المورد للبضاعة`), Activity Type/Medium, Participating ADCO Brands ($1/N$ brand share), and registered SKUs.
+  * **Chronological Review & Follow-Up Log (`سجل المراجعات`):** Full multi-round audit trail displaying per-round 720p photo thumbnails with zoom lightbox, live GPS match verification, 4-criteria numerical scorecards (`40 / 20 / 25 / 15`), and Marketing Manager feedback notes.
+  * **Integrated "Add New Follow-Up" (`إضافة متابعة جديدة`):** Streamlined two-action submission (720p client camera compression + automatic live GPS capture) with optional product modification toggle.
+
 ### 2.6 Leaderboard & Podium Stacking (`frontend/pages/leaderboard.html`)
 * **Desktop View (`> 768px`):** Horizontal podium displaying `#2` (Silver) on the left/right, `#1` (Gold) elevated in the center, and `#3` (Bronze).
 * **Mobile View (`<= 768px`):** Explicit CSS flexbox `order` rules ensure the podium stacks in true vertical ranking:

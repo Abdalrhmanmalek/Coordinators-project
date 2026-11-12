@@ -38,7 +38,11 @@ The unified digital enterprise platform for **Alexandria Company for Chemicals a
 - **4-Level Cascading Product Picker:** Dynamic cascading selection (`Brand` ➔ `Main Group` ➔ `Sub Group` ➔ `Item/SKU`) with real-time $1/N$ brand share weight recalculation.
 - **Client-Side Camera & Media Pipeline:** Live hardware capture, 720p canvas compression ($< 1\text{MB}$), SHA-256 byte hashing, and EXIF timestamp extraction validated against Egypt standard time (`Africa/Cairo`).
 - **100-Point Supervisor Evaluation Matrix:** Structured scoring across 4 weighted pillars: New Verified Activities (40 pts), Execution Quality (20 pts), Continuity (25 pts), and Documentation & Accuracy (15 pts).
-- **Responsive Stacking & Mobile PWA:** True mobile-first layout with CSS flexbox order podium ranking on mobile devices and offline service worker caching.
+- **Dedicated Activity Details & Multi-Round Review Log:** Standalone full-page view (`activity-details.html`) rendering supplying branch sectors, chronological follow-up history with 4-criteria scorecards and manager guidance, and integrated follow-up round submission.
+- **Redesigned Mobile Spotlight Podium & Trend Indicators:** Mobile-optimized podium with 1st place gold spotlight card spanning full width and 2nd/3rd place cards side-by-side, plus interactive rank movement trend badges (moved up, moved down, stable).
+- **Compact Mobile KPI Summary Bars:** 2+1 responsive grid layout on mobile reducing vertical scroll time across all 3 roles.
+- **Ultra-Light Page Transitions & Double Scrollbar Elimination:** GPU-accelerated opacity fades (120ms) with `scrollbar-gutter: stable` and locked `html { overflow-y: scroll; overflow-x: hidden; }` preventing layout shifts or flickering scrollbars.
+- **Responsive Stacking & Mobile PWA:** True mobile-first layout with offline service worker caching.
 
 ---
 
@@ -71,8 +75,8 @@ adco-field-app/
 │   ├── manifest.json                           # Progressive Web App (PWA) manifest
 │   ├── sw.js                                   # Offline Service Worker & cache strategy
 │   ├── assets/                                 # 23 vector icons & branded graphics
-│   ├── css/                                    # 15 decoupled modular CSS stylesheets (including evaluation.css)
-│   ├── pages/                                  # 9 semantic operational HTML views (including standalone evaluation.html)
+│   ├── css/                                    # 16 decoupled modular CSS stylesheets (including activity-details.css)
+│   ├── pages/                                  # 10 semantic operational HTML views (including standalone activity-details.html)
 │   └── js/                                     # Modular JavaScript architecture (config/, store/, services/, utils/, components/, pages/)
 │
 ├── run-app.bat                                 # Windows desktop launcher script

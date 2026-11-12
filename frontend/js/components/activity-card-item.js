@@ -35,8 +35,12 @@
       latestNotes = act.supervisorNotes.trim();
     }
 
+    const isSub = typeof window !== 'undefined' && window.location.pathname.includes('/pages/');
+    const detailsUrl = isSub ? `./activity-details.html?id=${act.id}` : `./pages/activity-details.html?id=${act.id}`;
+    const newFollowUpUrl = isSub ? `./activity-details.html?id=${act.id}&action=new-followup` : `./pages/activity-details.html?id=${act.id}&action=new-followup`;
+
     return `
-      <div class="activity-card-item" data-act-id="${act.id}" role="button" tabindex="0" style="cursor: pointer;" title="اضغط لفتح سجل المراجعات وتفاصيل النشاط بالكامل">
+      <div class="activity-card-item" data-act-id="${act.id}" role="button" tabindex="0" style="cursor: pointer;" title="اضغط لفتح سجل المراجعات وتفاصيل النشاط بالكامل" onclick="if(!event.target.closest('button')) { window.location.href='${detailsUrl}'; }">
         <div class="activity-card-head">
           <img src="${act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80'}" alt="${act.client}" class="activity-card-thumb" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
           <div class="db-s17">
@@ -119,11 +123,11 @@
 
         <!-- Direct Action Bar: Inside the Branch Card -->
         <div class="activity-card-action-bar">
-          <button type="button" class="btn btn-secondary btn-sm btn-open-card-details" data-act-id="${act.id}" title="فتح سجل المراجعات والجولات وتوجيهات مدير التسويق">
+          <button type="button" class="btn btn-secondary btn-sm btn-open-card-details" data-act-id="${act.id}" title="فتح سجل المراجعات والجولات وتوجيهات مدير التسويق" onclick="event.stopPropagation(); window.location.href='${detailsUrl}';">
             <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
             <span>سجل المراجعات (${roundsCount})</span>
           </button>
-          <button type="button" class="btn btn-primary btn-sm btn-quick-add-photo" data-act-id="${act.id}" title="إضافة متابعة جديدة والتقاط الصور لهذا النشاط">
+          <button type="button" class="btn btn-primary btn-sm btn-quick-add-photo" data-act-id="${act.id}" title="إضافة متابعة جديدة والتقاط الصور لهذا النشاط" onclick="event.stopPropagation(); window.location.href='${newFollowUpUrl}';">
             <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
             <span>إضافة متابعة</span>
           </button>

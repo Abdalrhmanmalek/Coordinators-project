@@ -107,7 +107,7 @@
 
       setTimeout(() => {
         window.location.href = targetUrl;
-      }, 150);
+      }, 90);
     }
 
     static initSmoothPageTransitions() {

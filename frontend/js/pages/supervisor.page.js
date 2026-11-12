@@ -572,9 +572,9 @@ const user = AuthManager.checkAuthGuard('supervisor');
 
               <!-- Action buttons -->
               <div class="sp-card-actions">
-                <a href="./evaluation.html?id=${act.id}" class="btn btn-primary btn-sm open-eval-btn" data-id="${act.id}" style="flex:1;">
+                <a href="./evaluation.html?id=${act.id}" class="btn btn-primary btn-sm open-eval-btn" data-id="${act.id}">
                   <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-sm" alt="" />
-                  <span>فحص وتقييم</span>
+                  <span>الفحص والتقييم</span>
                 </a>
                 <button type="button" class="btn btn-secondary btn-sm open-audit-btn" data-id="${act.id}" title="عرض سجل كافة المتابعات والإجراءات">
                   <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />

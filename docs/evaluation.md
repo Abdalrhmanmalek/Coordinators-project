@@ -197,7 +197,7 @@ Final scores map directly to enterprise achievement tiers:
 
 ## 5. Review Log Data Contract (`سجل المراجعات`)
 
-Each activity object maintains a chronological collection of follow-up inspection rounds inside `followUps[]` (also represented as `followUpHistory[]` in client state).
+Each activity object maintains a chronological collection of follow-up inspection rounds inside `followUps[]` (also represented as `followUpHistory[]` in client state), rendered in full inside the dedicated standalone Activity Details view (`activity-details.html`) and expandable inside the Supervisor Evaluation page (`evaluation.html`).
 
 ### JSON Schema Specification:
 
@@ -356,3 +356,4 @@ ScoreCalculator.calculateEffortBonus(approvedRoundsCount)
 | `1.0.0` | 2026-10-15 | ADCO Engineering | Initial 100-point 4-pillar evaluation definition. |
 | `2.0.0` | 2026-11-01 | ADCO Operations | Added Haversine GPS 150m cutoff and SHA-256 duplicate detection. |
 | `2.5.0` | 2026-11-12 | ADCO Core Team | Implemented Bayesian Volume-Weighted Leaderboard formula, multi-round Review Log schema, and aligned `ScoreCalculator` utility. |
+

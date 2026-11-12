@@ -14,6 +14,65 @@
   overflow: visible;
 }
 
+/* Compact 2+1 Mobile KPI Summary Layout (Reduced Scroll Time) */
+@media (max-width: 768px) {
+  .kpi-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+    padding-top: 4px !important;
+  }
+
+  .kpi-row > .kpi-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1 !important;
+  }
+
+  .kpi-card {
+    padding: 12px 14px !important;
+    gap: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .kpi-icon-wrap {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 10px !important;
+  }
+
+  .kpi-num {
+    font-size: 1.35rem !important;
+  }
+
+  .kpi-title {
+    font-size: 0.76rem !important;
+  }
+}
+
+@media (max-width: 440px) {
+  .kpi-row {
+    gap: 8px !important;
+  }
+
+  .kpi-card {
+    padding: 10px 10px !important;
+    gap: 10px !important;
+    border-radius: 12px !important;
+  }
+
+  .kpi-icon-wrap {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .kpi-num {
+    font-size: 1.2rem !important;
+  }
+
+  .kpi-title {
+    font-size: 0.72rem !important;
+  }
+}
+
 .kpi-card {
   background: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.9);

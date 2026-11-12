@@ -415,6 +415,40 @@
     container.innerHTML = filtered
       .map((act) => global.ActivityCardItem.render(act, { computeRating: (a) => Activity.computeOverallRating(a), renderStatusBadge }))
       .join('');
+
+    // Attach card click handlers with delegation to dedicated activity details page
+    container.querySelectorAll('.activity-card-item').forEach((card) => {
+      const actId = card.dataset.actId;
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.activity-card-action-bar')) return;
+        window.location.href = `./activity-details.html?id=${actId}`;
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (e.target.closest('.activity-card-action-bar')) return;
+          e.preventDefault();
+          window.location.href = `./activity-details.html?id=${actId}`;
+        }
+      });
+    });
+
+    container.querySelectorAll('.btn-quick-add-photo').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const actId = btn.dataset.actId;
+        window.location.href = `./activity-details.html?id=${actId}&action=new-followup`;
+      });
+    });
+
+    container.querySelectorAll('.btn-open-card-details').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const actId = btn.dataset.actId;
+        window.location.href = `./activity-details.html?id=${actId}`;
+      });
+    });
   }
 
   document.querySelectorAll('.filter-chip').forEach((btn) => {

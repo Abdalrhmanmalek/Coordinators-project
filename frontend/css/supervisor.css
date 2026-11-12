@@ -1578,7 +1578,25 @@
 
 .sp-card-actions > * {
   flex: 1 1 auto;
-  min-width: 0;
+  min-width: max-content;
+}
+
+/* Evaluation Action Button: Guaranteed Single-Line on Laptop/Desktop */
+.open-eval-btn,
+.btn-eval-action,
+.btn-supervisor-eval {
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  flex-shrink: 0 !important;
+  min-width: max-content !important;
+}
+
+.sp-card-actions .open-eval-btn {
+  flex: 1 0 auto !important;
+  white-space: nowrap !important;
 }
 
 @media (max-width: 440px) {

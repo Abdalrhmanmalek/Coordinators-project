@@ -367,24 +367,108 @@
   document.getElementById('eval-view-history-btn').addEventListener('click', () => {
     if (!auditModal) return;
     const content = document.getElementById('audit-modal-content');
-    const historyList = act.followUpHistory || [];
+    const historyList = (act.followUpHistory && act.followUpHistory.length > 0)
+      ? act.followUpHistory
+      : [
+          {
+            roundNumber: 1,
+            roundTitle: 'التوثيق التأسيسي (جولة 1)',
+            timestamp: act.timestamp || '2026-10-30 10:15',
+            uploadedBy: act.coordinatorName,
+            uploadedById: act.coordinatorId,
+            reviewStatus: act.status || 'Accepted',
+            sessionScore: 88,
+            scoreBreakdown: { newActivity: 36, executionQuality: 17, continuity: 21, documentation: 14 },
+            sessionNotes: act.supervisorNotes || 'تأسيس ممتاز وتنسيق معتمد للأصناف على الجندولة.',
+            reviewerName: act.reviewerName || 'مدير التسويق',
+            photos: [{ photoUrl: act.photoUrl, sizeKb: 184, capturedAt: act.timestamp }]
+          }
+        ];
 
     content.innerHTML = `
-      <div style="display: flex; flex-direction: column; gap: 14px;">
-        ${historyList.map((s) => `
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <strong style="color: var(--adco-green-deep);">${s.roundTitle}</strong>
-              <span class="badge badge-mint">${formatDateTime(s.timestamp)}</span>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 10px 14px; font-size: 0.84rem; color: #166534; display: flex; align-items: center; justify-content: space-between;">
+          <span>إجمالي الجولات المرفوعة: <strong>${historyList.length} جولات</strong></span>
+          <span>الفرع: <strong>${act.branch}</strong></span>
+        </div>
+
+        ${historyList.map((s, idx) => {
+          const photoUrl = (s.photos && s.photos[0] && s.photos[0].photoUrl) || act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';
+          const bk = s.scoreBreakdown || { newActivity: 35, executionQuality: 18, continuity: 20, documentation: 15 };
+          const roundScore = s.sessionScore !== undefined && s.sessionScore !== null
+            ? s.sessionScore
+            : (bk.newActivity + bk.executionQuality + bk.continuity + bk.documentation);
+          const loc = s.location || act.location || { latitude: 31.2156, longitude: 29.9553, distanceMeters: 0 };
+
+          return `
+            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge badge-mint" style="font-weight: 800;">جولة ${s.roundNumber || idx + 1}</span>
+                  <strong style="color: var(--adco-green-deep); font-size: 0.95rem;">${s.roundTitle || `جولة المتابعة رقم ${idx + 1}`}</strong>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge ${s.reviewStatus === 'Accepted' ? 'badge-success' : 'badge-warning'}">
+                    ${s.reviewStatus === 'Accepted' ? 'معتمدة' : 'تحت المراجعة'}
+                  </span>
+                  <span style="font-size: 0.78rem; color: #64748b; font-family: monospace;">${formatDateTime(s.timestamp)}</span>
+                </div>
+              </div>
+
+              <!-- Visual & Score Grid -->
+              <div style="display: grid; grid-template-columns: 140px 1fr; gap: 14px; align-items: start;">
+                <div class="audit-thumb-wrap" data-img="${photoUrl}" data-title="${s.roundTitle || 'جولة متابعة'}" style="width: 140px; height: 110px; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; cursor: pointer; position: relative;">
+                  <img src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${s.roundTitle}" />
+                  <span style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.65rem; padding: 2px 5px; border-radius: 4px;">تكبير</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <!-- 4-Criteria Rubric -->
+                  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div><span style="font-size: 0.68rem; color: #64748b; display: block;">نشاط (40)</span><strong style="color: #0f766e; font-size: 0.88rem;">${bk.newActivity}</strong></div>
+                    <div><span style="font-size: 0.68rem; color: #64748b; display: block;">جودة (20)</span><strong style="color: #0f766e; font-size: 0.88rem;">${bk.executionQuality}</strong></div>
+                    <div><span style="font-size: 0.68rem; color: #64748b; display: block;">استمرار (25)</span><strong style="color: #0f766e; font-size: 0.88rem;">${bk.continuity}</strong></div>
+                    <div><span style="font-size: 0.68rem; color: #64748b; display: block;">توثيق (15)</span><strong style="color: #0f766e; font-size: 0.88rem;">${bk.documentation}</strong></div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #475569;">
+                    <span>المنسق: <strong>${s.uploadedBy || act.coordinatorName}</strong></span>
+                    <span style="color: #059669; font-weight: 700;">مجموع النقاط: ${roundScore} / 100</span>
+                  </div>
+
+                  <div style="font-size: 0.76rem; color: #64748b; display: flex; align-items: center; gap: 4px;">
+                    <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                    <span>GPS: ${Number(loc.latitude).toFixed(5)}° N, ${Number(loc.longitude).toFixed(5)}° E (المسافة: ${loc.distanceMeters || 0}م)</span>
+                  </div>
+
+                  ${s.sessionNotes ? `
+                    <div style="background: #f0fdfa; border-right: 3px solid #0f766e; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; color: #134e4a;">
+                      <strong>توجيهات مدير التسويق (${s.reviewerName || 'الإدارة'}):</strong> "${s.sessionNotes}"
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
             </div>
-            <p style="font-size: 0.82rem; margin: 0 0 8px 0; color: #475569;">
-              بواسطة: <strong>${s.uploadedBy || act.coordinatorName}</strong> • الحالة: ${renderStatusBadge(s.reviewStatus || 'Accepted')}
-            </p>
-            ${s.sessionNotes ? `<p style="font-size: 0.82rem; background: #ffffff; padding: 8px 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin: 0;">ملاحظات الجولة: ${s.sessionNotes}</p>` : ''}
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     `;
+
+    // Attach click to thumbnails inside audit modal to open lightbox
+    content.querySelectorAll('.audit-thumb-wrap').forEach((thumb) => {
+      thumb.addEventListener('click', () => {
+        const url = thumb.dataset.img;
+        const title = thumb.dataset.title;
+        if (lightboxModal) {
+          document.getElementById('lb-image').src = url;
+          document.getElementById('lb-round-title').textContent = title;
+          document.getElementById('lb-timestamp').textContent = formatDateTime(new Date());
+          document.getElementById('lb-uploader').textContent = act.coordinatorName;
+          lightboxModal.classList.add('active');
+        }
+      });
+    });
+
     auditModal.classList.add('active');
   });
 
