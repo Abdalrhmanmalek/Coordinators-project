@@ -8,10 +8,24 @@
   const Auth = global.AuthManager || global.AuthService;
   const Activity = global.ActivityManager || global.ActivityService;
   const Router = global.AppRouter;
+  const formatTwoWordName = global.formatTwoWordName || (typeof window !== 'undefined' ? window.formatTwoWordName : null);
 
   const isHttp = typeof window !== 'undefined' && /^https?:$/.test(window.location.protocol);
   const isSubPage = typeof window !== 'undefined' && window.location.pathname.includes('/pages/');
   const assetsPrefix = isHttp ? '/assets/' : (isSubPage ? '../assets/' : './assets/');
+
+  function normalizeArabic(str) {
+    if (!str) return '';
+    return String(str)
+      .trim()
+      .toLowerCase()
+      .replace(/[\u064B-\u065F\u0670\u0640]/g, '') // remove tashkeel & tatweel
+      .replace(/[أإآا]/g, 'ا')
+      .replace(/[ة]/g, 'ه')
+      .replace(/[ىي]/g, 'ي')
+      .replace(/[ؤ]/g, 'و')
+      .replace(/[ئ]/g, 'ي');
+  }
 
   let user = null;
   try {
@@ -86,12 +100,13 @@
     list.forEach((m, idx) => (m.rank = idx + 1));
 
     if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      list = list.filter((item) =>
-        (item.name && item.name.toLowerCase().includes(q)) ||
-        (item.branch && item.branch.toLowerCase().includes(q)) ||
-        (item.coordinatorId && item.coordinatorId.toLowerCase().includes(q))
-      );
+      const q = normalizeArabic(searchQuery);
+      list = list.filter((item) => {
+        const nameNorm = normalizeArabic(item.name);
+        const branchNorm = normalizeArabic(item.branch);
+        const cidNorm = normalizeArabic(item.coordinatorId);
+        return nameNorm.includes(q) || branchNorm.includes(q) || cidNorm.includes(q);
+      });
     }
 
     return list;
@@ -99,12 +114,19 @@
 
   function renderView() {
     const list = getProcessedData();
-    const top3 = list.slice(0, 3);
-    const restList = list.length > 3 ? list.slice(3) : (searchQuery.trim() ? list : []);
-
-    // 1. Render Top 3 Cards Grid (Fish.audio Style)
+    const isSearching = Boolean(searchQuery.trim());
+    const topSection = document.querySelector('.top-cards-section');
     const topMount = document.getElementById('top-cards-mount');
-    if (topMount) {
+    const listMount = document.getElementById('leaderboard-list');
+
+    // When actively searching, hide the top-3 podium cards and show all matching records in the main list
+    if (topSection) {
+      topSection.style.display = isSearching ? 'none' : '';
+    }
+
+    // 1. Render Top 3 Cards Grid (when not searching)
+    if (topMount && !isSearching) {
+      const top3 = list.slice(0, 3);
       if (top3.length === 0) {
         topMount.innerHTML = '';
       } else {
@@ -162,14 +184,14 @@
     }
 
     // 2. Render General Ranking Rows Table (Fish.audio Style)
-    const listMount = document.getElementById('leaderboard-list');
     if (listMount) {
-      const displayRows = searchQuery.trim() ? list : restList;
+      const displayRows = isSearching ? list : (list.length > 3 ? list.slice(3) : []);
 
       if (displayRows.length === 0) {
         listMount.innerHTML = `
           <div style="text-align: center; padding: 36px 20px; color: #64748b;">
-            <p style="margin: 0; font-weight: 700;">لا توجد نتائج مطابقة لـ "${searchQuery}"</p>
+            <p style="margin: 0; font-weight: 700; font-size: 0.95rem;">لا توجد نتائج مطابقة لبحثك: "${searchQuery}"</p>
+            <p style="margin: 6px 0 0; font-size: 0.8rem; color: #94a3b8;">جرب البحث باسم المنسق، المحافظة، أو الفرع</p>
           </div>
         `;
         return;
@@ -236,13 +258,18 @@
     });
   });
 
-  // Bind Live Search Input
+  // Bind Live Search Input (supports typing, clearing, paste, and enter)
   const searchInput = document.getElementById('lb-search-input');
   if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      searchQuery = e.target.value || '';
+    const handleSearch = (e) => {
+      searchQuery = (e.target.value || '').trim();
       renderView();
-    });
+    };
+
+    searchInput.addEventListener('input', handleSearch);
+    searchInput.addEventListener('search', handleSearch);
+    searchInput.addEventListener('keyup', handleSearch);
+    searchInput.addEventListener('change', handleSearch);
   }
 
   // Initial Render

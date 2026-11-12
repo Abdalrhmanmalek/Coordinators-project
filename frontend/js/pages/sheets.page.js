@@ -72,13 +72,27 @@ const Auth = global.AuthManager || global.AuthService;
       }
     }
 
+    function normalizeArabic(str) {
+      if (!str) return '';
+      return String(str)
+        .trim()
+        .toLowerCase()
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+        .replace(/[أإآا]/g, 'ا')
+        .replace(/[ة]/g, 'ه')
+        .replace(/[ىي]/g, 'ي')
+        .replace(/[ؤ]/g, 'و')
+        .replace(/[ئ]/g, 'ي');
+    }
+
     let currentFilteredRows = [];
 
     function renderGrid() {
       const expanded = (Activity && typeof Activity.getExpandedBrandRows === 'function')
         ? Activity.getExpandedBrandRows()
         : [];
-      const q = (searchInput.value || '').trim().toLowerCase();
+      const rawQ = (searchInput.value || '').trim();
+      const q = normalizeArabic(rawQ);
       const selClient = fltClient.value;
       const selBrand = fltBrand.value;
       const selActivity = fltActivity.value;
@@ -89,20 +103,21 @@ const Auth = global.AuthManager || global.AuthService;
       const toDate = (fltDateTo.value || '').trim();
 
       currentFilteredRows = expanded.filter((r) => {
-        // Search free text
+        // Search free text with Arabic normalization
         if (q) {
-          const matchSearch =
-            (r.id || '').toLowerCase().includes(q) ||
-            (r.coordinatorName || '').toLowerCase().includes(q) ||
-            (r.client || '').toLowerCase().includes(q) ||
-            (r.singleBrand || '').toLowerCase().includes(q) ||
-            (r.activity || '').toLowerCase().includes(q) ||
-            (r.activityType || '').toLowerCase().includes(q) ||
-            (r.reviewerName || '').toLowerCase().includes(q) ||
-            (r.branch || '').toLowerCase().includes(q) ||
-            (r.supervisorNotes || '').toLowerCase().includes(q) ||
-            (r.status || '').toLowerCase().includes(q);
-          if (!matchSearch) return false;
+          const combined = normalizeArabic([
+            r.id,
+            r.coordinatorName,
+            r.client,
+            r.singleBrand,
+            r.activity,
+            r.activityType,
+            r.reviewerName,
+            r.branch,
+            r.supervisorNotes,
+            r.status
+          ].filter(Boolean).join(' '));
+          if (!combined.includes(q)) return false;
         }
 
         // Filter parameters

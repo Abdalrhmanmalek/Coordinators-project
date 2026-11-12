@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ADCO Field Operations System - Activity Service
  * Single Responsibility: Activity lifecycle management, 3-tier data scoping,
  * multi-brand row multiplication ($1/N$ share), follow-up photos, and supervisor closure operations.

@@ -443,7 +443,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
         const brandVal = csBrand.value;
         const actVal = csActivity.value;
         const typeVal = csType.value;
-        const coordQuery = csCoord.value.trim().toLowerCase();
+        const coordQuery = (csCoord.value || '').trim().toLowerCase().replace(/[أإآا]/g, 'ا').replace(/[ة]/g, 'ه').replace(/[ىي]/g, 'ي');
         const minScore = Number(csMinScore.value) || 0;
 
         filtered = filtered.filter((act) => {
@@ -451,7 +451,10 @@ const user = AuthManager.checkAuthGuard('supervisor');
           if (brandVal !== 'ALL' && !(act.brands || []).includes(brandVal)) return false;
           if (actVal !== 'ALL' && act.activity !== actVal) return false;
           if (typeVal !== 'ALL' && act.activityType !== typeVal) return false;
-          if (coordQuery && !(act.coordinatorName || '').toLowerCase().includes(coordQuery)) return false;
+          if (coordQuery) {
+            const coordNorm = (act.coordinatorName || '').toLowerCase().replace(/[أإآا]/g, 'ا').replace(/[ة]/g, 'ه').replace(/[ىي]/g, 'ي');
+            if (!coordNorm.includes(coordQuery)) return false;
+          }
 
           if (minScore > 0) {
             const stats = ActivityManager.computeWeightedEvaluation(act);
