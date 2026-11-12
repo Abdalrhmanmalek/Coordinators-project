@@ -481,7 +481,8 @@ const user = AuthManager.checkAuthGuard('supervisor');
         .map((act) => {
           const ratingStats = ActivityManager.computeOverallRating(act);
           const brandCount = Array.isArray(act.brands) && act.brands.length > 0 ? act.brands.length : 1;
-          const shareFormatted = `${(1 / brandCount).toFixed(2)} (${Math.round((1 / brandCount) * 100)}%)`;
+          const shareVal = (1 / brandCount).toFixed(2);
+          const sharePct = Math.round((1 / brandCount) * 100);
 
           return `
             <div class="card supervisor-activity-card ${act.isClosed ? 'sp-card-closed' : act.closureRequested ? 'sp-card-pending' : ''}">
@@ -549,7 +550,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
                       <span>فرع الشركة المورد للبضاعة: <strong>${act.coordinatorBranch || 'الإسكندرية - قطاع وسط'}</strong></span>
                     </div>
                     <p style="font-size:0.75rem; color:var(--adco-gray-600); margin:2px 0;">المشرف المعتمد: <strong>${act.reviewerName || 'أيمن الروبي'}</strong></p>
-                    <p class="sp-card-brands-line">العلامات: ${(act.brands || []).join('، ')} (حصة: ${shareFormatted})</p>
+                    <p class="sp-card-brands-line">العلامات: ${(act.brands || []).join('، ')} • حصة البراند: <span dir="ltr">${shareVal}</span> (${sharePct}%)</p>
                   </div>
                 </div>
               </div>
@@ -681,7 +682,8 @@ const user = AuthManager.checkAuthGuard('supervisor');
 
     function renderReviewActDetails(act) {
       const brandCount = Array.isArray(act.brands) && act.brands.length > 0 ? act.brands.length : 1;
-      const shareFormatted = `${(1 / brandCount).toFixed(2)} (${Math.round((1 / brandCount) * 100)}%)`;
+      const shareVal = (1 / brandCount).toFixed(2);
+      const sharePct = Math.round((1 / brandCount) * 100);
       const ratingStats = ActivityManager.computeOverallRating(act);
 
       return `
@@ -726,7 +728,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
           </div>
           <div style="grid-column: 1 / -1;">
             <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">العلامات التجارية وحصة العرض:</span>
-            <strong style="color: var(--adco-green-dark);">${(act.brands || []).join('، ')} (حصة البراند: ${shareFormatted})</strong>
+            <strong style="color: var(--adco-green-dark);">${(act.brands || []).join('، ')} • حصة البراند: <span dir="ltr">${shareVal}</span> (${sharePct}%)</strong>
           </div>
           ${act.magazineDate ? `
             <div style="grid-column: 1 / -1;">

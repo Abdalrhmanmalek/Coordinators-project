@@ -1484,3 +1484,20 @@ input[type="text"].supplying-branch-readonly-input:focus,
   transform: translateY(0);
 }
 
+@media (max-width: 640px) {
+  .reviews-feed-container {
+    padding: 16px 12px;
+  }
+  .review-round-card {
+    padding: 14px 12px;
+  }
+  .add-followup-callout {
+    padding: 18px 12px;
+  }
+  .btn-add-followup-cta {
+    width: 100%;
+    padding: 12px 14px !important;
+    font-size: 0.9rem !important;
+  }
+}
+

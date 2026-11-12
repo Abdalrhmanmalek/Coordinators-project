@@ -1441,7 +1441,7 @@
   border: 1px solid var(--adco-gray-200);
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
-  overflow: visible;
+  overflow: hidden;
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
@@ -1451,6 +1451,8 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
+  width: 100%;
 }
 
 .sp-coord-header-row {
@@ -1464,6 +1466,11 @@
   margin-bottom: 12px;
   font-size: 0.8rem;
   color: #334155;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .sp-coord-badge {
@@ -1471,17 +1478,21 @@
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
+  min-width: 0;
 }
 
 .sp-card-media-row {
   display: flex;
   gap: 14px;
   margin-bottom: 12px;
+  min-width: 0;
+  width: 100%;
 }
 
 .sp-card-details-col {
   flex: 1;
   min-width: 0;
+  width: 100%;
 }
 
 .sp-card-client-line {
@@ -1491,22 +1502,28 @@
   gap: 6px;
   flex-wrap: wrap;
   margin-bottom: 2px;
+  min-width: 0;
 }
 
 .sp-card-client-title {
   color: var(--adco-green-deep);
   font-size: 0.98rem;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .sp-card-activity-line {
   font-size: 0.8rem;
   margin: 3px 0;
+  word-break: break-word;
 }
 
 .sp-card-brands-line {
   font-size: 0.75rem;
   color: var(--adco-green-dark);
   margin-top: 2px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .sp-rating-box {
@@ -1518,6 +1535,8 @@
   color: #92400e;
   margin-top: 10px;
   margin-bottom: 14px;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .sp-rating-box-inner {
@@ -1525,6 +1544,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .sp-rating-badge {
@@ -1543,6 +1563,7 @@
   margin-top: 4px;
   color: #475569;
   font-size: 0.78rem;
+  word-break: break-word;
 }
 
 .sp-card-actions {
@@ -1551,6 +1572,24 @@
   align-items: center;
   flex-wrap: wrap;
   margin-top: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sp-card-actions > * {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: 440px) {
+  .sp-card-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .sp-card-actions > * {
+    width: 100% !important;
+    justify-content: center;
+  }
 }
 
 /* Mobile Screens: Marketing Supervisor View */

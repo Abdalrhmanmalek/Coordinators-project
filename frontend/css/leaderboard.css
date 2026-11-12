@@ -438,10 +438,12 @@
 @media (max-width: 960px) {
   .top-cards-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .ranking-table-head {
-    grid-template-columns: 50px 1fr 100px;
+    grid-template-columns: 48px 1fr 90px;
+    padding: 10px 14px;
   }
 
   .ranking-table-head .col-stat:nth-child(n+4) {
@@ -449,7 +451,8 @@
   }
 
   .ranking-row {
-    grid-template-columns: 50px 1fr 100px;
+    grid-template-columns: 48px 1fr 90px;
+    padding: 12px 14px;
   }
 
   .ranking-row .cell-stat:nth-child(n+4) {
@@ -457,10 +460,11 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .lb-page-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 14px;
   }
 
   .lb-header-actions {
@@ -478,7 +482,83 @@
     width: 100%;
   }
 
+  /* Image 3 Fix: Mobile Card Stats become neat stacked metric chips with zero overflow */
+  .top-card-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .top-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3px;
+    background: #f8fafc;
+    border: 1px solid #eef2f6;
+    border-radius: 10px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .top-stat-label {
+    font-size: 0.72rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+  }
+
+  .top-stat-val {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
   .ranking-row {
-    padding: 12px 14px;
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .lb-workspace {
+    padding: 16px 12px 36px;
+  }
+
+  .top-card {
+    padding: 14px 12px;
+  }
+
+  .top-card-stats {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .ranking-table-head {
+    grid-template-columns: 36px 1fr 70px;
+    padding: 8px 8px;
+    font-size: 0.72rem;
+  }
+
+  .ranking-row {
+    grid-template-columns: 36px 1fr 70px;
+    padding: 8px 8px;
+  }
+
+  .user-avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.78rem;
+  }
+
+  .user-name-sm {
+    font-size: 0.84rem;
   }
 }

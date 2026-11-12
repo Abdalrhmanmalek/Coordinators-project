@@ -586,3 +586,53 @@
   box-shadow: 0 8px 24px -4px rgba(15, 118, 110, 0.32);
   cursor: pointer;
 }
+
+/* =========================================================
+   RESPONSIVE TUNING FOR EVALUATION STANDALONE PAGE
+   ========================================================= */
+@media (max-width: 768px) {
+  .eval-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .eval-header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .eval-header-actions .btn {
+    flex: 1 1 100%;
+  }
+
+  .eval-card-section {
+    padding: 18px 14px;
+    margin-bottom: 18px;
+    border-radius: 14px;
+  }
+
+  .eval-branch-hero-banner {
+    padding: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .eval-supplying-pill {
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: flex-start;
+  }
+
+  .eval-details-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .eval-scores-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}

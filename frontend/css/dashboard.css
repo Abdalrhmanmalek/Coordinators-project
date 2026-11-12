@@ -82,12 +82,27 @@
 
 .master-branches-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
   padding-top: 8px;
   padding-bottom: 4px;
   margin-bottom: 26px;
-  overflow: visible;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1319px) {
+  .master-branches-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 859px) {
+  .master-branches-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
 }
 
 .branch-master-card {
@@ -425,6 +440,16 @@
   border-top: 1px solid var(--adco-gray-200);
   box-sizing: border-box;
   width: 100%;
+}
+
+@media (max-width: 480px) {
+  .activity-card-action-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .activity-card-action-bar .btn {
+    width: 100% !important;
+  }
 }
 
 .activity-card-action-bar .btn {
