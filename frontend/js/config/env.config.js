@@ -8,10 +8,24 @@
   const isHttp = typeof location !== 'undefined' && /^https?:$/.test(location.protocol);
   const isLocalHost = isHttp && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 
+  // Runtime environment configuration injected via window or Vercel serverless / meta
+  const runtimeApiBase = typeof window !== 'undefined'
+    ? (window.__ADCO_API_BASE__ || window.ADCO_API_URL || (window.ADCO_CONFIG && window.ADCO_CONFIG.API_URL))
+    : null;
+
+  const resolvedApiBase = runtimeApiBase || (
+    isLocalHost
+      ? 'http://localhost:3000/api/v1'
+      : (isHttp ? '/api/v1' : '')
+  );
+
   const ADCO_ENV = {
     APP_NAME: 'ADCO Field Operations',
-    ENVIRONMENT: isLocalHost ? 'development' : isHttp ? 'production' : 'file',
-    API_BASE_URL: isLocalHost ? 'http://localhost:3000/api' : '/api',
+    ENVIRONMENT: isLocalHost ? 'development' : (isHttp ? 'production' : 'file'),
+    API_BASE_URL: resolvedApiBase,
+    AWS_REGION: (typeof window !== 'undefined' && window.__AWS_REGION__) || 'eu-central-1',
+    COGNITO_USER_POOL_ID: (typeof window !== 'undefined' && window.__COGNITO_USER_POOL_ID__) || '',
+    COGNITO_CLIENT_ID: (typeof window !== 'undefined' && window.__COGNITO_CLIENT_ID__) || '',
     MOCK_MODE: true,
     STORAGE_NAMESPACE: 'ADCO',
     STORAGE_KEYS: {

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
@@ -28,8 +29,8 @@
           "value": "SAMEORIGIN"
         },
         {
-          "key": "X-Deployment-Test",
-          "value": "adco-production-ready"
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
         }
       ]
     }
@@ -48,16 +49,28 @@
       "destination": "/frontend/sw.js"
     },
     {
-      "source": "/assets/:match*",
-      "destination": "/frontend/assets/:match*"
+      "source": "/assets/:path*",
+      "destination": "/frontend/assets/:path*"
     },
     {
-      "source": "/css/:match*",
-      "destination": "/frontend/css/:match*"
+      "source": "/css/:path*",
+      "destination": "/frontend/css/:path*"
     },
     {
-      "source": "/js/:match*",
-      "destination": "/frontend/js/:match*"
+      "source": "/js/:path*",
+      "destination": "/frontend/js/:path*"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/frontend/pages/dashboard.html"
+    },
+    {
+      "source": "/supervisor",
+      "destination": "/frontend/pages/supervisor-panel.html"
+    },
+    {
+      "source": "/supervisor-panel",
+      "destination": "/frontend/pages/supervisor-panel.html"
     },
     {
       "source": "/evaluation",
@@ -68,8 +81,20 @@
       "destination": "/frontend/pages/evaluation.html"
     },
     {
-      "source": "/dashboard",
-      "destination": "/frontend/pages/dashboard.html"
+      "source": "/activity-card",
+      "destination": "/frontend/pages/activity-card.html"
+    },
+    {
+      "source": "/activity-card/:id*",
+      "destination": "/frontend/pages/activity-card.html"
+    },
+    {
+      "source": "/analytics",
+      "destination": "/frontend/pages/analytics.html"
+    },
+    {
+      "source": "/leaderboard",
+      "destination": "/frontend/pages/leaderboard.html"
     },
     {
       "source": "/login",
@@ -84,30 +109,6 @@
       "destination": "/frontend/pages/signup-wizard.html"
     },
     {
-      "source": "/supervisor",
-      "destination": "/frontend/pages/supervisor-panel.html"
-    },
-    {
-      "source": "/supervisor-panel",
-      "destination": "/frontend/pages/supervisor-panel.html"
-    },
-    {
-      "source": "/analytics",
-      "destination": "/frontend/pages/analytics.html"
-    },
-    {
-      "source": "/leaderboard",
-      "destination": "/frontend/pages/leaderboard.html"
-    },
-    {
-      "source": "/branch-details",
-      "destination": "/frontend/pages/branch-details.html"
-    },
-    {
-      "source": "/activity-card",
-      "destination": "/frontend/pages/activity-card.html"
-    },
-    {
       "source": "/sheets",
       "destination": "/frontend/pages/sheets-view.html"
     },
@@ -116,11 +117,27 @@
       "destination": "/frontend/pages/sheets-view.html"
     },
     {
+      "source": "/branch-details",
+      "destination": "/frontend/pages/branch-details.html"
+    },
+    {
+      "source": "/branch-details/:id*",
+      "destination": "/frontend/pages/branch-details.html"
+    },
+    {
+      "source": "/pages/:page.html",
+      "destination": "/frontend/pages/:page.html"
+    },
+    {
       "source": "/pages/:page",
       "destination": "/frontend/pages/:page.html"
     },
     {
-      "source": "/pages/:page.html",
+      "source": "/pages/:page/:id*",
+      "destination": "/frontend/pages/:page.html"
+    },
+    {
+      "source": "/:page.html",
       "destination": "/frontend/pages/:page.html"
     }
   ]

@@ -196,9 +196,10 @@
       const isManager = user && (user.role === 'marketing_manager' || user.role === 'coordination_manager' || user.role === 'supervisor');
       const isCoordSupervisor = user && user.role === 'coordinator_supervisor';
       const isSupervisor = isManager;
+      const isHttp = typeof window !== 'undefined' && /^https?:$/.test(window.location.protocol);
       const isSubPage = window.location.pathname.includes('/pages/');
-      const prefix = isSubPage ? './' : './pages/';
-      const assetsPrefix = isSubPage ? '../assets/' : './assets/';
+      const prefix = isHttp ? '/pages/' : (isSubPage ? './' : './pages/');
+      const assetsPrefix = isHttp ? '/assets/' : (isSubPage ? '../assets/' : './assets/');
       const path = window.location.pathname;
 
       // Clean, zero-emoji navigation links

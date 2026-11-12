@@ -19,9 +19,16 @@ function generateUUID() {
 
 export class HttpClient {
   constructor() {
-    this.baseURL = (typeof window !== 'undefined' && window.__ADCO_API_BASE__)
-      ? window.__ADCO_API_BASE__
-      : 'http://localhost:3000/api/v1';
+    const isHttp = typeof window !== 'undefined' && /^https?:$/.test(window.location.protocol);
+    const isLocal = isHttp && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+    const envApi = typeof window !== 'undefined' && window.ADCO_ENV && window.ADCO_ENV.API_BASE_URL
+      ? window.ADCO_ENV.API_BASE_URL
+      : null;
+    const globalBase = typeof window !== 'undefined'
+      ? (window.__ADCO_API_BASE__ || window.ADCO_API_URL)
+      : null;
+
+    this.baseURL = globalBase || envApi || (isLocal ? 'http://localhost:3000/api/v1' : '/api/v1');
     this.timeoutMs = 12000;
     this.isRefreshing = false;
     this.refreshSubscribers = [];

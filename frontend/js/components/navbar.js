@@ -29,9 +29,10 @@ export class NavbarComponent {
     const role = user ? user.role : 'coordinator';
     const isManager = role === 'marketing_manager' || role === 'coordination_manager' || role === 'supervisor';
     const isCoordSup = role === 'coordinator_supervisor';
+    const isHttp = typeof window !== 'undefined' && /^https?:$/.test(window.location.protocol);
     const isSubPage = window.location.pathname.includes('/pages/');
-    const prefix = isSubPage ? './' : './pages/';
-    const assetsPrefix = isSubPage ? '../assets/' : './assets/';
+    const prefix = isHttp ? '/pages/' : (isSubPage ? './' : './pages/');
+    const assetsPrefix = isHttp ? '/assets/' : (isSubPage ? '../assets/' : './assets/');
     const path = window.location.pathname;
 
     const coordinatorLinks = [

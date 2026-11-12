@@ -89,7 +89,10 @@ const formatDateTime = global.formatDateTime;
 const getEgyptDateTimeLocalString = global.getEgyptDateTimeLocalString;
 
 function getIconPrefix() {
-return window.location.pathname.includes('/pages/') ? '../assets/icons/' : './assets/icons/';
+  if (typeof window !== 'undefined' && /^https?:$/.test(window.location.protocol)) {
+    return '/assets/icons/';
+  }
+  return window.location.pathname.includes('/pages/') ? '../assets/icons/' : './assets/icons/';
 }
 
 function showToast(message, type = 'info', duration = 3000) {

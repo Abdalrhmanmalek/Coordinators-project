@@ -18,7 +18,8 @@ export function showToast(message, type = 'info', duration = 3000) {
   toast.setAttribute('aria-live', 'polite');
 
   const iconName = type === 'success' ? 'check-circle-2' : type === 'error' ? 'circle-x' : type === 'warning' ? 'clock' : 'shield-check';
-  const prefix = window.location.pathname.includes('/pages/') ? '../assets/icons/' : './assets/icons/';
+  const isHttp = typeof window !== 'undefined' && /^https?:$/.test(window.location.protocol);
+  const prefix = isHttp ? '/assets/icons/' : (window.location.pathname.includes('/pages/') ? '../assets/icons/' : './assets/icons/');
 
   toast.innerHTML = `
     <img src="${prefix}${iconName}.svg" class="ui-icon ui-icon-sm" alt="" />

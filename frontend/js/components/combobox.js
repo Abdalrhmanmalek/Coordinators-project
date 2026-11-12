@@ -104,7 +104,8 @@ export function createSearchableCombobox({
       highlightedIndex = 0;
     }
 
-    const prefix = window.location.pathname.includes('/pages/') ? '../assets/icons/' : './assets/icons/';
+    const isHttp = typeof window !== 'undefined' && /^https?:$/.test(window.location.protocol);
+    const prefix = isHttp ? '/assets/icons/' : (window.location.pathname.includes('/pages/') ? '../assets/icons/' : './assets/icons/');
     dropdown.innerHTML = filteredOptions
       .map((opt, idx) => {
         const isSelected = opt === selectedValue;
