@@ -1,4 +1,4 @@
-const CACHE_NAME = 'adco-field-cache-v26';
+const CACHE_NAME = 'adco-field-cache-v27';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

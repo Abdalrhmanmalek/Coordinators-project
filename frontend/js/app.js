@@ -272,7 +272,7 @@
           <div class="web-mobile-drawer" id="web-mobile-drawer">
             <div class="web-mobile-drawer-header">
               <span>القائمة الرئيسية</span>
-              <button type="button" class="web-mobile-drawer-close" id="web-mobile-drawer-close" aria-label="إغلاق">&times;</button>
+              <button type="button" class="web-mobile-drawer-close" id="web-mobile-drawer-close" aria-label="إغلاق"><i data-lucide="x" class="ui-icon ui-icon-sm"></i></button>
             </div>
             <div class="web-mobile-drawer-nav">
               ${navLinks

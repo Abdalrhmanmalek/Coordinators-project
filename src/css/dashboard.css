@@ -679,6 +679,39 @@
   box-shadow: 0 6px 14px -3px rgba(15, 118, 110, 0.3);
 }
 
+@media (max-width: 768px) {
+  .filter-bar,
+  .filter-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.25rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .filter-bar::-webkit-scrollbar,
+  .filter-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-bar .filter-chip,
+  .filter-chips .filter-chip {
+    flex-shrink: 0;
+    white-space: nowrap;
+    height: 38px;
+    padding: 0 0.85rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+}
+
 .chip-count-pill {
   display: inline-flex;
   align-items: center;
