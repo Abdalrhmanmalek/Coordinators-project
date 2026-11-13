@@ -74,13 +74,6 @@
             <span>${supervisorName}</span>
           </span>
         </div>
-        <div class="branch-meta-item">
-          <span class="branch-meta-label">الموقع والإحداثيات (GPS - خرائط جوجل)</span>
-          <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="branch-gps-map-link" id="bd-meta-gps-map-link" data-map-query="${mapsQuery}" title="افتح الإحداثيات في Google Maps">
-            <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
-            <span>${locObj.address || branchName} (${latNum.toFixed(4)}°N, ${lngNum.toFixed(4)}°E)</span>
-          </a>
-        </div>
         <div class="branch-meta-item full-span">
           <span class="branch-meta-label">العلامات التجارية المعروضة بالفرع</span>
           <span class="branch-meta-val" style="color: var(--adco-green-primary);">${brandsList}</span>

@@ -527,4 +527,21 @@ button:active:not(:disabled),
     align-items: start !important;
     padding: 12px 14px !important;
   }
+
+  .branch-meta-item {
+    min-width: 0 !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  .branch-meta-val {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    font-size: 0.85rem !important;
+    line-height: 1.4 !important;
+    align-items: flex-start !important;
+  }
 }

@@ -86,7 +86,7 @@
             src.includes('filter-dropdown.js') ||
             src.includes('profile-modal.js')
           ) {
-            const cleanSrc = src.replace(/\?v=\d+/, '') + '?v=8';
+            const cleanSrc = src.replace(/\?v=\d+/, '') + '?v=9';
             const freshScript = document.createElement('script');
             freshScript.async = false;
             freshScript.src = cleanSrc;
