@@ -1,7 +1,11 @@
-# Vercel Deployment Ignore
+﻿# Vercel Deployment Ignore
+trash/
+backend/
+doc/
 src/
 scripts/
 scratch/
-docs/
+.git/
+*.bat
+*.log
 *.md
-

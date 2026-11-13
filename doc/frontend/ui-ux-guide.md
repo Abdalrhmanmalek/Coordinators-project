@@ -219,3 +219,12 @@ This master design guide defines the enterprise visual standards, clean light-mo
 
 ### 2.19 Dedicated Activity Details & Follow-Up View (`frontend/pages/activity-details.html`)
 * **Internal View Architecture:** Standalone full-page view navigated to by clicking any activity card, rendering the Supplying Branch Sector (`فرع الشركة المورد للبضاعة`), chronological Review Log with 4-criteria scorecards and manager guidance, and integrated live camera follow-up submission.
+
+
+---
+
+## 🛠️ Production Asset, Icon & CSS Build Standards
+
+- **Lucide Vector Icons Standard:** All UI icons use `<i data-lucide="..." class="ui-icon"></i>` rendered via `frontend/js/vendor/lucide.min.js` with `refreshIcons()` called after every dynamic DOM mount. Zero Unicode emojis are permitted.
+- **AVIF-Only Media Pipeline:** All raster images in `frontend/assets/images/` are strictly `.avif` (zero `.png`/`.jpg`/`.webp`). Client-side camera captures are compressed via `CameraCompressor` (`frontend/js/utils/camera-compressor.js`) with EXIF parsing via `frontend/js/utils/exif-parser.js`.
+- **CSS Cascade & Build Workflow:** Edit source stylesheets in `src/css/` and compile into `frontend/css/app.min.css` using `node scripts/build-css.js` (preserving strict 16-file cascade order).

@@ -14,9 +14,11 @@
     const rawCoords = Array.from(bg.coordinators || []).join(' ، ') || ctx.fallbackCoordinatorName || 'أحمد محمود العبد';
     const coordNames = typeof formatTwoWordName === 'function' ? formatTwoWordName(rawCoords) : rawCoords;
     const branchUrl = `./branch-details.html?branch=${encodeURIComponent(bg.branch)}&client=${encodeURIComponent(bg.client)}`;
+    const branchIdAttr = bg.branchId || bg.branch || '';
+    const clientIdAttr = bg.clientId || bg.client || '';
 
     return `
-      <div class="branch-master-card ${isSelected ? 'active-branch-filter' : ''}" data-branch="${bg.branch}" data-client="${bg.client}" data-href="${branchUrl}" role="link" tabindex="0" title="اضغط لتصفية أنشطة الفرع">
+      <div class="branch-master-card ${isSelected ? 'active-branch-filter' : ''}" data-branch="${bg.branch}" data-client="${bg.client}" data-branch-id="${branchIdAttr}" data-client-id="${clientIdAttr}" data-href="${branchUrl}" role="button" tabindex="0" title="اضغط لعرض تفاصيل الفرع وأنشطته">
         <div>
           <div class="branch-card-top">
             <div>

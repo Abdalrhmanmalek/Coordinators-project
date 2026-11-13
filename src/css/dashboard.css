@@ -849,13 +849,12 @@
 
 .db-s23.db-s23 {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   font-size: 0.78rem;
   gap: 6px;
   margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px solid var(--adco-gray-100);
+  padding-top: 6px;
 }
 
 .db-s24.db-s24 {
@@ -869,30 +868,4 @@
   color: var(--adco-gray-600);
   font-size: 0.75rem;
   white-space: nowrap;
-}
-
-/* KPI Monthly Trend Indicators (Item 11) */
-.kpi-trend-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 9999px;
-  margin-right: 4px;
-  font-family: inherit;
-  direction: ltr;
-}
-.kpi-trend-pill.trend-up {
-  background: rgba(16, 185, 129, 0.12);
-  color: #059669;
-}
-.kpi-trend-pill.trend-down {
-  background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
-}
-.kpi-trend-pill.trend-neutral {
-  background: rgba(148, 163, 184, 0.15);
-  color: #64748b;
 }

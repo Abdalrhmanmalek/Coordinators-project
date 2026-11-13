@@ -1688,6 +1688,8 @@
   align-items: center;
   flex-wrap: wrap;
   margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
   width: 100%;
   box-sizing: border-box;
 }

@@ -1,8 +1,8 @@
-# ADCO Field Operations Platform — Monorepo File Structure & Inventory
+﻿# ADCO Field Operations Platform — Monorepo File Structure & Inventory
 
 > **Version:** 2.6.0  
 > **Company:** (ADCO) شركة الإسكندرية للكيماويات والمنظفات  
-> **Architecture:** Production-Grade Monorepo (`frontend/`, `backend/`, `docs/`, `scripts/`, `src/css/`)  
+> **Architecture:** Production-Grade Monorepo (`frontend/`, `backend/`, `doc/`, `scripts/`, `src/css/`)  
 > **Status:** Fully Modularized & Verified
 
 ---
@@ -14,12 +14,12 @@ The repository is structured as a decoupled enterprise monorepo:
 ```text
 adco-field-app/
 ├── backend/                  # Backend contracts, architecture specifications & design diagrams
-│   ├── docs/
+│   ├── doc/
 │   │   ├── ADCO-Final-System-Design.md   # PostgreSQL 16 schema & system design specification
 │   │   └── ADCO-System-Diagrams.md       # Sequence, ERD, and workflow state diagrams
 │   └── README.md                         # Backend services & database overview
 │
-├── docs/                     # Centralized technical documentation & regulatory references
+├── doc/                     # Centralized technical documentation & regulatory references
 │   ├── references/
 │   │   └── لائحة مسابقة ومنهجية تقييم المنسقين الميدانيين - ADCO.pdf
 │   ├── ADCO-Frontend-Audit-Result.md
@@ -57,8 +57,13 @@ adco-field-app/
 ├── src/
 │   └── css/                  # 16 modular source stylesheets maintained in cascade order
 │
-├── .gitignore                # Git exclusions
-├── .vercelignore             # Vercel deployment exclusions
+├── trash/                    # Quarantined unused & duplicate files (excluded from Git & Vercel)
+│   ├── assets/               # Quarantined unused assets
+│   ├── code/                 # Quarantined unused scripts & duplicate configs
+│   └── doc/                 # Quarantined duplicate documentation
+│
+├── .gitignore                # Git exclusions (includes trash/)
+├── .vercelignore             # Vercel deployment exclusions (includes trash/, backend/, doc/, scripts/)
 ├── AGENTS.md                 # Agent guidelines and architectural guardrails
 ├── README.md                 # Workspace documentation portal
 ├── run-app.bat               # Windows local launcher
@@ -85,25 +90,25 @@ adco-field-app/
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
 | `backend/README.md` | Architecture Overview | Summary of PostgreSQL 16 schema, 3-tier RBAC access, and service contracts. |
-| `backend/docs/ADCO-Final-System-Design.md` | System Specification | Complete backend system design, database schemas, and REST API contract. |
-| `backend/docs/ADCO-System-Diagrams.md` | Visual Architecture | Sequence diagrams, ERD, and workflow state transition diagrams. |
+| `backend/doc/ADCO-Final-System-Design.md` | System Specification | Complete backend system design, database schemas, and REST API contract. |
+| `backend/doc/ADCO-System-Diagrams.md` | Visual Architecture | Sequence diagrams, ERD, and workflow state transition diagrams. |
 
 ---
 
-## 📚 Documentation Center (`docs/`)
+## 📚 Documentation Center (`doc/`)
 
-All technical specifications, contracts, and style guides are centralized in `docs/`:
+All technical specifications, contracts, and style guides are centralized in `doc/`:
 
 | File Path | Module / Layer | Description |
 |:---|:---|:---|
-| `docs/agent-guardrails.md` | Compliance Spec | Permanent engineering guardrails for AI agents and maintainers: mandatory reading, zero emojis, modular layer separation, UMD script compatibility, and locked mathematical schemas. |
-| `docs/endpoints.md` | API Documentation | Comprehensive REST API endpoint contract, module routing, DTO request/response schemas, and HTTP status codes. |
-| `docs/evaluation.md` | Scoring Engine Spec | Technical specifications for 100-point evaluation breakdown (40/20/25/15), anti-cheat deduction rules, Bayesian volume-weighted leaderboard formula, and multi-round review log schema. |
-| `docs/file-structure.md` | Inventory Report | Complete workspace inventory, directory architecture, and active file responsibility mapping. |
-| `docs/system-architecture.md` | Architecture Spec | Detailed technical specifications for 3-tier RBAC, data flows, and PostgreSQL 16 schema. |
-| `docs/ui-ux-design-guide.md` | Design System | Enterprise visual identity, color tokens, typography scales, persistent navbar specs, and accessibility standards. |
-| `docs/ADCO-Frontend-Audit-Result.md` | Codebase Audit | Comprehensive technical audit report of all frontend views, scripts, and stylesheets. |
-| `docs/references/لائحة مسابقة ومنهجية تقييم المنسقين الميدانيين - ADCO.pdf` | Regulatory Doc | Official ADCO field coordinator contest bylaws and evaluation methodology regulations. |
+| `doc/agent-guardrails.md` | Compliance Spec | Permanent engineering guardrails for AI agents and maintainers: mandatory reading, zero emojis, modular layer separation, UMD script compatibility, and locked mathematical schemas. |
+| `doc/endpoints.md` | API Documentation | Comprehensive REST API endpoint contract, module routing, DTO request/response schemas, and HTTP status codes. |
+| `doc/evaluation.md` | Scoring Engine Spec | Technical specifications for 100-point evaluation breakdown (40/20/25/15), anti-cheat deduction rules, Bayesian volume-weighted leaderboard formula, and multi-round review log schema. |
+| `doc/file-structure.md` | Inventory Report | Complete workspace inventory, directory architecture, and active file responsibility mapping. |
+| `doc/system-architecture.md` | Architecture Spec | Detailed technical specifications for 3-tier RBAC, data flows, and PostgreSQL 16 schema. |
+| `doc/ui-ux-design-guide.md` | Design System | Enterprise visual identity, color tokens, typography scales, persistent navbar specs, and accessibility standards. |
+| `doc/ADCO-Frontend-Audit-Result.md` | Codebase Audit | Comprehensive technical audit report of all frontend views, scripts, and stylesheets. |
+| `doc/references/لائحة مسابقة ومنهجية تقييم المنسقين الميدانيين - ADCO.pdf` | Regulatory Doc | Official ADCO field coordinator contest bylaws and evaluation methodology regulations. |
 
 ---
 
@@ -230,10 +235,17 @@ The application adopts a decoupled source/distribution CSS pipeline:
 | `frontend/js/utils/brand-share.util.js` | Domain Util | $1/N$ multi-brand row multiplication and proportional brand share calculations. |
 | `frontend/js/utils/score.util.js` | Domain Util | 100-point weighted evaluation calculations and coordinator leaderboard ranking. |
 | `frontend/js/utils/score-calculator.js` | Domain Util | Calculates 100-point weighted evaluation scores (40/20/25/15), anti-cheat deductions, and Bayesian volume-weighted leaderboard rankings. |
-| `frontend/js/utils/camera-compressor.js` | Media Util | Consolidated authoritative 720p image compression, EXIF extraction, and SHA-256 byte hashing. |
+| `frontend/js/utils/camera-compressor.js` | Media Util | Consolidated authoritative 720p image compression and SHA-256 byte hashing. |
+| `frontend/js/utils/exif-parser.js` | Media Util | Pure-JavaScript EXIF TIFF/GPS tag parser for JPEG captures. |
 | `frontend/js/utils/camera-compressor.esm.js` | Media Util (ESM) | ES Module bridge for camera compressor. |
 | `frontend/js/utils/validators.js` | Validation Util | Input validation, phone number formatting, and password complexity regex checkers. |
 | `frontend/js/utils/offline-queue.js` | Offline Util | Manages offline submission queue and automatic background synchronization. |
+
+### Newly Modularized Layer Additions (≤ 350-Line Cap)
+- **API Integration Seams (`frontend/js/api/`):** `client.js`, `endpoints.js`, `http-client.js`
+- **Services (`frontend/js/services/`):** `activity-closure.service.js`
+- **Store (`frontend/js/store/`):** `seed-data-extra.js`, `employee-registry.esm.js`
+- **Components (`frontend/js/components/`):** `analytics-charts.js`, `branch-hero-card.js`, `dashboard-branches.js`, `evaluation-media.js`, `gallery-lightbox.js`, `multi-select-combobox.js`, `router-lifecycle.js`, `ui-combobox.js`, `ui-multi-combobox.js`, `activity-details-hero.js`, `activity-details-timeline.js`, `activity-details-products.js`, `activity-details-followup.js`, `supervisor-branches.js`, `supervisor-feed.js`, `supervisor-review-modal.js`, `supervisor-audit-modal.js`, `activity-card-products.js`, `activity-card-modals.js`, `activity-card-detail-view.js`, `activity-card-detail-actions.js`, `activity-card-gps-camera.js`, `activity-card-submit.js`
 
 ---
 

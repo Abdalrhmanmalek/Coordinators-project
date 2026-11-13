@@ -10,30 +10,11 @@
   const formatTwoWordName = global.formatTwoWordName;
 
   function render(act, ctx = {}) {
-    const ratingStats = typeof ctx.computeRating === 'function' ? ctx.computeRating(act) : { totalWeightedScore: 85, totalSessions: (act.followUpHistory || []).length || 1 };
     const supervisorLabel = act.reviewerName || 'أ. محمد الديب - مدير التسويق';
     const locAddress = (act.location && act.location.address) ? act.location.address : act.branch;
     const roundsCount = act.followUpHistory ? act.followUpHistory.length : 1;
     const actType = act.activityType || act.activity || 'عرض منتجات';
     const brandsList = Array.isArray(act.brands) && act.brands.length > 0 ? act.brands : ['فلفيتا', 'فييا'];
-
-    // Extract latest supervisor / marketing manager note
-    let latestNotes = '';
-    let latestReviewer = act.reviewerName || supervisorLabel;
-    if (Array.isArray(act.followUpHistory) && act.followUpHistory.length > 0) {
-      for (let i = act.followUpHistory.length - 1; i >= 0; i--) {
-        if (act.followUpHistory[i].sessionNotes && act.followUpHistory[i].sessionNotes.trim()) {
-          latestNotes = act.followUpHistory[i].sessionNotes.trim();
-          if (act.followUpHistory[i].reviewerName) {
-            latestReviewer = act.followUpHistory[i].reviewerName;
-          }
-          break;
-        }
-      }
-    }
-    if (!latestNotes && act.supervisorNotes && act.supervisorNotes.trim()) {
-      latestNotes = act.supervisorNotes.trim();
-    }
 
     const isSub = typeof window !== 'undefined' && window.location.pathname.includes('/pages/');
     const detailsUrl = isSub ? `./activity-details.html?id=${act.id}` : `./pages/activity-details.html?id=${act.id}`;
@@ -108,39 +89,8 @@
           </div>
         </div>
 
-        <!-- Marketing Manager Guidance Preview -->
-        ${latestNotes ? `
-          <div class="branch-card-feedback-preview">
-            <div class="feedback-preview-header">
-              <span class="feedback-badge-label">
-                <i data-lucide="clipboard-edit" class="ui-icon ui-icon-xs"></i>
-                <span>توجيهات المشرف:</span>
-              </span>
-              <span class="feedback-reviewer-name">${latestReviewer}</span>
-            </div>
-            <p class="feedback-preview-text">"${latestNotes}"</p>
-          </div>
-        ` : `
-          <div class="branch-card-feedback-preview feedback-pending">
-            <span class="feedback-badge-label">
-              <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
-              <span>بانتظار مراجعة المشرف</span>
-            </span>
-          </div>
-        `}
-
-        <div class="db-s23" style="margin-top: 10px;">
-          <span class="badge badge-warning db-s24">
-            <i data-lucide="star" class="ui-icon ui-icon-sm"></i>
-            <span>${ratingStats.totalWeightedScore}/100</span>
-          </span>
-          <span class="db-s25">
-            ${ratingStats.totalSessions} جولات
-          </span>
-        </div>
-
         <!-- Direct Action Bar: Inside the Branch Card -->
-        <div class="activity-card-action-bar">
+        <div class="activity-card-action-bar" style="margin-top: 12px;">
           <button type="button" class="btn btn-secondary btn-sm btn-open-card-details" data-act-id="${act.id}" title="فتح سجل المراجعات والجولات وتوجيهات مدير التسويق" onclick="event.stopPropagation(); window.location.href='${detailsUrl}';">
             <i data-lucide="calendar-clock" class="ui-icon ui-icon-xs"></i>
             <span>المراجعات (${roundsCount})</span>

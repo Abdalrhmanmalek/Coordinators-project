@@ -4,7 +4,6 @@
  * link active state detection, rank badge suppression for managers, and mobile navigation drawer.
  */
 
-import { ProfileModal } from './profile-modal.js';
 import { AuthService } from '../services/auth.service.js';
 
 export class NavbarComponent {
@@ -109,7 +108,7 @@ export class NavbarComponent {
                 : ''
             }
 
-            <button type="button" class="web-profile-btn" id="web-profile-trigger" title="${userName} - ${roleLabel}" aria-label="الملف الشخصي">
+            <button type="button" class="web-profile-btn" id="navbar-profile-btn" data-action="open-profile" style="cursor: pointer;" title="${userName} - ${roleLabel}" aria-label="الملف الشخصي">
               <i data-lucide="user" class="ui-icon ui-icon-md"></i>
             </button>
 
@@ -144,11 +143,13 @@ export class NavbarComponent {
     `;
 
     // Wire up events
-    const profileTrigger = mount.querySelector('#web-profile-trigger');
+    const profileTrigger = mount.querySelector('#navbar-profile-btn');
     if (profileTrigger) {
       profileTrigger.addEventListener('click', () => {
         if (typeof window !== 'undefined' && window.AppRouter && typeof window.AppRouter.openProfileModal === 'function') {
           window.AppRouter.openProfileModal();
+        } else if (typeof window !== 'undefined' && window.ProfileModal && typeof window.ProfileModal.open === 'function') {
+          window.ProfileModal.open(user);
         } else {
           ProfileModal.open(user);
         }

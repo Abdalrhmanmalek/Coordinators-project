@@ -1,94 +1,58 @@
-# Alexandria Company for Chemicals and Detergents (ADCO)
-## Field Operations & Promotion Verification Platform
+﻿# (ADCO) شركة الإسكندرية للكيماويات والمنظفات — Field Operations Platform
 
-[![Version](https://img.shields.io/badge/version-2.5.0-success.svg)](./docs/file-structure.md)
-[![Architecture](https://img.shields.io/badge/RBAC-3--Tier-blue.svg)](./docs/system-architecture.md)
-[![PWA](https://img.shields.io/badge/PWA-Enabled-emerald.svg)](./frontend/manifest.json)
-[![Status](https://img.shields.io/badge/Frontend-Modularized-brightgreen.svg)](./docs/file-structure.md)
-
-The unified digital enterprise platform for **Alexandria Company for Chemicals and Detergents (ADCO)** to manage, document, and verify field marketing operations, retail product displays, $1/N$ multi-brand visibility shares, and field execution quality according to certified 100-point evaluation criteria.
+> **Enterprise Field Marketing, Merchandising & Evaluation PWA**  
+> **Architecture:** Modular Vanilla JS (`≤ 350` lines/file) + Compiled CSS (`app.min.css`) + Offline-First Service Worker  
+> **Timezone:** `Africa/Cairo` (UTC+2)
 
 ---
 
-## 🚀 Local Quick Start
+## Quick Start
 
-### Running the Application:
-- **Windows OS:** Double-click [`run-app.bat`](./run-app.bat) to launch the portal directly in your default browser.
-- **Any Modern Browser:** Open [`frontend/index.html`](./frontend/index.html) directly (fully supports the offline local `file://` protocol as well as static HTTP servers like Live Server, Nginx, or Vercel).
+### 1. Local Development
+- **Instant Browser Launch (Windows):** Double-click [`run-app.bat`](./run-app.bat) or open [`frontend/index.html`](./frontend/index.html) directly.
+- **Local HTTP Server:**
+  ```bash
+  npx serve frontend -p 3000
+  ```
+- **Build & Verify:**
+  ```bash
+  node scripts/build-css.js
+  node scripts/verify_workspace_paths.js
+  node scripts/test_e2e_verification.js
+  ```
 
----
+### 2. Vercel Deployment & Testing
+- Production static routing, SPA fallback rewrites, `sw.js` no-cache headers, and immutable asset caching are configured in [`vercel.json`](./vercel.json).
+- Non-production directories (`backend/`, `doc/`, `scripts/`, `src/`, `trash/`) are excluded from deployment bundles via [`.vercelignore`](./.vercelignore).
+- Preview locally with `npx vercel dev` or deploy via `npx vercel`.
 
-## 👥 3-Tier RBAC Demo Accounts
-
-| User Level / Role | Name & Employee ID | Password | Data Scoping & Operational Permissions |
-|:---|:---|:---|:---|
-| **1. Field Coordinator (`COORDINATOR`)** | Ahmed Mahmoud El-Abd (`ADCO-101`) | `Pass@1234` | Create activity cards, upload follow-up photo rounds, submit "Request Activity Completion", view personal rank & Leaderboard. Scoped strictly to their single assigned branch (Smouha Branch). |
-| **2. Coordinator Supervisor (`COORDINATOR_SUPERVISOR`)** | Ayman Abdel Rahman El-Rouby (`ADCO-501`) | `Super@2026` | Identical operational capabilities with extended oversight across **all branches of their assigned retail chain in Alexandria (Fathalla Market)**. Competes on the Leaderboard at Rank #2 (Silver Medal). Dedicated client branch & coordinator filter toolbar. |
-| **3. Marketing Manager (`MARKETING_MANAGER`)** | Eng. Hossam El-Din Ghanem (`ADCO-901`) | `Admin@2026` | Unrestricted nationwide administrative access. Audits and grades follow-ups using the 100-point evaluation matrix, approves/rejects activities & completion requests, inspects live $1/N$ multi-brand sheets, and views Power BI analytics. |
-
----
-
-## ⚡ Key Architectural Capabilities
-
-- **Strict Single Source of Truth (SSOT):** Clean entry point via `frontend/index.html` with zero duplicate root shells or orphaned test scripts.
-- **Clean Light-Mode Design System:** Crisp white floating cards (`#ffffff`, `border-radius: 16px`, `box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05)`) on a soft `#f8fafc` background with corporate soft teal accents (`#0f766e`) and `0.2s ease` micro-interactions.
-- **Master Branch Cards & Interactive Counters:** Dedicated branch cards displaying branch metadata, company supplying branch (`فرع الشركة المورد للبضاعة`), coordinator/supervisor names, GPS location, and interactive status counters.
-- **Expanded Supervisor Analytics Charts:** Zero-dependency SVG circular progress rings, smooth cubic-bezier wave/area charts with soft teal gradients, vertical column bar charts, supplying branch performance bars, and $1/N$ brand share breakdowns.
-- **Decoupled CSS & Production Bundling Pipeline:** Zero embedded or inline styles; 16 modular source stylesheets in `src/css/` compiled into a single minified `frontend/css/app.min.css` bundle (~139 KB, ~28% compression) and isolated page controllers in `frontend/js/pages/`.
-- **Lucide Vector Icons Standard:** Universal vector icon rendering via **Lucide Icons CDN** (`<i data-lucide="..." class="ui-icon"></i>`) with automatic `refreshIcons()` lifecycle hooks across all dynamic views and zero Unicode emojis.
-- **4-Level Cascading Product Picker:** Dynamic cascading selection (`Brand` ➔ `Main Group` ➔ `Sub Group` ➔ `Item/SKU`) with real-time $1/N$ brand share weight recalculation.
-- **Client-Side Camera & Media Pipeline:** Live hardware capture, 720p canvas compression ($< 1\text{MB}$), SHA-256 byte hashing, and EXIF timestamp extraction validated against Egypt standard time (`Africa/Cairo`).
-- **100-Point Supervisor Evaluation Matrix:** Structured scoring across 4 weighted pillars: New Verified Activities (40 pts), Execution Quality (20 pts), Continuity (25 pts), and Documentation & Accuracy (15 pts).
-- **Dedicated Activity Details & Multi-Round Review Log:** Standalone full-page view (`activity-details.html`) rendering supplying branch sectors, chronological follow-up history with 4-criteria scorecards and manager guidance, and integrated follow-up round submission.
-- **Redesigned Mobile Spotlight Podium & Trend Indicators:** Mobile-optimized podium with 1st place gold spotlight card spanning full width and 2nd/3rd place cards side-by-side, plus interactive rank movement trend badges (moved up, moved down, stable).
-- **Compact Mobile KPI Summary Bars:** 2+1 responsive grid layout on mobile reducing vertical scroll time across all 3 roles.
-- **Ultra-Light Page Transitions & Double Scrollbar Elimination:** GPU-accelerated opacity fades (120ms) with `scrollbar-gutter: stable` and locked `html { overflow-y: scroll; overflow-x: hidden; }` preventing layout shifts or flickering scrollbars.
-- **Responsive Stacking & Mobile PWA:** True mobile-first layout with offline service worker caching.
+### 3. Backend Integration Entry Points
+- HTTP client & auth headers: [`frontend/js/api/client.js`](./frontend/js/api/client.js) & [`frontend/js/api/http-client.js`](./frontend/js/api/http-client.js)
+- Endpoint contracts: [`frontend/js/api/endpoints.js`](./frontend/js/api/endpoints.js)
+- Domain orchestration: [`frontend/js/services/`](./frontend/js/services/)
 
 ---
 
-## 📚 Technical Documentation Center (`docs/`)
+## Documentation Index
 
-All architectural specifications, database schemas, API contracts, and design tokens are organized inside the [`docs/`](./docs/) directory:
+All engineering documentation is organized into **`doc/frontend/`** and **`doc/backend/`**:
 
-| Document | Scope & Contents |
+### Frontend Documentation ([`doc/frontend/`](./doc/frontend/))
+| Document | Description |
 |:---|:---|
-| 📋 [**File Structure & Inventory (`docs/file-structure.md`)**](./docs/file-structure.md) | Exhaustive file-by-file inventory mapping every active asset, stylesheet, page, component, and service to its architectural responsibility. |
-| 🛡️ [**Agent & Developer Guardrails (`docs/agent-guardrails.md`)**](./docs/agent-guardrails.md) | Mandatory engineering guardrails, prerequisite reading requirements, zero-emojis rules, modular layer boundaries, and locked evaluation schemas. |
-| 🔌 [**REST API Specifications & DTOs (`docs/endpoints.md`)**](./docs/endpoints.md) | Complete backend API contract detailing HTTP verbs, module routing, request DTOs, Zod validation schemas, and PostgreSQL 16 response structures. |
-| 📊 [**Evaluation & Bayesian Leaderboard Engine (`docs/evaluation.md`)**](./docs/evaluation.md) | Mathematical formulas and specification for the 100-point scoring criteria (40/20/25/15), anti-cheat deduction rules, and Bayesian volume-weighted ranking algorithm. |
-| 🏛️ [**System Architecture & Data Flows (`docs/system-architecture.md`)**](./docs/system-architecture.md) | In-depth engineering blueprint covering 3-tier RBAC security, $1/N$ multi-brand row multiplication algorithms, and end-to-end data lifecycle. |
-| 🎨 [**UI/UX Design & Style Guide (`docs/ui-ux-design-guide.md`)**](./docs/ui-ux-design-guide.md) | Enterprise design system standards, official ADCO emerald/mint green color palettes, typography hierarchy, zero-emoji policy, and responsive mobile rules. |
+| [Architecture](./doc/frontend/architecture.md) | SPA routing, `≤ 350`-line file cap, modular layers, state store & Vercel deployment |
+| [UI/UX Design Guide](./doc/frontend/ui-ux-guide.md) | ADCO light-mode design tokens, Lucide icons, `.avif` media pipeline & CSS build |
+| [File Structure](./doc/frontend/file-structure.md) | Complete `frontend/` directory tree, CSS cascade & module inventory |
+| [Frontend Guardrails](./doc/frontend/guardrails.md) | Coding rules, cache busting, zero-emoji policy & regression prevention |
+| [Frontend Audit Result](./doc/frontend/audit-result.md) | Runtime page, state, and component audit reference |
 
----
-
-## 🏗️ Repository Directory Structure
-
-```text
-adco-field-app/
-├── docs/                                       # 📚 Centralized Technical Documentation
-│   ├── endpoints.md                            # REST API specifications & DTO schemas
-│   ├── file-structure.md                       # Repository file inventory & responsibility guide
-│   ├── system-architecture.md                  # 3-tier RBAC architecture & data flow matrix
-│   └── ui-ux-design-guide.md                   # UI/UX design tokens & visual standards
-│
-├── frontend/                                   # 💻 Client Application (Single Source of Truth)
-│   ├── index.html                              # Primary web application landing shell
-│   ├── manifest.json                           # Progressive Web App (PWA) manifest
-│   ├── sw.js                                   # Offline Service Worker & cache strategy
-│   ├── assets/                                 # 23 vector icons & branded graphics
-│   ├── css/                                    # 16 decoupled modular CSS stylesheets (including activity-details.css)
-│   ├── pages/                                  # 10 semantic operational HTML views (including standalone activity-details.html)
-│   └── js/                                     # Modular JavaScript architecture (config/, store/, services/, utils/, components/, pages/)
-│
-├── run-app.bat                                 # Windows desktop launcher script
-├── vercel.json                                 # Vercel serverless deployment routing
-└── README.md                                   # Master documentation portal
-```
-
----
-
-## 🔒 Git Version Control Guidelines
-- All feature additions, refactoring, and audits are verified and tested locally before committing.
-- Commit messages follow the Conventional Commits specification (`feat:`, `fix:`, `docs:`, `refactor:`).
-- Pushes to remote repositories require explicit supervisor approval.
+### Backend Documentation ([`doc/backend/`](./doc/backend/))
+| Document | Description |
+|:---|:---|
+| [Backend Architecture](./doc/backend/architecture.md) | Cognito/JWT auth, Lambda/SQS workers, DB store, Google Sheets & Power BI sync |
+| [API Contracts](./doc/backend/api-contracts.md) | RESTful API v1 endpoints, headers, RBAC scoping & DTO schemas |
+| [File Structure](./doc/backend/file-structure.md) | `backend/` directory tree & target server module blueprint |
+| [Backend Guardrails](./doc/backend/guardrails.md) | Security, server-side RBAC, idempotency, GPS/hash validation & deployment rules |
+| [Evaluation & Scoring](./doc/backend/evaluation.md) | 100-point 4-pillar scoring matrix & Bayesian leaderboard algorithm |
+| [Final System Design](./doc/backend/system-design.md) | Complete v3.0 system specification & relational database schema |
+| [System Diagrams](./doc/backend/system-diagrams.md) | Mermaid context, ERD, state machine & sequence diagrams |

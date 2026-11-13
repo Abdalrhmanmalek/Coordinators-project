@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -9,7 +9,7 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   </script>
-    <link rel="stylesheet" href="../css/app.min.css" />
+    <link rel="stylesheet" href="../css/app.min.css?v=7" />
 <script src="../js/vendor/lucide.min.js"></script>
 </head>
 <body>
@@ -22,10 +22,17 @@
         <h1 class="db-s2" id="welcome-title">لوحة المتابعة</h1>
         <p id="welcome-role"></p>
       </div>
-      <a href="./activity-card.html" class="btn btn-primary">
-        <i data-lucide="plus-circle" class="ui-icon"></i>
-        <span>نشاط جديد</span>
-      </a>
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <button type="button" id="toggle-branch-filters-btn" class="filter-toggle-btn is-hidden" aria-expanded="false" aria-controls="sup-filter-toolbar">
+          <i data-lucide="sliders-horizontal" class="ui-icon ui-icon-sm"></i>
+          <span>بحث وتصفية</span>
+          <span class="filter-active-badge is-hidden" id="db-filter-active-badge">0</span>
+        </button>
+        <a href="./activity-card.html" class="btn btn-primary">
+          <i data-lucide="plus-circle" class="ui-icon"></i>
+          <span>نشاط جديد</span>
+        </a>
+      </div>
     </div>
 
     <!-- KPI Row -->
@@ -61,14 +68,19 @@
       </div>
     </div>
 
-    <!-- Dedicated Filter Bar for Manager & Coordinator Supervisor (Parent Client & Branch) -->
-    <div id="sup-filter-toolbar" class="card db-s7 is-hidden">
+    <!-- Collapsible Filter Drawer for Manager & Coordinator Supervisor (Hidden by Default) -->
+    <div id="sup-filter-toolbar" class="card db-s7 filter-drawer-collapsible is-hidden">
       <div class="db-s8">
         <div class="db-s9">
           <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
           <span id="sup-toolbar-title">تصفية الفروع: <strong id="sup-client-tag">جميع العملاء</strong></span>
         </div>
-        <span class="badge badge-mint" id="sup-branch-count-badge">كل الفروع</span>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <button type="button" id="db-clear-filters-btn" class="filter-clear-btn is-hidden">
+            <i data-lucide="x" class="ui-icon ui-icon-xs"></i>
+            <span>مسح الفلاتر</span>
+          </button>
+        </div>
       </div>
       <div class="responsive-form-grid db-s10">
         <div class="form-group db-s11" id="group-filter-parent-client">
@@ -92,27 +104,31 @@
       </div>
     </div>
 
-    <!-- Master Branch Cards Section (Branch-Centric Navigation) -->
-    <div class="section-header-row">
-      <h3 class="section-header-title">
-        <i data-lucide="map-pin" class="ui-icon ui-icon-sm"></i>
-        <span>بطاقات الفروع</span>
-      </h3>
-      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-        <button type="button" id="reset-branch-card-filter" class="btn btn-outline btn-sm is-hidden">
-          <span>كل الفروع</span>
-        </button>
+    <!-- Section 2: Master Branch Cards Section -->
+    <section class="page-section page-section-branches branches-section">
+      <div class="section-header-row">
+        <h3 class="section-header-title">
+          <i data-lucide="map-pin" class="ui-icon ui-icon-sm"></i>
+          <span>بطاقات الفروع</span>
+          <span class="section-count-pill" id="db-branches-count-pill">0</span>
+        </h3>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <button type="button" id="reset-branch-card-filter" class="btn btn-outline btn-sm is-hidden">
+            <span>عرض الكل</span>
+          </button>
         </div>
-    </div>
-    <div id="master-branches-mount" class="master-branches-grid"></div>
+      </div>
+      <div id="master-branches-mount" class="master-branches-grid"></div>
+    </section>
 
-    <!-- Filter Bar & Activities Feed Section -->
-    <div class="section-header-row" style="margin-top: 28px;">
-      <h3 class="section-header-title">
-        <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
-        <span>الأنشطة الميدانية</span>
-      </h3>
-    </div>
+    <!-- Section 3: Filter Bar & Activities Feed Section -->
+    <section class="page-section page-section-activities activities-section">
+      <div class="section-header-row">
+        <h3 class="section-header-title">
+          <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
+          <span>الأنشطة الميدانية</span>
+        </h3>
+      </div>
 
     <div class="filter-bar">
       <div class="filter-chips">
@@ -145,14 +161,19 @@
 
     <!-- Activities Cards Grid (Full-Width Responsive Multi-Column) -->
     <div id="activities-list" class="responsive-cards-grid"></div>
+    </section>
   </main>
 
   <script src="../js/config/env.config.js"></script>
   <script src="../js/utils/formatters.js"></script>
   <script src="../js/ui-helpers.js"></script>
+  <script src="../js/components/ui-combobox.js"></script>
+  <script src="../js/components/ui-multi-combobox.js"></script>
+  <script src="../js/components/gallery-lightbox.js"></script>
   <script src="../js/store/employee-registry.seed.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/config/adco-catalogs.config.js"></script>
+  <script src="../js/store/seed-data-extra.js"></script>
   <script src="../js/store/seed-data.js"></script>
   <script src="../js/store/activity.store.js"></script>
   <script src="../js/services/branch.service.js"></script>
@@ -162,9 +183,13 @@
   <script src="../js/services/activity-submission.service.js"></script>
   <script src="../js/services/activity-lifecycle.service.js"></script>
   <script src="../js/activity-manager.js"></script>
-  <script src="../js/app.js"></script>
+  <script src="../js/components/profile-modal.js?v=7"></script>
+  <script src="../js/components/router-lifecycle.js"></script>
+  <script src="../js/app.js?v=7"></script>
   <script src="../js/components/master-branch-card.js"></script>
   <script src="../js/components/activity-card-item.js"></script>
-  <script src="../js/pages/dashboard.page.js"></script>
+  <script src="../js/components/filter-dropdown.js?v=7"></script>
+  <script src="../js/components/dashboard-branches.js?v=7"></script>
+  <script src="../js/pages/dashboard.page.js?v=7"></script>
 </body>
 </html>

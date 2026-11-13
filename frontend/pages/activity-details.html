@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -9,7 +9,7 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   </script>
-    <link rel="stylesheet" href="../css/app.min.css" />
+    <link rel="stylesheet" href="../css/app.min.css?v=7" />
 <script src="../js/vendor/lucide.min.js"></script>
 </head>
 <body>
@@ -68,23 +68,31 @@
       </div>
 
       <form id="ad-new-followup-form" style="display: flex; flex-direction: column; gap: 16px;">
-        <!-- Camera Capture / Upload Dropzone -->
+        <!-- Camera Capture / Multi-Photo Upload Dropzone -->
         <div>
           <label class="form-label" style="font-weight: 700; margin-bottom: 6px; display: block;">
-            صورة المتابعة *
+            صور المتابعة (حتى 6 صور) *
           </label>
           <div class="ad-upload-dropzone" id="ad-camera-dropzone">
-            <input type="file" id="ad-camera-input" accept="image/*" capture="environment" style="display: none;" />
+            <input type="file" id="ad-camera-input" accept="image/*" capture="environment" multiple style="display: none;" />
             <i data-lucide="camera" class="ui-icon ui-icon-lg" style="width: 38px; height: 38px; color: var(--adco-green-main);"></i>
-            <strong style="font-size: 0.95rem; color: var(--adco-green-deep);">التقاط صورة المتابعة</strong>
+            <strong style="font-size: 0.95rem; color: var(--adco-green-deep);">التقاط أو اختيار صور المتابعة</strong>
+            <span style="font-size: 0.78rem; color: #64748b;">يمكنك التقاط صور متتالية أو اختيار حتى 6 صور للجولة</span>
           </div>
 
-          <!-- Preview Wrap -->
-          <div class="ad-upload-preview-wrap is-hidden" id="ad-preview-wrap">
-            <img id="ad-preview-img" src="" alt="معاينة المتابعة" />
-            <button type="button" class="btn btn-secondary btn-xs" id="ad-retake-btn" style="position: absolute; bottom: 8px; left: 8px; background: rgba(15, 23, 42, 0.8); color: #fff;">
-              إعادة التقاط
-            </button>
+          <!-- Staged Photos Queue Wrap -->
+          <div class="followup-staged-wrap is-hidden" id="ad-preview-wrap">
+            <div class="followup-staged-header">
+              <span class="followup-staged-counter" id="ad-staged-counter">
+                <i data-lucide="images" class="ui-icon ui-icon-sm"></i>
+                <span>تم إرفاق 0 من 6 صور</span>
+              </span>
+              <button type="button" class="btn btn-secondary btn-xs" id="ad-add-more-photo-btn" style="display: inline-flex; align-items: center; gap: 5px;">
+                <i data-lucide="plus" class="ui-icon ui-icon-xs"></i>
+                <span>إضافة صورة أخرى</span>
+              </button>
+            </div>
+            <div class="followup-staged-grid" id="ad-staged-photos-grid"></div>
           </div>
         </div>
 
@@ -229,10 +237,15 @@
   <script src="../js/config/env.config.js"></script>
   <script src="../js/utils/formatters.js"></script>
   <script src="../js/ui-helpers.js"></script>
+  <script src="../js/components/ui-combobox.js"></script>
+  <script src="../js/components/ui-multi-combobox.js"></script>
+  <script src="../js/components/gallery-lightbox.js"></script>
+  <script src="../js/utils/exif-parser.js"></script>
   <script src="../js/utils/camera-compressor.js"></script>
   <script src="../js/store/employee-registry.seed.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/config/adco-catalogs.config.js"></script>
+  <script src="../js/store/seed-data-extra.js"></script>
   <script src="../js/store/seed-data.js"></script>
   <script src="../js/store/activity.store.js"></script>
   <script src="../js/services/branch.service.js"></script>
@@ -243,7 +256,13 @@
   <script src="../js/services/activity-lifecycle.service.js"></script>
   <script src="../js/components/activity-card-item.js"></script>
   <script src="../js/activity-manager.js"></script>
-  <script src="../js/app.js"></script>
+  <script src="../js/components/profile-modal.js?v=7"></script>
+  <script src="../js/components/router-lifecycle.js"></script>
+  <script src="../js/app.js?v=7"></script>
+  <script src="../js/components/activity-details-hero.js"></script>
+  <script src="../js/components/activity-details-timeline.js"></script>
+  <script src="../js/components/activity-details-products.js"></script>
+  <script src="../js/components/activity-details-followup.js"></script>
   <script src="../js/pages/activity-details.page.js"></script>
 </body>
 </html>

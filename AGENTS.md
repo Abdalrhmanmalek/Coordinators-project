@@ -1,4 +1,4 @@
-# Responsive Frontend Guidelines (MANDATORY)
+﻿# Responsive Frontend Guidelines (MANDATORY)
 
 Applies to every new page, component, and edit in `frontend/` (plain HTML + CSS + JS, Arabic RTL).
 Every page must work from **320px phones to 4K** with **no layout breakage, no horizontal scroll, no console errors**.
@@ -7,7 +7,7 @@ Every page must work from **320px phones to 4K** with **no layout breakage, no h
 - Pages: `frontend/pages/*.html` (`<html lang="ar" dir="rtl">`)
 - CSS load order: `variables.css, base.css, layout.css, components.css, <page>.css, enhancements.css, styles.css, mobile-pwa.css` in `frontend/css/`
 - Reuse existing variables/classes in these files. Do not duplicate styles. Put page-specific rules in that page's CSS file.
-- See also `docs/ui-ux-design-guide.md`.
+- See also `doc/frontend/ui-ux-guide.md` and `doc/frontend/guardrails.md`.
 
 ## 1. Foundations
 - Every page has `<meta name="viewport" content="width=device-width, initial-scale=1.0">`. Never use `user-scalable=no`.

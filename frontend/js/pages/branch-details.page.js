@@ -1,10 +1,6 @@
 /**
  * ADCO Field Operations System - Branch Details Page Controller
- * Single Responsibility: Dedicated Branch View (branch-details.html) showing
- * Parent Client (العميل الأم) first, specific Branch Name (فرع العميل) underneath,
- * full supplying branch metadata (فرع الشركة المورد للبضاعة), coordinator/supervisor info,
- * GPS location, interactive status counters, and all activities belonging strictly to that branch.
- * Compatible with both file:// protocol and http:// server environments.
+ * Single Responsibility: Thin route & filter controller for branch-details.html
  */
 
 (function (global) {
@@ -30,6 +26,21 @@
   const params = new URLSearchParams(window.location.search);
   const requestedBranch = params.get('branch') || user.assignedBranchName || user.branch || 'فرع سموحة - الإسكندرية';
   const requestedClient = params.get('client') || user.assignedClientName || 'فتح الله جملة ماركت (Fathalla)';
+  const fromPage = params.get('from') || (typeof document !== 'undefined' && document.referrer && document.referrer.includes('supervisor') ? 'supervisor' : 'dashboard');
+
+  const backBtn = document.getElementById('bd-back-btn');
+  if (backBtn) {
+    const backHref = fromPage === 'supervisor' ? './supervisor-panel.html' : './dashboard.html';
+    backBtn.setAttribute('href', backHref);
+    backBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (Router && typeof Router.navigateTo === 'function') {
+        Router.navigateTo(backHref);
+      } else {
+        window.location.href = backHref;
+      }
+    });
+  }
 
   let currentFilter = params.get('status') || 'ALL';
 
@@ -39,7 +50,6 @@
   const dateToInput = document.getElementById('bd-filter-date-to');
   const resetFiltersBtn = document.getElementById('bd-reset-filters-btn');
 
-  // Populate Activity Type dropdown from ADCO_CATALOGS + existing branch activities
   function populateActivityTypesDropdown() {
     if (!typeSelect) return;
     const catTypes = (global.ADCO_CATALOGS && Array.isArray(global.ADCO_CATALOGS.activityTypes))
@@ -85,9 +95,37 @@
     }
   }
 
-  function openGoogleMapsForBranch(queryStr) {
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryStr)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+  function updateCountersAndKpis(branchActivities) {
+    const accepted = branchActivities.filter((a) => !a.isClosed && a.status === 'Accepted');
+    const reviewList = branchActivities.filter((a) => !a.isClosed && a.status === 'Under Review');
+    const rejectedList = branchActivities.filter((a) => !a.isClosed && a.status === 'Rejected');
+    const closedList = branchActivities.filter((a) => Boolean(a.isClosed));
+
+    const kpiTotal = document.getElementById('bd-kpi-total');
+    const kpiAccepted = document.getElementById('bd-kpi-accepted');
+    const kpiUnderReview = document.getElementById('bd-kpi-under-review');
+    if (kpiTotal) kpiTotal.textContent = branchActivities.length;
+    if (kpiAccepted) kpiAccepted.textContent = accepted.length;
+    if (kpiUnderReview) {
+      kpiUnderReview.textContent = reviewList.length;
+      const kpiCard = kpiUnderReview.closest('.kpi-card');
+      if (kpiCard) kpiCard.classList.toggle('glowing-under-review', reviewList.length > 0);
+    }
+
+    const cntAll = document.getElementById('bd-cnt-all');
+    const cntReview = document.getElementById('bd-cnt-review');
+    const cntAccepted = document.getElementById('bd-cnt-accepted');
+    const cntRejected = document.getElementById('bd-cnt-rejected');
+    const cntClosed = document.getElementById('bd-cnt-closed');
+    if (cntAll) cntAll.textContent = branchActivities.length;
+    if (cntReview) {
+      cntReview.textContent = reviewList.length;
+      const chip = cntReview.closest('.filter-chip');
+      if (chip) chip.classList.toggle('glowing-under-review', reviewList.length > 0);
+    }
+    if (cntAccepted) cntAccepted.textContent = accepted.length;
+    if (cntRejected) cntRejected.textContent = rejectedList.length;
+    if (cntClosed) cntClosed.textContent = closedList.length;
   }
 
   function renderBranchDetailsPage() {
@@ -107,22 +145,28 @@
 
     const latNum = Number(locObj.latitude || 31.2156);
     const lngNum = Number(locObj.longitude || 29.9553);
-    const mapsQuery = (locObj.latitude && locObj.longitude)
-      ? `${latNum},${lngNum}`
-      : `${parentClient} ${locObj.address || branchName}`;
+    const mapsQuery = (locObj.latitude && locObj.longitude) ? `${latNum},${lngNum}` : `${parentClient} ${locObj.address || branchName}`;
     const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`;
 
     const coordsSet = new Set();
     const brandsSet = new Set();
     branchActivities.forEach((act) => {
       if (act.coordinatorName) coordsSet.add(act.coordinatorName);
-      if (Array.isArray(act.brands)) {
-        act.brands.forEach((b) => brandsSet.add(b));
-      }
+      if (Array.isArray(act.brands)) act.brands.forEach((b) => brandsSet.add(b));
     });
 
     const rawCoords = Array.from(coordsSet).join(' ، ') || user.fullName || 'أحمد محمود العبد';
     const coordNames = typeof formatTwoWordName === 'function' ? formatTwoWordName(rawCoords) : rawCoords;
+    const registryList = Auth && typeof Auth.getRegistry === 'function' ? Auth.getRegistry() : (global.ADCO_EMPLOYEE_REGISTRY || []);
+    const coordExtra = Array.from(coordsSet)
+      .map((name) => {
+        const emp = Array.isArray(registryList) ? registryList.find((r) => r.fullName === name || r.name === name) : null;
+        if (!emp) return null;
+        const parts = [emp.employeeId, emp.phone].filter(Boolean);
+        return parts.length > 0 ? `${typeof formatTwoWordName === 'function' ? formatTwoWordName(name) : name} (${parts.join(' - ')})` : null;
+      })
+      .filter(Boolean)
+      .join(' ، ');
     const brandsList = Array.from(brandsSet).join(' ، ') || 'فلفيتا ، فييا ، فما ، جلاسي';
 
     const titleEl = document.getElementById('bd-client-title');
@@ -130,141 +174,31 @@
     if (titleEl) titleEl.textContent = parentClient;
     if (subEl) subEl.textContent = `${branchName} — سجل الأنشطة الميدانية وبيانات الفرع الكاملة`;
 
-    const accepted = branchActivities.filter((a) => !a.isClosed && a.status === 'Accepted');
-    const reviewList = branchActivities.filter((a) => !a.isClosed && a.status === 'Under Review');
-    const rejectedList = branchActivities.filter((a) => !a.isClosed && a.status === 'Rejected');
-    const closedList = branchActivities.filter((a) => Boolean(a.isClosed));
+    updateCountersAndKpis(branchActivities);
 
-    const kpiTotal = document.getElementById('bd-kpi-total');
-    const kpiAccepted = document.getElementById('bd-kpi-accepted');
-    const kpiUnderReview = document.getElementById('bd-kpi-under-review');
-    if (kpiTotal) kpiTotal.textContent = branchActivities.length;
-    if (kpiAccepted) kpiAccepted.textContent = accepted.length;
-    if (kpiUnderReview) {
-      kpiUnderReview.textContent = reviewList.length;
-      const kpiCard = kpiUnderReview.closest('.kpi-card');
-      if (kpiCard) {
-        if (reviewList.length > 0) {
-          kpiCard.classList.add('glowing-under-review');
-        } else {
-          kpiCard.classList.remove('glowing-under-review');
-        }
-      }
-    }
-
-    const cntAll = document.getElementById('bd-cnt-all');
-    const cntReview = document.getElementById('bd-cnt-review');
-    const cntAccepted = document.getElementById('bd-cnt-accepted');
-    const cntRejected = document.getElementById('bd-cnt-rejected');
-    const cntClosed = document.getElementById('bd-cnt-closed');
-    if (cntAll) cntAll.textContent = branchActivities.length;
-    if (cntReview) {
-      cntReview.textContent = reviewList.length;
-      const chip = cntReview.closest('.filter-chip');
-      if (chip) {
-        if (reviewList.length > 0) {
-          chip.classList.add('glowing-under-review');
-        } else {
-          chip.classList.remove('glowing-under-review');
-        }
-      }
-    }
-    if (cntAccepted) cntAccepted.textContent = accepted.length;
-    if (cntRejected) cntRejected.textContent = rejectedList.length;
-    if (cntClosed) cntClosed.textContent = closedList.length;
-
-    const heroCard = document.getElementById('bd-hero-meta-card');
-    if (heroCard) {
-      heroCard.innerHTML = `
-        <div class="bd-hero-card-header">
-          <div class="bd-hero-title-group">
-            <h2 class="bd-hero-client-title">${parentClient}</h2>
-            <div class="bd-hero-branch-title">
-              <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
-              <span>${branchName}</span>
-            </div>
-          </div>
-
-          <div class="branch-supply-pill bd-hero-supply-box">
-            <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
-            <span>فرع الشركة المورد للبضاعة: <strong>${supplyingBranch}</strong></span>
-          </div>
-
-          <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="branch-gps-map-link bd-hero-map-btn" id="bd-hero-subtitle-map-link" data-map-query="${mapsQuery}" title="اضغط لفتح موقع الفرع على خرائط جوجل (Google Maps)">
-            <i data-lucide="map-pin" class="ui-icon ui-icon-sm"></i>
-            <span>فتح موقع الفرع على خرائط Google Maps</span>
-          </a>
-        </div>
-
-        <div class="branch-meta-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; padding: 14px 16px;">
-          <div class="branch-meta-item">
-            <span class="branch-meta-label">العميل الأم (Parent Client)</span>
-            <span class="branch-meta-val">${parentClient}</span>
-          </div>
-          <div class="branch-meta-item">
-            <span class="branch-meta-label">فرع العميل (Branch)</span>
-            <span class="branch-meta-val">${branchName}</span>
-          </div>
-          <div class="branch-meta-item">
-            <span class="branch-meta-label">فرع الشركة المورد للبضاعة</span>
-            <span class="branch-meta-val">${supplyingBranch}</span>
-          </div>
-          <div class="branch-meta-item">
-            <span class="branch-meta-label">المنسق الميداني المسؤول</span>
-            <span class="branch-meta-val">${coordNames}</span>
-          </div>
-          <div class="branch-meta-item">
-            <span class="branch-meta-label">المشرف المسؤول</span>
-            <span class="branch-meta-val">${supervisorName}</span>
-          </div>
-          <div class="branch-meta-item">
-            <span class="branch-meta-label">الموقع والإحداثيات (GPS - خرائط جوجل)</span>
-            <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="branch-gps-map-link" id="bd-meta-gps-map-link" data-map-query="${mapsQuery}" title="افتح الإحداثيات في Google Maps">
-              <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
-              <span>${locObj.address || branchName} (${latNum.toFixed(4)}°N, ${lngNum.toFixed(4)}°E)</span>
-            </a>
-          </div>
-          <div class="branch-meta-item full-span">
-            <span class="branch-meta-label">العلامات التجارية المعروضة بالفرع</span>
-            <span class="branch-meta-val" style="color: var(--adco-green-primary);">${brandsList}</span>
-          </div>
-        </div>
-      `;
-
-      heroCard.querySelectorAll('.branch-gps-map-link').forEach((linkEl) => {
-        linkEl.addEventListener('click', (e) => {
-          e.preventDefault();
-          const q = linkEl.dataset.mapQuery || mapsQuery;
-          openGoogleMapsForBranch(q);
-        });
+    if (global.BranchHeroCard) {
+      global.BranchHeroCard.render(document.getElementById('bd-hero-meta-card'), {
+        parentClient, branchName, supplyingBranch, googleMapsUrl, mapsQuery,
+        coordExtra, coordNames, supervisorName, locObj, latNum, lngNum, brandsList
       });
     }
 
-    // Apply Advanced Activity Filters (Status, Activity Type, Date/Time Range)
     let filtered = [...branchActivities];
-
-    // 1. Status filter
     if (currentFilter === 'CLOSED') {
       filtered = filtered.filter((a) => Boolean(a.isClosed));
     } else if (currentFilter !== 'ALL') {
       filtered = filtered.filter((a) => !a.isClosed && a.status === currentFilter);
     }
 
-    // 2. Activity Type filter
     const selectedType = typeSelect ? typeSelect.value : 'ALL';
     if (selectedType && selectedType !== 'ALL') {
-      filtered = filtered.filter(
-        (a) =>
-          (a.activityType || '') === selectedType ||
-          (a.activity || '') === selectedType ||
-          (a.displayType || '').includes(selectedType)
+      filtered = filtered.filter((a) =>
+        (a.activityType || '') === selectedType || (a.activity || '') === selectedType || (a.displayType || '').includes(selectedType)
       );
     }
 
-    // 3. Date / Time range filter
     const fromVal = dateFromInput && dateFromInput.value ? new Date(dateFromInput.value).getTime() : null;
     const toVal = dateToInput && dateToInput.value ? new Date(dateToInput.value).getTime() : null;
-
     if (fromVal && !isNaN(fromVal)) {
       filtered = filtered.filter((a) => {
         const ts = new Date(a.activityDate || a.timestamp || a.createdAt || 0).getTime();
@@ -291,179 +225,45 @@
           </a>
         </div>
       `;
+      if (typeof global.refreshIcons === 'function') global.refreshIcons(container);
       return;
     }
 
     container.innerHTML = filtered
-      .map((act) => {
-        if (global.ActivityCardItem && typeof global.ActivityCardItem.render === 'function') {
-          return global.ActivityCardItem.render(act, {
-            computeRating: Activity.computeOverallRating,
-            renderStatusBadge
-          });
-        }
-
-        const ratingStats = Activity.computeOverallRating(act);
-        const actSupervisor = act.reviewerName || supervisorName;
-        const locAddress = (act.location && act.location.address) ? act.location.address : act.branch;
-        const roundsCount = act.followUpHistory ? act.followUpHistory.length : 1;
-        const actType = act.activityType || act.activity || 'عرض منتجات';
-        const brandsList = Array.isArray(act.brands) && act.brands.length > 0 ? act.brands : ['فلفيتا', 'فييا'];
-
-        let latestNotes = '';
-        let latestReviewer = act.reviewerName || actSupervisor || 'مدير التسويق';
-        if (Array.isArray(act.followUpHistory) && act.followUpHistory.length > 0) {
-          for (let i = act.followUpHistory.length - 1; i >= 0; i--) {
-            if (act.followUpHistory[i].sessionNotes && act.followUpHistory[i].sessionNotes.trim()) {
-              latestNotes = act.followUpHistory[i].sessionNotes.trim();
-              if (act.followUpHistory[i].reviewerName) {
-                latestReviewer = act.followUpHistory[i].reviewerName;
-              }
-              break;
-            }
-          }
-        }
-        if (!latestNotes && act.supervisorNotes && act.supervisorNotes.trim()) {
-          latestNotes = act.supervisorNotes.trim();
-        }
-
-        const isClosed = act.endStatus === 'ENDED' || Boolean(act.isClosed);
-        const isPendingClosure = act.endStatus === 'ENDING_REQUESTED' || Boolean(act.closureRequested);
-
-        return `
-          <div class="activity-card-item" data-act-id="${act.id}" role="button" tabindex="0" style="cursor: pointer;" title="اضغط لفتح سجل المراجعات وتفاصيل النشاط بالكامل">
-            <div class="activity-card-head">
-              <img src="${act.photoUrl || '../assets/images/fathalla-branch.avif'}" alt="${act.client}" class="activity-card-thumb" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.avif';" />
-              <div class="db-s17">
-                <div class="db-s18">
-                  <strong class="db-s19">${act.client}</strong>
-                  <div class="db-s20">
-                    ${isClosed ? `<span class="badge badge-success db-s21">منتهي</span>` : isPendingClosure ? `<span class="badge badge-warning db-s21">طلب إنهاء</span>` : ''}
-                    ${renderStatusBadge(act)}
-                  </div>
-                </div>
-                <div class="branch-card-sub" style="margin-bottom: 4px;">
-                  <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
-                  <span>${act.branch}</span>
-                </div>
-                <p class="db-s22" style="margin-bottom: 4px;">
-                  <strong>${act.activity || '-'}</strong>
-                </p>
-                <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
-                  <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span class="badge badge-mint" style="font-weight: 700; font-size: 0.74rem;">
-                      <i data-lucide="sliders-horizontal" class="ui-icon ui-icon-xs"></i>
-                      <span>نوع العرض: ${actType}${act.activityCount ? ` × ${act.activityCount}` : ''}</span>
-                    </span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
-                    <span style="font-size: 0.72rem; color: var(--adco-gray-600); font-weight: 600;">العلامات:</span>
-                    ${brandsList.map((b) => `<span class="badge badge-outline-brand" style="font-size: 0.70rem; padding: 1px 6px; background: rgba(15, 118, 110, 0.06); border: 1px solid rgba(15, 118, 110, 0.2); color: var(--adco-green-deep);">${b}</span>`).join('')}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="branch-meta-grid">
-              <div class="branch-meta-item">
-                <span class="branch-meta-label">المنسق الميداني</span>
-                <span class="branch-meta-val">${(typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName) || '-'}</span>
-              </div>
-              <div class="branch-meta-item">
-                <span class="branch-meta-label">المشرف المعتمد</span>
-                <span class="branch-meta-val">${actSupervisor}</span>
-              </div>
-              <div class="branch-meta-item full-span">
-                <span class="branch-meta-label">الموقع الجغرافي</span>
-                <span class="branch-meta-val">${locAddress}</span>
-              </div>
-            </div>
-
-            ${latestNotes ? `
-              <div class="branch-card-feedback-preview">
-                <div class="feedback-preview-header">
-                  <span class="feedback-badge-label">
-                    <i data-lucide="clipboard-edit" class="ui-icon ui-icon-xs"></i>
-                    <span>توجيهات مدير التسويق:</span>
-                  </span>
-                  <span class="feedback-reviewer-name">${latestReviewer}</span>
-                </div>
-                <p class="feedback-preview-text">"${latestNotes}"</p>
-              </div>
-            ` : `
-              <div class="branch-card-feedback-preview feedback-pending">
-                <span class="feedback-badge-label">
-                  <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
-                  <span>بانتظار مراجعة وتوجيهات مدير التسويق للجولات المرفوعة</span>
-                </span>
-              </div>
-            `}
-
-            <div class="db-s23" style="margin-top: 10px;">
-              <span class="badge badge-warning db-s24">
-                <i data-lucide="star" class="ui-icon ui-icon-sm"></i>
-                <span>التقييم: ${ratingStats.totalWeightedScore}/100</span>
-              </span>
-              <span class="db-s25">
-                ${ratingStats.totalSessions} ${ratingStats.totalSessions === 1 ? 'جولة متابعة' : 'جولات متابعة'}
-              </span>
-            </div>
-
-            <div class="activity-card-action-bar">
-              <button type="button" class="btn btn-secondary btn-sm btn-open-card-details" data-act-id="${act.id}" title="فتح سجل المراجعات والجولات وتوجيهات مدير التسويق">
-                <i data-lucide="calendar-clock" class="ui-icon ui-icon-xs"></i>
-                <span>سجل المراجعات (${roundsCount})</span>
-              </button>
-              <button type="button" class="btn btn-primary btn-sm btn-quick-add-photo" data-act-id="${act.id}" title="إضافة متابعة جديدة والتقاط الصور لهذا النشاط">
-                <i data-lucide="camera" class="ui-icon ui-icon-xs"></i>
-                <span>إضافة متابعة</span>
-              </button>
-            </div>
-          </div>
-        `;
-      })
+      .map((act) => global.ActivityCardItem.render(act, { computeRating: Activity.computeOverallRating, renderStatusBadge }))
       .join('');
 
-    // Attach card click handlers with delegation to dedicated activity details page
     container.querySelectorAll('.activity-card-item').forEach((card) => {
       const actId = card.dataset.actId;
       card.addEventListener('click', (e) => {
         if (e.target.closest('.activity-card-action-bar')) return;
         window.location.href = `./activity-details.html?id=${actId}`;
       });
-
       card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          if (e.target.closest('.activity-card-action-bar')) return;
+        if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('.activity-card-action-bar')) {
           e.preventDefault();
           window.location.href = `./activity-details.html?id=${actId}`;
         }
       });
     });
 
-    // Attach "إضافة متابعة" quick button handlers
     container.querySelectorAll('.btn-quick-add-photo').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const actId = btn.dataset.actId;
-        window.location.href = `./activity-details.html?id=${actId}&action=new-followup`;
+        window.location.href = `./activity-details.html?id=${btn.dataset.actId}&action=new-followup`;
       });
     });
 
-    // Attach "سجل المراجعات" button handlers
     container.querySelectorAll('.btn-open-card-details').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const actId = btn.dataset.actId;
-        window.location.href = `./activity-details.html?id=${actId}`;
+        window.location.href = `./activity-details.html?id=${btn.dataset.actId}`;
       });
     });
 
-    if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') {
-      window.refreshIcons(container);
-    }
+    if (typeof global.refreshIcons === 'function') global.refreshIcons(container);
   }
 
   document.querySelectorAll('.filter-chip').forEach((btn) => {
@@ -482,23 +282,9 @@
     });
   }
 
-  if (typeSelect) {
-    typeSelect.addEventListener('change', () => {
-      renderBranchDetailsPage();
-    });
-  }
-
-  if (dateFromInput) {
-    dateFromInput.addEventListener('change', () => {
-      renderBranchDetailsPage();
-    });
-  }
-
-  if (dateToInput) {
-    dateToInput.addEventListener('change', () => {
-      renderBranchDetailsPage();
-    });
-  }
+  [typeSelect, dateFromInput, dateToInput].forEach((el) => {
+    if (el) el.addEventListener('change', renderBranchDetailsPage);
+  });
 
   if (resetFiltersBtn) {
     resetFiltersBtn.addEventListener('click', () => {
@@ -512,5 +298,6 @@
     });
   }
 
+  syncFilterChipsUI();
   renderBranchDetailsPage();
 })(typeof window !== 'undefined' ? window : globalThis);

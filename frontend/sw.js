@@ -1,4 +1,4 @@
-const CACHE_NAME = 'adco-field-cache-v11';
+const CACHE_NAME = 'adco-field-cache-v26';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -32,6 +32,8 @@ const ASSETS_TO_CACHE = [
   './js/supervisor.js',
   './js/components/master-branch-card.js',
   './js/components/activity-card-item.js',
+  './js/components/filter-dropdown.js',
+  './js/components/profile-modal.js',
   './js/app.js',
   './pages/login.html',
   './pages/signup-wizard.html',
@@ -68,10 +70,30 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Cache-First (Stale-While-Revalidate) for instant, lightning-fast loads
+// Network-First for code/markup (.js, .css, .html) so updates appear immediately; Stale-While-Revalidate for static assets
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   if (!e.request.url.startsWith('http')) return;
+
+  const url = new URL(e.request.url);
+  const isCodeOrDoc =
+    e.request.mode === 'navigate' ||
+    /\.(js|css|html)$/i.test(url.pathname);
+
+  if (isCodeOrDoc) {
+    e.respondWith(
+      fetch(e.request)
+        .then((networkRes) => {
+          if (networkRes && networkRes.status === 200) {
+            const clone = networkRes.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone)).catch(() => {});
+          }
+          return networkRes;
+        })
+        .catch(() => caches.match(e.request, { ignoreSearch: true }).then((r) => r || caches.match('./index.html')))
+    );
+    return;
+  }
 
   e.respondWith(
     caches.match(e.request, { ignoreSearch: true }).then((cachedRes) => {
@@ -83,7 +105,7 @@ self.addEventListener('fetch', (e) => {
           }
           return networkRes;
         })
-        .catch(() => cachedRes || caches.match('./index.html'));
+        .catch(() => cachedRes);
 
       return cachedRes || fetchPromise;
     })

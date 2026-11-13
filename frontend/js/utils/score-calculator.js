@@ -5,9 +5,7 @@
  *
  * Implements Specification: docs/evaluation.md (ADCO-ENG-SPEC-005)
  */
-
 import { EVALUATION_CRITERIA } from '../config/constants.js';
-
 export const EVALUATION_WEIGHTS = Object.freeze({
   NEW_ACTIVITY: 40,
   EXECUTION_QUALITY: 20,
@@ -15,14 +13,12 @@ export const EVALUATION_WEIGHTS = Object.freeze({
   DOCUMENTATION: 15,
   TOTAL: 100
 });
-
 export const BAYESIAN_LEADERBOARD_DEFAULTS = Object.freeze({
   MIN_BENCHMARK_ROUNDS: 5, // m
   BASELINE_PRIOR_SCORE: 70, // C
   MAX_EFFORT_BONUS: 5,
   BONUS_MULTIPLIER: 1.25
 });
-
 export class ScoreCalculator {
   /**
    * Computes weighted evaluation breakdown across the 4 official criteria (100 Points Total)
@@ -52,17 +48,14 @@ export class ScoreCalculator {
         }
       };
     }
-
     const sessions = Array.isArray(act.followUpHistory) ? act.followUpHistory : [];
     const ratedSessions = sessions.filter(
       (s) => s.sessionScore !== undefined && s.sessionScore !== null && !isNaN(Number(s.sessionScore))
     );
-
     let newActivityScore = 0;
     let executionScore = 0;
     let continuityScore = 0;
     let docScore = 0;
-
     if (act.evaluationBreakdown) {
       const eb = act.evaluationBreakdown;
       newActivityScore = Math.min(EVALUATION_WEIGHTS.NEW_ACTIVITY, Math.max(0, Number(eb.newActivity !== undefined ? eb.newActivity : 40)));
@@ -78,7 +71,6 @@ export class ScoreCalculator {
       } else {
         newActivityScore = 0;
       }
-
       // 2. Execution Quality (20 Points Max)
       let rawRating = null;
       if (ratedSessions.length > 0) {
@@ -91,7 +83,6 @@ export class ScoreCalculator {
         ? Math.round((rawRating / 10) * EVALUATION_WEIGHTS.EXECUTION_QUALITY)
         : act.status === 'Accepted' ? 18 : 12;
       executionScore = Math.min(EVALUATION_WEIGHTS.EXECUTION_QUALITY, Math.max(0, executionScore));
-
       // 3. Verified Continuity Duration (25 Points Max)
       const daysCount = act.daysActive || 15;
       const rounds = Math.max(1, sessions.length);
@@ -104,7 +95,6 @@ export class ScoreCalculator {
       } else {
         continuityScore = 10;
       }
-
       // 4. Documentation & Data Integrity (15 Points Max)
       docScore = 15;
       if (act.location && typeof act.location.distanceMeters === 'number' && act.location.distanceMeters > 150) {
@@ -120,13 +110,11 @@ export class ScoreCalculator {
       }
       docScore = Math.min(EVALUATION_WEIGHTS.DOCUMENTATION, Math.max(0, docScore));
     }
-
     const totalWeightedScore = Math.min(
       EVALUATION_WEIGHTS.TOTAL,
       Math.max(0, Math.round(newActivityScore + executionScore + continuityScore + docScore))
     );
     const tier = this.resolveTierBadge(totalWeightedScore);
-
     return {
       totalWeightedScore,
       badgeText: `${totalWeightedScore} / 100 (${tier.label})`,
@@ -143,11 +131,9 @@ export class ScoreCalculator {
       }
     };
   }
-
   static computeOverallRating(act) {
     return this.computeWeightedEvaluation(act);
   }
-
   /**
    * Evaluates anti-cheat rules and penalty deductions for an activity or follow-up round
    * @param {Object} roundData Input metadata containing photos, location, and coordinator input
@@ -157,7 +143,6 @@ export class ScoreCalculator {
     const deductions = [];
     let isDisqualified = false;
     let roundZeroed = false;
-
     // 1. Duplicate Photo Check
     if (roundData.isDuplicate || roundData.duplicateHashDetected) {
       roundZeroed = true;
@@ -168,7 +153,6 @@ export class ScoreCalculator {
         label: 'صورة مكررة مرتين'
       });
     }
-
     // 2. Fake / Non-Camera Image Check
     if (roundData.isFakeCamera || roundData.liveVerified === false) {
       isDisqualified = true;
@@ -179,7 +163,6 @@ export class ScoreCalculator {
         label: 'صورة وهمية أو غير ملتقطة بالكاميرا المباشرة'
       });
     }
-
     // 3. GPS Location Mismatch (>150m)
     const distanceMeters = Number(roundData.distanceMeters || (roundData.location && roundData.location.distanceMeters) || 0);
     if (distanceMeters > 150) {
@@ -194,7 +177,6 @@ export class ScoreCalculator {
         roundZeroed = true;
       }
     }
-
     // 4. Poor Image Quality
     if (roundData.poorQuality) {
       const penalty = Math.min(12, Math.max(5, Number(roundData.qualityDeduction) || 8));
@@ -205,7 +187,6 @@ export class ScoreCalculator {
         label: 'ضعف جودة الصورة أو صورة مهزوزة'
       });
     }
-
     // 5. Inaccurate SKU / Brand Reporting
     if (roundData.skuMismatch) {
       const penalty = Math.min(10, Math.max(5, Number(roundData.skuDeduction) || 5));
@@ -216,7 +197,6 @@ export class ScoreCalculator {
         label: 'عدم تطابق الأصناف المسجلة مع الصورة'
       });
     }
-
     // 6. Neglected Follow-Ups
     if (roundData.neglectedFollowUp) {
       const penalty = Math.min(25, Math.max(10, Number(roundData.continuityDeduction) || 15));
@@ -227,9 +207,7 @@ export class ScoreCalculator {
         label: 'إهمال المتابعة الدورية أو فراغ العرض'
       });
     }
-
     const totalDeductionPoints = deductions.reduce((sum, d) => sum + d.points, 0);
-
     return {
       isEligible: !isDisqualified && !roundZeroed,
       isDisqualified,
@@ -238,7 +216,6 @@ export class ScoreCalculator {
       deductions
     };
   }
-
   /**
    * Calculates progressive logarithmic Effort & Volume Bonus (up to +5 points)
    * Formula: min(5, round(log2(N + 1) * 1.25))
@@ -251,7 +228,6 @@ export class ScoreCalculator {
     const rawBonus = Math.log2(N + 1) * BAYESIAN_LEADERBOARD_DEFAULTS.BONUS_MULTIPLIER;
     return Math.min(BAYESIAN_LEADERBOARD_DEFAULTS.MAX_EFFORT_BONUS, Math.round(rawBonus));
   }
-
   /**
    * Computes the Fair Bayesian Volume-Weighted Leaderboard Score
    * Formula:
@@ -269,7 +245,6 @@ export class ScoreCalculator {
     const R = Math.max(0, Math.min(100, Number(rawAverageScore) || 0));
     const m = Number(options.m !== undefined ? options.m : BAYESIAN_LEADERBOARD_DEFAULTS.MIN_BENCHMARK_ROUNDS);
     const C = Number(options.C !== undefined ? options.C : BAYESIAN_LEADERBOARD_DEFAULTS.BASELINE_PRIOR_SCORE);
-
     if (N === 0) {
       return {
         finalScore: 0,
@@ -281,11 +256,9 @@ export class ScoreCalculator {
         baselinePrior: C
       };
     }
-
     const weightedBase = ((N * R) + (m * C)) / (N + m);
     const effortBonus = this.calculateEffortBonus(N);
     const finalScore = Math.min(100, Math.max(0, Math.round(weightedBase + effortBonus)));
-
     return {
       finalScore,
       weightedBase: Number(weightedBase.toFixed(2)),
@@ -296,7 +269,6 @@ export class ScoreCalculator {
       baselinePrior: C
     };
   }
-
   /**
    * Resolves official ADCO enterprise achievement tier badge
    */
@@ -308,7 +280,6 @@ export class ScoreCalculator {
     if (num >= 60) return { label: 'مقبول - فئة برونزية', className: 'badge-warning', tierCode: 'BRONZE' };
     return { label: 'قيد التحسين', className: 'badge-danger', tierCode: 'UNDER_IMPROVEMENT' };
   }
-
   /**
    * Calculates overall profile score for a coordinator across all submitted activities
    */
@@ -324,19 +295,15 @@ export class ScoreCalculator {
         badgeTier: 'مبتدئ'
       };
     }
-
     let acceptedCount = 0;
     let totalScoreSum = 0;
-
     userActivities.forEach((act) => {
       if (act.status === 'Accepted') acceptedCount += 1;
       const evalStats = this.computeWeightedEvaluation(act);
       totalScoreSum += evalStats.totalWeightedScore;
     });
-
     const averageScore = Math.round(totalScoreSum / count);
     const tier = this.resolveTierBadge(averageScore);
-
     return {
       submissionsCount: count,
       acceptedCount,
@@ -346,7 +313,6 @@ export class ScoreCalculator {
     };
   }
 }
-
 if (typeof window !== 'undefined') {
   window.ScoreCalculator = ScoreCalculator;
   window.EVALUATION_WEIGHTS = EVALUATION_WEIGHTS;

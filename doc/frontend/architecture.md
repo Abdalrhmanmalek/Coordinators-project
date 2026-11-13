@@ -1,4 +1,4 @@
-# (ADCO) شركة الاسكندريه للكيماويات و المنظفات — Master Architecture & Data Flow Blueprint
+﻿# (ADCO) شركة الاسكندريه للكيماويات و المنظفات — Master Architecture & Data Flow Blueprint
 
 > **System Version:** 2.5.0 Enterprise Modern Web Architecture  
 > **Official Corporate Entity:** (ADCO) شركة الاسكندريه للكيماويات و المنظفات  
@@ -12,7 +12,7 @@
 
 ```text
 adco-field-app/
-├── docs/                                          # Master Engineering & Architecture Documentation
+├── doc/                                          # Master Engineering & Architecture Documentation
 │   ├── endpoints.md                               # RESTful API Specifications & DTO Contracts
 │   ├── file-structure.md                          # Repository File Inventory & Responsibility Guide
 │   ├── system-architecture.md                     # System Architecture, Data Flow & Type Matrix
@@ -296,3 +296,17 @@ CHECK (
     (activity <> 'فرشة مجلة' AND magazine_start_date IS NULL AND magazine_end_date IS NULL)
 );
 ```
+
+
+---
+
+## 🧱 Modular Architecture & Backend Integration Boundaries (v2.6+)
+
+- **350-Line Hard Cap:** Every `.js` file in `frontend/js/` and `backend/` is strictly capped at **≤ 350 lines**. Page files (`frontend/js/pages/*.page.js`) act purely as thin view controllers delegating rendering and sub-workflows to `frontend/js/components/*.js`.
+- **Clean `api/` vs `services/` Seam:**
+  - `frontend/js/api/` (`client.js`, `http-client.js`, `endpoints.js`) centralizes HTTP fetch configuration, JWT Bearer headers, `Idempotency-Key` generation, base URL resolution, and RESTful v1 endpoint contracts.
+  - `frontend/js/services/` (`auth.service.js`, `activity.service.js`, `activity-closure.service.js`, `evaluation.service.js`, `media.service.js`, `reporting.service.js`) isolates business rules from DOM manipulation so switching from local seed storage to live REST APIs requires editing only `api/` and `services/`.
+- **Vercel Deployment & Caching (`vercel.json` & `.vercelignore`):**
+  - Root `vercel.json` maps clean SPA routes and a catch-all fallback rewrite to `/frontend/index.html` to eliminate 404s on client route refreshes.
+  - `sw.js` is served with `Cache-Control: no-cache, no-store, must-revalidate`; `.avif`, `.min.css`, and `.js` assets are served with `Cache-Control: public, max-age=31536000, immutable` alongside `X-Content-Type-Options: nosniff` and `X-Frame-Options: SAMEORIGIN`.
+  - `.vercelignore` excludes `trash/`, `backend/`, `doc/`, `src/`, `scripts/`, `scratch/`, `.git/`, `*.bat`, `*.log`, and `*.md`.

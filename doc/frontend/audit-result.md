@@ -1,8 +1,8 @@
-# ADCO Frontend Audit Result
+﻿# ADCO Frontend Audit Result
 
 > **Audit Date:** 2026-11-13  
 > **Source Base:** `frontend/js/`, `frontend/pages/`, `frontend/css/`, `frontend/manifest.json`, `frontend/sw.js`  
-> **Audit Standard:** Direct inspection of runtime code only (excluding outdated `README.md` and `docs/`).
+> **Audit Standard:** Direct inspection of runtime code only (excluding outdated `README.md` and `doc/`).
 
 ---
 
@@ -1400,4 +1400,3 @@ Yes, the following hardcoded items must be removed or externalized into environm
    - In `frontend/js/api/http-client.js` line 42: Fallback base URL `'http://localhost:3000/api/v1'`.
 4. **Third-Party CDN Image Dependencies:**
    - In `frontend/js/store/seed-data.js` and `frontend/js/pages/activity-details.page.js`: Hardcoded external Unsplash image fallback URLs (`https://images.unsplash.com/photo-1578916171728-46686eac8d58...`).
-

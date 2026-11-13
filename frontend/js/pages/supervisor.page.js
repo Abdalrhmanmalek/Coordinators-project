@@ -43,7 +43,32 @@
     const spParentClientSelect = document.getElementById('sp-filter-parent-client');
     const spBranchSelect = document.getElementById('sp-filter-branch');
     const spTopClientTag = document.getElementById('sp-top-client-tag');
-    const spTopBranchBadge = document.getElementById('sp-top-branch-badge');
+    const spFilterDrawer = document.getElementById('sp-filter-drawer');
+    const spToggleFiltersBtn = document.getElementById('toggle-branch-filters-btn');
+    const spActiveBadge = document.getElementById('sp-filter-active-badge');
+    const spClearFiltersBtn = document.getElementById('sp-clear-filters-btn');
+
+    function updateSpFilterIndicators() {
+      const cVal = spParentClientSelect ? spParentClientSelect.value : 'ALL';
+      const bVal = spBranchSelect ? spBranchSelect.value : 'ALL';
+      const activeCount = (cVal && cVal !== 'ALL' ? 1 : 0) + (bVal && bVal !== 'ALL' ? 1 : 0);
+      if (spActiveBadge) {
+        spActiveBadge.textContent = String(activeCount);
+        spActiveBadge.classList.toggle('is-hidden', activeCount === 0);
+      }
+      if (spClearFiltersBtn) {
+        spClearFiltersBtn.classList.toggle('is-hidden', activeCount === 0);
+      }
+    }
+
+    if (spToggleFiltersBtn && spFilterDrawer) {
+      spToggleFiltersBtn.addEventListener('click', () => {
+        const willOpen = !spFilterDrawer.classList.contains('is-open');
+        spFilterDrawer.classList.toggle('is-open', willOpen);
+        spToggleFiltersBtn.classList.toggle('active', willOpen);
+        spToggleFiltersBtn.setAttribute('aria-expanded', String(willOpen));
+      });
+    }
 
     function populateSpBranchDropdown(clientVal) {
       if (!spBranchSelect) return;
@@ -63,6 +88,10 @@
       spBranchSelect.innerHTML =
         '<option value="ALL">كل فروع العميل</option>' +
         branches.map((b) => `<option value="${b}">${b}</option>`).join('');
+
+      if (window.ADCOFilterDropdown) {
+        window.ADCOFilterDropdown.sync(spBranchSelect);
+      }
     }
 
     if (spParentClientSelect) {
@@ -77,21 +106,46 @@
 
       populateSpBranchDropdown('ALL');
 
+      if (window.ADCOFilterDropdown) {
+        window.ADCOFilterDropdown.enhance(spParentClientSelect, { searchPlaceholder: 'ابحث عن العميل الأم...' });
+      }
+
       spParentClientSelect.addEventListener('change', () => {
         const cVal = spParentClientSelect.value || 'ALL';
         selectedBranchKey = null;
         if (spTopClientTag) spTopClientTag.textContent = cVal === 'ALL' ? 'جميع العملاء' : cVal;
         populateSpBranchDropdown(cVal);
-        if (spTopBranchBadge) spTopBranchBadge.textContent = 'كل الفروع';
+        updateSpFilterIndicators();
         renderList();
       });
     }
 
     if (spBranchSelect) {
+      if (window.ADCOFilterDropdown) {
+        window.ADCOFilterDropdown.enhance(spBranchSelect, { searchPlaceholder: 'ابحث عن الفرع...' });
+      }
       spBranchSelect.addEventListener('change', () => {
         const bVal = spBranchSelect.value || 'ALL';
         selectedBranchKey = bVal === 'ALL' ? null : bVal;
-        if (spTopBranchBadge) spTopBranchBadge.textContent = bVal === 'ALL' ? 'كل الفروع' : bVal;
+        updateSpFilterIndicators();
+        renderList();
+      });
+    }
+
+    if (spClearFiltersBtn) {
+      spClearFiltersBtn.addEventListener('click', () => {
+        selectedBranchKey = null;
+        if (spParentClientSelect) {
+          spParentClientSelect.value = 'ALL';
+          if (window.ADCOFilterDropdown) window.ADCOFilterDropdown.sync(spParentClientSelect);
+        }
+        if (spTopClientTag) spTopClientTag.textContent = 'جميع العملاء';
+        populateSpBranchDropdown('ALL');
+        if (spBranchSelect) {
+          spBranchSelect.value = 'ALL';
+          if (window.ADCOFilterDropdown) window.ADCOFilterDropdown.sync(spBranchSelect);
+        }
+        updateSpFilterIndicators();
         renderList();
       });
     }
@@ -100,8 +154,11 @@
     if (supResetBranchBtn) {
       supResetBranchBtn.addEventListener('click', () => {
         selectedBranchKey = null;
-        if (spBranchSelect) spBranchSelect.value = 'ALL';
-        if (spTopBranchBadge) spTopBranchBadge.textContent = 'كل الفروع';
+        if (spBranchSelect) {
+          spBranchSelect.value = 'ALL';
+          if (window.ADCOFilterDropdown) window.ADCOFilterDropdown.sync(spBranchSelect);
+        }
+        updateSpFilterIndicators();
         renderList();
       });
     }
@@ -112,112 +169,9 @@
       });
     }
 
-    function renderSupervisorBranchCards(allActivities) {
-      const mount = document.getElementById('supervisor-branches-overview');
-      if (!mount) return;
-
-      if (supResetBranchBtn) {
-        supResetBranchBtn.classList.toggle('is-hidden', !selectedBranchKey);
-      }
-
-      const branchMap = {};
-      allActivities.forEach((act) => {
-        const bName = act.branch || 'فرع سموحة - الإسكندرية';
-        if (!branchMap[bName]) {
-          branchMap[bName] = {
-            branch: bName,
-            client: act.client || 'فتح الله جملة ماركت (Fathalla)',
-            supplyingBranch: act.coordinatorBranch || 'الإسكندرية - قطاع وسط',
-            activityTypes: new Set(),
-            brands: new Set(),
-            coordinators: new Set(),
-            supervisorName: act.reviewerName || (user && user.fullName) || 'م. حسام الدين غانم',
-            locationLabel: (act.location && act.location.address) ? act.location.address : bName,
-            total: 0,
-            accepted: 0,
-            review: 0,
-            rejected: 0,
-            closed: 0
-          };
-        }
-        const entry = branchMap[bName];
-        if (act.coordinatorName) entry.coordinators.add(act.coordinatorName);
-        if (act.activityType) entry.activityTypes.add(act.activityType);
-        else if (act.activity) entry.activityTypes.add(act.activity);
-        if (Array.isArray(act.brands)) {
-          act.brands.forEach((b) => b && entry.brands.add(b));
-        }
-        entry.total += 1;
-        const isActClosed = act.endStatus === 'ENDED' || Boolean(act.isClosed);
-        const revSt = act.reviewStatus || act.status;
-        if (isActClosed) {
-          entry.closed += 1;
-        } else if (revSt === 'ACCEPTED' || revSt === 'Accepted') {
-          entry.accepted += 1;
-        } else if (revSt === 'REJECTED' || revSt === 'Rejected') {
-          entry.rejected += 1;
-        } else {
-          entry.review += 1;
-        }
-      });
-
-      const groups = Object.values(branchMap);
-      if (groups.length === 0) {
-        mount.innerHTML = `
-          <div class="card" style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--adco-gray-600);">
-            <p style="margin: 0; font-weight: 600;">لا توجد بطاقات فروع مسجلة حالياً.</p>
-          </div>
-        `;
-        return;
-      }
-
-      mount.innerHTML = groups
-        .map((bg) => global.MasterBranchCard ? global.MasterBranchCard.render(bg, { selectedBranchKey, fallbackCoordinatorName: user ? user.fullName : 'أحمد محمود العبد' }) : '')
-        .join('');
-
-      mount.querySelectorAll('.branch-master-card').forEach((card) => {
-        card.addEventListener('click', (e) => {
-          if (e.target.closest('.status-counter-btn')) return;
-          const bName = card.dataset.branch;
-          selectedBranchKey = (selectedBranchKey === bName) ? null : bName;
-          if (spBranchSelect) spBranchSelect.value = selectedBranchKey || 'ALL';
-          if (spTopBranchBadge) spTopBranchBadge.textContent = selectedBranchKey || 'كل الفروع';
-          renderList();
-        });
-        card.addEventListener('keydown', (e) => {
-          if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('.status-counter-btn')) {
-            e.preventDefault();
-            const bName = card.dataset.branch;
-            selectedBranchKey = (selectedBranchKey === bName) ? null : bName;
-            if (spBranchSelect) spBranchSelect.value = selectedBranchKey || 'ALL';
-            if (spTopBranchBadge) spTopBranchBadge.textContent = selectedBranchKey || 'كل الفروع';
-            renderList();
-          }
-        });
-      });
-
-      mount.querySelectorAll('.status-counter-btn').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const bName = btn.dataset.branch;
-          const st = btn.dataset.st;
-          if (selectedBranchKey === bName && statusFilter === st) {
-            selectedBranchKey = null;
-            statusFilter = 'ALL';
-          } else {
-            selectedBranchKey = bName;
-            statusFilter = st;
-          }
-          if (spBranchSelect) spBranchSelect.value = selectedBranchKey || 'ALL';
-          if (spTopBranchBadge) spTopBranchBadge.textContent = selectedBranchKey || 'كل الفروع';
-          syncSupFilterChipsUI();
-          renderList();
-        });
-      });
-
-      if (typeof refreshIcons === 'function') refreshIcons(mount);
-    }
-
+    let renderSupervisorBranchCards = () => {};
+    let renderActivityAuditModal = () => {};
+    let renderList = () => {};
     const modal = document.getElementById('review-modal');
     const auditModal = document.getElementById('activity-audit-modal');
     const lightboxModal = document.getElementById('photo-lightbox');
@@ -345,774 +299,11 @@
       lightboxModal.classList.add('active');
     }
 
-    function renderList() {
-      let rawAll = ActivityManager.getAllActivities();
-
-      // Apply top Parent Client & Branch filters
-      const topClientVal = spParentClientSelect ? spParentClientSelect.value : 'ALL';
-      const topBranchVal = spBranchSelect ? spBranchSelect.value : 'ALL';
-
-      if (topClientVal && topClientVal !== 'ALL') {
-        rawAll = rawAll.filter((a) => (a.client || '') === topClientVal || (a.client || '').includes(topClientVal));
-      }
-      if (topBranchVal && topBranchVal !== 'ALL') {
-        rawAll = rawAll.filter((a) => (a.branch || '') === topBranchVal || (a.branch || '').includes(topBranchVal));
-      }
-
-      renderSupervisorBranchCards(rawAll);
-
-      const all = selectedBranchKey
-        ? rawAll.filter((a) => (a.branch || '') === selectedBranchKey)
-        : rawAll;
-
-      const isClosedAct = (a) => a.endStatus === 'ENDED' || Boolean(a.isClosed);
-      const isClosureReq = (a) => a.endStatus === 'ENDING_REQUESTED' || Boolean(a.closureRequested);
-      const getRevSt = (a) => a.reviewStatus || (a.status === 'Accepted' ? 'ACCEPTED' : (a.status === 'Rejected' ? 'REJECTED' : 'UNDER_REVIEW'));
-
-      const activePool = all.filter((a) => !isClosedAct(a));
-      const closedPool = all.filter((a) => isClosedAct(a));
-
-      const cntAllEl = document.getElementById('sp-cnt-all');
-      const cntClosureEl = document.getElementById('sp-cnt-closure');
-      const cntReviewEl = document.getElementById('sp-cnt-review');
-      const cntAcceptedEl = document.getElementById('sp-cnt-accepted');
-      const cntRejectedEl = document.getElementById('sp-cnt-rejected');
-      const cntClosedEl = document.getElementById('sp-cnt-closed');
-
-      if (cntAllEl) cntAllEl.textContent = activePool.length;
-      if (cntClosureEl) cntClosureEl.textContent = activePool.filter((a) => isClosureReq(a)).length;
-      const reviewPendingCount = activePool.filter((a) => getRevSt(a) === 'UNDER_REVIEW').length;
-      if (cntReviewEl) {
-        cntReviewEl.textContent = reviewPendingCount;
-        const reviewChip = cntReviewEl.closest('.filter-chip');
-        if (reviewChip) {
-          if (reviewPendingCount > 0) {
-            reviewChip.classList.add('glowing-under-review');
-          } else {
-            reviewChip.classList.remove('glowing-under-review');
-          }
-        }
-      }
-      if (cntAcceptedEl) cntAcceptedEl.textContent = activePool.filter((a) => getRevSt(a) === 'ACCEPTED').length;
-      if (cntRejectedEl) cntRejectedEl.textContent = activePool.filter((a) => getRevSt(a) === 'REJECTED').length;
-      if (cntClosedEl) cntClosedEl.textContent = closedPool.length;
-
-      let filtered = [];
-
-      // Requirement 9: Closed activities disappear from active list and only appear in "CLOSED" tab
-      if (statusFilter === 'CLOSED') {
-        filtered = closedPool;
-      } else {
-        const activeOnly = activePool;
-        if (statusFilter === 'ALL') {
-          filtered = activeOnly;
-        } else if (statusFilter === 'CLOSURE_REQUESTS' || statusFilter === 'CLOSURE_PENDING') {
-          filtered = activeOnly.filter((a) => isClosureReq(a));
-        } else if (statusFilter === 'Under Review' || statusFilter === 'UNDER_REVIEW') {
-          filtered = activeOnly.filter((a) => getRevSt(a) === 'UNDER_REVIEW');
-        } else if (statusFilter === 'Accepted' || statusFilter === 'ACCEPTED') {
-          filtered = activeOnly.filter((a) => getRevSt(a) === 'ACCEPTED');
-        } else if (statusFilter === 'Rejected' || statusFilter === 'REJECTED') {
-          filtered = activeOnly.filter((a) => getRevSt(a) === 'REJECTED');
-        } else {
-          filtered = activeOnly;
-        }
-      }
-
-      // Requirement 10: Apply Custom Search filter parameters if set
-      if (customSearchActive) {
-        const clientVal = csClient.value;
-        const brandVal = csBrand.value;
-        const actVal = csActivity.value;
-        const typeVal = csType.value;
-        const coordQuery = (csCoord.value || '').trim().toLowerCase().replace(/[أإآا]/g, 'ا').replace(/[ة]/g, 'ه').replace(/[ىي]/g, 'ي');
-        const minScore = Number(csMinScore.value) || 0;
-
-        filtered = filtered.filter((act) => {
-          if (clientVal !== 'ALL' && act.client !== clientVal) return false;
-          if (brandVal !== 'ALL' && !(act.brands || []).includes(brandVal)) return false;
-          if (actVal !== 'ALL' && act.activity !== actVal) return false;
-          if (typeVal !== 'ALL' && act.activityType !== typeVal) return false;
-          if (coordQuery) {
-            const coordNorm = (act.coordinatorName || '').toLowerCase().replace(/[أإآا]/g, 'ا').replace(/[ة]/g, 'ه').replace(/[ىي]/g, 'ي');
-            if (!coordNorm.includes(coordQuery)) return false;
-          }
-
-          if (minScore > 0) {
-            const stats = ActivityManager.computeWeightedEvaluation(act);
-            if (stats.totalWeightedScore < minScore) return false;
-          }
-          return true;
-        });
-
-        csCountBadge.textContent = `${filtered.length} بطاقة مطابقة`;
-      } else {
-        csCountBadge.textContent = 'بحث مخصص';
-      }
-
-      const container = document.getElementById('supervisor-cards-mount');
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="card" style="text-align:center; padding:40px; grid-column: 1 / -1; color: var(--adco-gray-600);">
-            <i data-lucide="shield-check" class="ui-icon ui-icon-xl" style="opacity: 0.5; margin-bottom: 8px;"></i>
-            <p style="margin: 0; font-size: 0.95rem;">لا توجد بطاقات في هذا التصنيف حالياً.</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = filtered
-        .map((act) => {
-          const ratingStats = ActivityManager.computeOverallRating(act);
-          const brandCount = Array.isArray(act.brands) && act.brands.length > 0 ? act.brands.length : 1;
-          const shareVal = (1 / brandCount).toFixed(2);
-          const sharePct = Math.round((1 / brandCount) * 100);
-
-          const isClosed = act.endStatus === 'ENDED' || Boolean(act.isClosed);
-          const isPendingClosure = act.endStatus === 'ENDING_REQUESTED' || Boolean(act.closureRequested);
-
-          return `
-            <div class="card supervisor-activity-card ${isClosed ? 'sp-card-closed' : isPendingClosure ? 'sp-card-pending' : ''}">
-              <div class="sp-card-body">
-                ${
-                  isClosed
-                    ? `
-                  <div style="background: #ffffff; border: 1px solid #86efac; border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #166534; font-weight: 700;">
-                    <span style="display: flex; align-items: center; gap: 6px;">
-                      <i data-lucide="archive" class="ui-icon ui-icon-xs"></i>
-                      <span>نشاط منتهي ومفكك (${act.closureReasonType || 'بقرار المشرف'})</span>
-                    </span>
-                    <span style="font-size: 0.72rem; font-weight: normal; color: #15803d;" dir="ltr">${formatDateTime(act.closedAt)}</span>
-                  </div>
-                `
-                    : isPendingClosure
-                    ? `
-                  <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
-                      <div style="font-size: 0.84rem; color: #92400e; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-                        <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
-                        <span>طلب إنهاء النشاط من المنسق</span>
-                      </div>
-                      <div style="display: flex; gap: 6px;">
-                        <button type="button" class="btn btn-primary btn-sm btn-accept-closure" data-id="${act.id}" style="padding: 4px 10px; font-size: 0.76rem; min-height: 28px;">
-                          موافقة وإغلاق
-                        </button>
-                        <button type="button" class="btn btn-danger-subtle btn-sm btn-reject-closure" data-id="${act.id}" style="padding: 4px 10px; font-size: 0.76rem; min-height: 28px;">
-                          رفض
-                        </button>
-                      </div>
-                    </div>
-                    <div style="font-size: 0.78rem; color: #78350f;">
-                      سبب الإنهاء: <strong style="color: #451a03;">${act.closureReasonType || 'انتهاء المدة'}</strong>
-                      ${act.closureNotes && act.closureNotes !== act.closureReasonType ? `<span style="margin-right: 4px;">(${act.closureNotes})</span>` : ''}
-                    </div>
-                  </div>
-                `
-                    : ''
-                }
-
-                <!-- Media row: Photo & Branch/Activity details -->
-                <div class="sp-card-media-row">
-                  <img src="${act.photoUrl || '../assets/images/fathalla-branch.avif'}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl || '../assets/images/fathalla-branch.avif'}" data-title="${act.client}" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.avif';" style="width:96px; height:96px; border-radius:12px; object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
-                  <div class="sp-card-details-col">
-                    <div class="sp-card-client-line">
-                      <strong class="sp-card-client-title">${act.client}</strong>
-                      ${renderStatusBadge(act)}
-                    </div>
-                    <div class="branch-card-sub" style="margin-bottom:4px;">
-                      <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
-                      <span>${act.branch}</span>
-                    </div>
-                    <p class="sp-card-activity-line">النشاط: <strong>${act.activity || '-'} (${act.activityType || '-'} × ${act.activityCount || 1})</strong></p>
-
-                    <p style="font-size:0.75rem; color:var(--adco-gray-600); margin:2px 0;">المنسق الميداني: <strong>${typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName}</strong></p>
-                    <p style="font-size:0.75rem; color:var(--adco-gray-600); margin:2px 0;">المشرف المعتمد: <strong>${act.reviewerName || 'أيمن الروبي'}</strong></p>
-                    <p class="sp-card-brands-line">العلامات: ${(act.brands || []).join('، ')} • حصة البراند: <span dir="ltr">${shareVal}</span> (${sharePct}%)</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Numerical Rating Box (Placed at absolute bottom on mobile screens) -->
-              <div class="sp-rating-box">
-                <div class="sp-rating-box-inner">
-                  <div class="sp-rating-badge">
-                    <i data-lucide="star" class="ui-icon ui-icon-sm"></i>
-                    <strong>${ratingStats.badgeText}</strong>
-                  </div>
-                  <span class="sp-rating-sessions">(${ratingStats.totalSessions} ${ratingStats.totalSessions === 1 ? 'متابعة' : 'متابعات'})</span>
-                </div>
-                ${act.supervisorNotes ? `<div class="sp-rating-notes">${act.supervisorNotes}</div>` : ''}
-              </div>
-
-              <!-- Action buttons -->
-              <div class="sp-card-actions">
-                <a href="./evaluation.html?id=${act.id}" class="btn btn-primary btn-sm open-eval-btn" data-id="${act.id}">
-                  <i data-lucide="clipboard-edit" class="ui-icon ui-icon-sm"></i>
-                  <span>الفحص والتقييم</span>
-                </a>
-                <button type="button" class="btn btn-secondary btn-sm open-audit-btn" data-id="${act.id}" title="عرض سجل كافة المتابعات والإجراءات">
-                  <i data-lucide="calendar-clock" class="ui-icon ui-icon-xs"></i>
-                  <span>المتابعات</span>
-                </button>
-                ${
-                  !isClosed
-                    ? `
-                  <button type="button" class="btn btn-danger-subtle btn-sm btn-direct-close" data-id="${act.id}" title="إنهاء النشاط فورياً بقرار المشرف المباشر دون انتظار طلب">
-                    <i data-lucide="x-circle" class="ui-icon ui-icon-xs"></i>
-                    <span>إنهاء فورياً</span>
-                  </button>
-                `
-                    : ''
-                }
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-
-      if (typeof refreshIcons === 'function') refreshIcons(container);
-
-      // Wire image lightbox zoom for supervisor
-      document.querySelectorAll('.supervisor-card-img').forEach((img) => {
-        img.addEventListener('click', () => {
-          openSupervisorLightbox(img.dataset.img, img.dataset.title, '', 'مشرف العمليات');
-        });
-      });
-
-      // Requirement 8: Guard against accepting closure if waiting review exists
-      document.querySelectorAll('.btn-accept-closure').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-          const actId = btn.dataset.id;
-          const act = ActivityManager.getActivityById(actId);
-          if (!act) return;
-
-          const hasPendingReview =
-            act.status === 'Under Review' ||
-            (Array.isArray(act.followUpHistory) && act.followUpHistory.some((s) => s.reviewStatus === 'Under Review' || s.sessionScore === null));
-
-          if (hasPendingReview) {
-            alert('لا يمكن اعتماد إنهاء النشاط:\n\nتوجد جولات متابعة أو تقييمات قيد المراجعة لم يتم فحصها واعتمادها بعد.\n\nيرجى الضغط على زر "فحص وتقييم" واعتماد النشاط أولاً قبل قبول إنهائه.');
-            return;
-          }
-
-          if (!confirm('هل توافق على إنهاء وتفكيك هذا النشاط وإغلاق دورته رسمياً؟')) return;
-          try {
-            await ActivityManager.processClosureRequest(actId, 'COMPLETED', 'تمت الموافقة على إنهاء النشاط واعتماد التفكيك');
-            showToast('تم اعتماد إنهاء النشاط وأرشفته في الأنشطة المنتهية', 'success');
-            renderList();
-          } catch (err) {
-            showToast(err.message, 'error');
-          }
-        });
-      });
-
-      // Reject closure request
-      document.querySelectorAll('.btn-reject-closure').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-          const actId = btn.dataset.id;
-          const reason = prompt('يرجى كتابة سبب رفض إنهاء النشاط للمنسق:', 'النشاط ما زال سارياً ومطلوب استمرار العرض بالفرع');
-          if (reason === null) return;
-          try {
-            await ActivityManager.processClosureRequest(actId, 'REJECTED', reason);
-            showToast('تم رفض طلب إنهاء النشاط وإشعار المنسق', 'info');
-            renderList();
-          } catch (err) {
-            showToast(err.message, 'error');
-          }
-        });
-      });
-
-      // Direct Supervisor Activity Termination
-      document.querySelectorAll('.btn-direct-close').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-          const actId = btn.dataset.id;
-          const act = ActivityManager.getActivityById(actId);
-          const clientName = act ? act.client : actId;
-          if (!confirm(`هل تريد إنهاء وتفكيك نشاط "${clientName}" فورياً بقرار إداري مباشر دون الحاجة لطلب من المنسق؟`)) return;
-          const feedback = prompt('ملاحظات وتوجيهات المشرف عند الإغلاق المباشر (اختياري):', 'تم إنهاء النشاط وتفكيك المعروضات بقرار مباشر من المشرف');
-          if (feedback === null) return;
-          try {
-            await ActivityManager.directCloseActivity(actId, feedback);
-            showToast('تم إنهاء وتفكيك النشاط فورياً بنجاح', 'success');
-            renderList();
-          } catch (err) {
-            showToast(err.message, 'error');
-          }
-        });
-      });
-
-      // Requirement 7: Open Audit Trail & Action History Modal
-      document.querySelectorAll('.open-audit-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const act = ActivityManager.getActivityById(btn.dataset.id);
-          if (!act) return;
-          renderActivityAuditModal(act);
-          auditModal.classList.add('active');
-        });
-      });
-
-    let currentEvaluatingActivity = null;
-    let currentModalMedia = {
-      photoUrl: '',
-      title: '',
-      timestamp: '',
-      uploader: ''
-    };
-
-    function renderReviewActDetails(act) {
-      const brandCount = Array.isArray(act.brands) && act.brands.length > 0 ? act.brands.length : 1;
-      const shareVal = (1 / brandCount).toFixed(2);
-      const sharePct = Math.round((1 / brandCount) * 100);
-      const ratingStats = ActivityManager.computeOverallRating(act);
-
-      return `
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-          <div>
-            <h4 style="margin: 0 0 2px 0; color: var(--adco-green-deep); font-size: 1.05rem;">${act.client}</h4>
-            <span style="font-size: 0.78rem; color: var(--adco-gray-600);">${act.branch}</span>
-          </div>
-          <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-            <span class="badge badge-warning" style="font-weight: 700; font-size: 0.78rem;">
-              <i data-lucide="star" class="ui-icon ui-icon-xs"></i>
-              <span>${ratingStats.badgeText}</span>
-            </span>
-            ${renderStatusBadge(act.status)}
-          </div>
-        </div>
-
-        <div class="responsive-form-grid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; font-size: 0.78rem; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid var(--adco-gray-200);">
-          <div>
-            <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">المنسق الميداني:</span>
-            <strong>${typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName}</strong>
-          </div>
-          <div>
-            <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">قطاع المنسق:</span>
-            <strong>${act.coordinatorBranch || act.branch}</strong>
-          </div>
-          <div>
-            <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">النشاط والنوع:</span>
-            <strong>${act.activity || '-'} (${act.activityType || '-'} × ${act.activityCount || 1})</strong>
-          </div>
-          <div>
-            <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">المنتج (SKU):</span>
-            <strong>${act.skuVariant || 'الجميع'}</strong>
-          </div>
-          <div>
-            <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">تاريخ بدء النشاط:</span>
-            <strong dir="ltr" style="color: var(--adco-green-deep);">${act.activityDateFormatted || (act.activityDate ? formatDateTime(act.activityDate) : formatDateTime(act.timestamp))}</strong>
-          </div>
-          <div>
-            <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">تاريخ انتهاء النشاط:</span>
-            <strong dir="ltr">${act.endDate || (act.closedAt ? formatDateTime(act.closedAt) : 'نشط ومستمر')}</strong>
-          </div>
-          <div style="grid-column: 1 / -1;">
-            <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">العلامات التجارية وحصة العرض:</span>
-            <strong style="color: var(--adco-green-dark);">${(act.brands || []).join('، ')} • حصة البراند: <span dir="ltr">${shareVal}</span> (${sharePct}%)</strong>
-          </div>
-          ${act.magazineDate ? `
-            <div style="grid-column: 1 / -1;">
-              <span style="color: var(--adco-gray-500); display: block; font-size: 0.7rem;">تاريخ إصدار المجلة:</span>
-              <strong></strong>
-            </div>
-          ` : ''}
-        </div>
-      `;
-    }
-
-    function updateReviewModalMedia(roundNum) {
-      if (!currentEvaluatingActivity) return;
-      const act = currentEvaluatingActivity;
-      const sessions = act.followUpHistory || [];
-      const session = sessions.find((s) => Number(s.roundNumber) === Number(roundNum)) || sessions[sessions.length - 1];
-
-      let photoUrl = act.photoUrl;
-      let title = `توثيق نشاط ${act.client}`;
-      let timestamp = act.createdAt || new Date().toISOString();
-      let loc = act.location || { latitude: 31.2156, longitude: 29.9553, accuracy: 12, address: act.branch };
-
-      if (session) {
-        title = `${session.roundTitle} — ${act.client}`;
-        if (session.timestamp) timestamp = session.timestamp;
-        if (session.location) loc = session.location;
-        if (session.photos && session.photos.length > 0) {
-          photoUrl = session.photos[0].photoUrl;
-          if (session.photos[0].capturedAt) timestamp = session.photos[0].capturedAt;
-        }
-      }
-
-      currentModalMedia = {
-        photoUrl,
-        title,
-        timestamp: formatDateTime(timestamp),
-        uploader: act.coordinatorName
-      };
-
-      const revImg = document.getElementById('rev-photo-img');
-      const fallbackUrl = act.photoUrl;
-      revImg.onerror = () => {
-        revImg.onerror = null;
-        revImg.src = '../assets/images/fathalla-branch.avif';
-      };
-      revImg.src = photoUrl || fallbackUrl;
-      currentModalMedia.photoUrl = revImg.src;
-      document.getElementById('rev-photo-title').textContent = title;
-      document.getElementById('rev-timestamp').textContent = currentModalMedia.timestamp;
-
-      const latNum = loc && loc.latitude !== undefined ? Number(loc.latitude) : 31.2156;
-      const lngNum = loc && loc.longitude !== undefined ? Number(loc.longitude) : 29.9553;
-      const lat = latNum.toFixed(5);
-      const lng = lngNum.toFixed(5);
-      const accuracyVal = loc && loc.accuracy ? Math.round(Number(loc.accuracy)) : 12;
-
-      const locCoordsEl = document.getElementById('rev-loc-coords');
-      const locAccEl = document.getElementById('rev-loc-accuracy');
-      const locMapLinkEl = document.getElementById('rev-loc-map-link');
-      if (locCoordsEl) locCoordsEl.innerHTML = `${lat}&deg; N, ${lng}&deg; E`;
-      if (locAccEl) locAccEl.innerHTML = `دقة الرصد: &plusmn;${accuracyVal} متر &bull; ${loc.address || act.branch || 'الإسكندرية'}`;
-      if (locMapLinkEl) locMapLinkEl.href = `https://www.google.com/maps?q=${lat},${lng}`;
-
-      // Resolve Branch Registered Coordinates & Compute Haversine Proximity (Task 1)
-      const branchCoords = typeof ActivityManager.getBranchCoordinatesSync === 'function'
-        ? ActivityManager.getBranchCoordinatesSync(act.branch)
-        : { latitude: 31.2156, longitude: 29.9553 };
-      const bLatNum = Number(branchCoords.latitude);
-      const bLngNum = Number(branchCoords.longitude);
-      const bLat = bLatNum.toFixed(5);
-      const bLng = bLngNum.toFixed(5);
-
-      const branchCoordsEl = document.getElementById('rev-branch-coords');
-      const branchNameLblEl = document.getElementById('rev-branch-name-lbl');
-      const branchMapLinkEl = document.getElementById('rev-branch-map-link');
-      if (branchCoordsEl) branchCoordsEl.innerHTML = `${bLat}&deg; N, ${bLng}&deg; E`;
-      if (branchNameLblEl) branchNameLblEl.textContent = act.branch || 'الفرع الرسمي المسجل';
-      if (branchMapLinkEl) branchMapLinkEl.href = `https://www.google.com/maps?q=${bLat},${bLng}`;
-
-      const maxThresholdMeters = typeof ActivityManager.MAX_BRANCH_PROXIMITY_METERS === 'number'
-        ? ActivityManager.MAX_BRANCH_PROXIMITY_METERS
-        : 150;
-      const distMeters = typeof ActivityManager.calculateHaversineDistanceMeters === 'function'
-        ? Math.round(ActivityManager.calculateHaversineDistanceMeters(bLatNum, bLngNum, latNum, lngNum))
-        : 0;
-      const isWithinRange = distMeters <= maxThresholdMeters;
-
-      const proxBadgeEl = document.getElementById('rev-gps-proximity-badge');
-      const distBannerEl = document.getElementById('rev-gps-distance-banner');
-      const distValEl = document.getElementById('rev-gps-distance-value');
-      const compareLinkEl = document.getElementById('rev-gps-compare-link');
-
-      if (proxBadgeEl) {
-        proxBadgeEl.textContent = isWithinRange ? `مطابق للنطاق (≤ ${maxThresholdMeters}م)` : `خارج النطاق (> ${maxThresholdMeters}م)`;
-        proxBadgeEl.className = `badge ${isWithinRange ? 'badge-success' : 'badge-danger'} sp-s44`;
-      }
-      if (distBannerEl) {
-        distBannerEl.className = `gps-distance-banner ${isWithinRange ? 'gps-distance-ok' : 'gps-distance-warn'}`;
-      }
-      if (distValEl) {
-        distValEl.textContent = distMeters <= 3
-          ? `${distMeters} متر (تطابق تام بموقع الفرع)`
-          : `${distMeters} متر ${isWithinRange ? '(داخل النطاق المسموح)' : '(بعيد عن موقع الفرع المسجل)'}`;
-      }
-      if (compareLinkEl) {
-        compareLinkEl.href = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${bLat},${bLng}&travelmode=walking`;
-      }
-
-      // Populate EXIF & Photo Origin Metadata (Requirement 2 & 4)
-      const currentPhotoObj = session && session.photos && session.photos.length > 0 ? session.photos[0] : (act.initialPhotos && act.initialPhotos.length > 0 ? act.initialPhotos[0] : null);
-      const meta = currentPhotoObj && currentPhotoObj.metadata ? currentPhotoObj.metadata : null;
-
-      const originBadgeEl = document.getElementById('rev-photo-origin-badge');
-      const originLabelEl = document.getElementById('rev-photo-origin-label');
-      const takenTimeEl = document.getElementById('rev-photo-taken-time');
-      const deviceModelEl = document.getElementById('rev-photo-device-model');
-
-      if (meta) {
-        originBadgeEl.textContent = meta.originBadge || 'كاميرا مباشرة';
-        originBadgeEl.className = `badge ${meta.originBadgeClass || 'badge-success'}`;
-        originLabelEl.textContent = meta.originLabel || 'التقاط مباشر عبر كاميرا الهاتف';
-        takenTimeEl.textContent = meta.takenAtEgypt || formatDateTime(timestamp);
-        deviceModelEl.textContent = meta.deviceModel || 'كاميرا الهاتف الميداني';
-      } else {
-        originBadgeEl.textContent = 'كاميرا مباشرة';
-        originBadgeEl.className = 'badge badge-success';
-        originLabelEl.textContent = 'التقاط مباشر عبر كاميرا هاتف المنسق';
-        takenTimeEl.textContent = formatDateTime(timestamp);
-        deviceModelEl.textContent = 'هاتف منسق أدكو المعتمد';
-      }
-    }
-
-    // Sync Quick Evaluation Status Buttons (next to Location Review) with #rev-status select (Task 1)
-    const revStatusSelect = document.getElementById('rev-status');
-    const quickStatusReadout = document.getElementById('rev-quick-status-current');
-    const quickStatusBtns = document.querySelectorAll('.rev-quick-status-btn');
-
-    function syncQuickStatusUI(statusVal) {
-      const normalized = statusVal || 'Accepted';
-      if (revStatusSelect && revStatusSelect.value !== normalized) {
-        revStatusSelect.value = normalized;
-      }
-      const statusLabels = {
-        'Accepted': 'مقبول',
-        'Rejected': 'غير مقبول',
-        'Under Review': 'تحت المراجعة'
-      };
-      if (quickStatusReadout) {
-        quickStatusReadout.textContent = statusLabels[normalized] || 'مقبول';
-        quickStatusReadout.setAttribute('data-state', normalized);
-      }
-      quickStatusBtns.forEach((b) => {
-        b.classList.toggle('active', b.dataset.status === normalized);
-      });
-    }
-
-    quickStatusBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        syncQuickStatusUI(btn.dataset.status);
-      });
-    });
-
-    if (revStatusSelect) {
-      revStatusSelect.addEventListener('change', () => {
-        syncQuickStatusUI(revStatusSelect.value);
-      });
-    }
-
-    // Wire round select change to update displayed media
-    roundSelect.addEventListener('change', () => {
-      updateReviewModalMedia(roundSelect.value);
-    });
-
-    // Wire zoom click on review photo
-    document.getElementById('rev-photo-click-area').addEventListener('click', () => {
-      if (!currentModalMedia.photoUrl) return;
-      openSupervisorLightbox(
-        currentModalMedia.photoUrl,
-        currentModalMedia.title,
-        currentModalMedia.timestamp,
-        currentModalMedia.uploader
-      );
-    });
-
-    // Wire view history button inside review modal
-    document.getElementById('rev-view-history-btn').addEventListener('click', () => {
-      if (!currentEvaluatingActivity) return;
-      renderActivityAuditModal(currentEvaluatingActivity);
-      auditModal.classList.add('active');
-    });
-
-      // Open standalone evaluation page (immune to swipe dismissal & refresh safe)
-      document.querySelectorAll('.open-eval-btn').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          const actId = btn.dataset.id;
-          if (!actId) return;
-          const targetUrl = `./evaluation.html?id=${encodeURIComponent(actId)}`;
-          if (window.AppRouter && typeof window.AppRouter.navigateTo === 'function') {
-            window.AppRouter.navigateTo(targetUrl);
-          } else {
-            window.location.href = targetUrl;
-          }
-        });
-      });
-    }
-
-    // Render comprehensive Audit Trail & Actions History (Requirement 7)
-    function renderActivityAuditModal(act) {
-      const content = document.getElementById('audit-modal-content');
-      const sessions = act.followUpHistory || [];
-      const loc = act.location || { latitude: 31.2156, longitude: 29.9553, address: act.branch || 'الإسكندرية' };
-      const branchCoords = typeof ActivityManager.getBranchCoordinatesSync === 'function'
-        ? ActivityManager.getBranchCoordinatesSync(act.branch)
-        : { latitude: 31.2156, longitude: 29.9553 };
-      const cLat = Number(loc.latitude || 31.2156).toFixed(5);
-      const cLng = Number(loc.longitude || 29.9553).toFixed(5);
-      const bLat = Number(branchCoords.latitude || 31.2156).toFixed(5);
-      const bLng = Number(branchCoords.longitude || 29.9553).toFixed(5);
-      const auditDistMeters = typeof ActivityManager.calculateHaversineDistanceMeters === 'function'
-        ? Math.round(ActivityManager.calculateHaversineDistanceMeters(Number(bLat), Number(bLng), Number(cLat), Number(cLng)))
-        : 0;
-      const auditInRange = auditDistMeters <= (ActivityManager.MAX_BRANCH_PROXIMITY_METERS || 150);
-
-      content.innerHTML = `
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
-            <h3 style="margin: 0; color: var(--adco-green-deep);">${act.client}</h3>
-            ${renderStatusBadge(act.status)}
-          </div>
-          <div style="font-size: 0.84rem; color: #475569;">
-            <span>كود النشاط: <strong>${act.id}</strong></span> |
-            <span>المنسق: <strong>${typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName}</strong></span> |
-            <span>الفرع: <strong>${act.branch}</strong></span>
-          </div>
-          <div style="font-size: 0.8rem; color: var(--adco-green-dark); margin-top: 4px;">
-            <span>النشاط: <strong>${act.activity || '-'} (${act.activityType || '-'} &times; ${act.activityCount || 1})</strong></span> |
-            <span>العلامات: <strong>${(act.brands || []).join(' ، ')}</strong></span>
-          </div>
-          <div style="font-size: 0.8rem; color: #1e293b; margin-top: 6px; display: flex; gap: 14px; flex-wrap: wrap; background: #ffffff; padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1;">
-            <span>تاريخ بدء النشاط: <strong dir="ltr">${act.activityDateFormatted || (act.activityDate ? formatDateTime(act.activityDate) : formatDateTime(act.timestamp))}</strong></span>
-            <span>تاريخ انتهاء النشاط: <strong dir="ltr">${act.endDate || (act.closedAt ? formatDateTime(act.closedAt) : 'نشط ومستمر')}</strong></span>
-          </div>
-        </div>
-
-        <h4 style="margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
-          <i data-lucide="calendar-clock" class="ui-icon ui-icon-sm"></i>
-          <span>التسلسل الزمني لكافة الإجراءات والمتابعات:</span>
-        </h4>
-
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-          <!-- 1. Founding Creation Event -->
-          <div style="border-right: 3px solid var(--adco-green-primary); padding-right: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
-              <strong style="color: var(--adco-green-deep); font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                <i data-lucide="plus-circle" class="ui-icon ui-icon-xs"></i>
-                <span>إجراء التأسيس والإنشاء الأولي</span>
-              </strong>
-              <span class="badge badge-mint" dir="ltr" style="font-family: monospace;">${formatDateTime(act.timestamp)}</span>
-            </div>
-            <p style="font-size: 0.82rem; margin: 4px 0; color: #334155;">
-              تم إنشاء البطاقة بواسطة المنسق <strong>${act.coordinatorName}</strong> (${act.coordinatorId}) وتوثيق عرض <strong>${act.skuVariant}</strong>.
-            </p>
-            <div style="font-size: 0.78rem; color: #065f46; display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; background: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
-              <span>لوكيشن المنسق: <strong dir="ltr">${cLat}&deg;, ${cLng}&deg;</strong></span>
-              <span>|</span>
-              <span>لوكيشن الفرع: <strong dir="ltr">${bLat}&deg;, ${bLng}&deg;</strong></span>
-              <span class="badge ${auditInRange ? 'badge-success' : 'badge-danger'}" style="font-size: 0.68rem;">المسافة: ${auditDistMeters} متر</span>
-              <a href="https://www.google.com/maps/dir/?api=1&origin=${cLat},${cLng}&destination=${bLat},${bLng}&travelmode=walking" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="padding: 2px 8px; font-size: 0.72rem; min-height: 22px;">مقارنة بالخريطة</a>
-            </div>
-          </div>
-
-          <!-- 2. Follow-Up Photo Sessions -->
-          ${sessions
-            .map(
-              (s) => `
-            <div style="border-right: 3px solid #3b82f6; padding-right: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
-                <strong style="color: #1e40af; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                  <i data-lucide="camera" class="ui-icon ui-icon-xs"></i>
-                  <span>${s.roundTitle}</span>
-                </strong>
-                <span class="badge badge-secondary" dir="ltr" style="font-family: monospace;">${s.timestamp}</span>
-              </div>
-              <p style="font-size: 0.82rem; margin: 4px 0; color: #334155;">
-                رفع الصور الميدانية بواسطة: <strong>${s.uploadedBy}</strong> | حالة التقييم: ${renderStatusBadge(s.reviewStatus || 'Under Review')}
-              </p>
-              ${
-                s.location
-                  ? `
-                <div style="font-size: 0.78rem; color: #1e3a8a; display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-                  <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
-                  <span>موقع الهاتف GPS: ${s.location.latitude}&deg;, ${s.location.longitude}&deg;</span>
-                </div>
-              `
-                  : ''
-              }
-
-              <!-- Thumbnails with Click to Zoom for Supervisor -->
-              <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-                ${(s.photos || [])
-                  .map(
-                    (p) => `
-                  <div style="position: relative; cursor: pointer;" onclick="openSupervisorLightbox('${p.photoUrl}', '${s.roundTitle}', '${p.capturedAt || s.timestamp}', '${s.uploadedBy}')">
-                    <img src="${p.photoUrl}" alt="${s.roundTitle}" style="width: 80px; height: 80px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1;" />
-                    <span style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.68rem; padding: 1px 4px; border-radius: 3px;">${p.sizeKb || 170}KB</span>
-                  </div>
-                `
-                  )
-                  .join('')}
-              </div>
-            </div>
-          `
-            )
-            .join('')}
-
-          <!-- 3. Reviewer Action Event -->
-          ${
-            act.reviewedAt || act.supervisorNotes
-              ? `
-            <div style="border-right: 3px solid #10b981; padding-right: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
-                <strong style="color: #065f46; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                  <i data-lucide="shield-check" class="ui-icon ui-icon-xs"></i>
-                  <span>إجراء فحص وتقييم المشرف</span>
-                </strong>
-                <span class="badge badge-success" dir="ltr" style="font-family: monospace;">${formatDateTime(act.reviewedAt || act.timestamp)}</span>
-              </div>
-              <p style="font-size: 0.82rem; margin: 4px 0; color: #334155;">
-                المشرف المراجع: <strong>${act.reviewerName || 'م. هاني شاكر عبد الله'}</strong> | النتيجة: <strong>${(act.totalWeightedScore || 85)} / 100 نقطة</strong>
-              </p>
-              <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 8px 12px; font-size: 0.8rem; color: #166534; margin-top: 6px;">
-                <strong>توجيهات المشرف:</strong> ${act.supervisorNotes || 'تم الاعتماد بنجاح ومطابقة العرض للمواصفات.'}
-              </div>
-            </div>
-          `
-              : ''
-          }
-
-          <!-- 4. Closure Request Event (if applicable) -->
-          ${
-            act.closureRequested || act.isClosed
-              ? `
-            <div style="border-right: 3px solid #f59e0b; padding-right: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
-                <strong style="color: #92400e; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                  <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
-                  <span>طلب إنهاء النشاط وتفكيكه</span>
-                </strong>
-                <span class="badge badge-warning" dir="ltr" style="font-family: monospace;">${formatDateTime(act.closureRequestedAt || act.timestamp)}</span>
-              </div>
-              <p style="font-size: 0.82rem; margin: 4px 0; color: #334155;">
-                سبب الإنهاء المحدد: <strong style="color: #92400e;">${act.closureReasonType || 'انتهاء المدة'}</strong>
-                ${act.closureNotes && act.closureNotes !== act.closureReasonType ? `<br />تفاصيل: ${act.closureNotes}` : ''}
-              </p>
-            </div>
-          `
-              : ''
-          }
-
-          <!-- 5. Closure Completed Event (if closed) -->
-          ${
-            act.isClosed
-              ? `
-            <div style="border-right: 3px solid #15803d; padding-right: 14px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 14px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
-                <strong style="color: #166534; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                  <i data-lucide="check-circle-2" class="ui-icon ui-icon-xs"></i>
-                  <span>قرار إنهاء وتفكيك النشاط (إغلاق الدورة الميدانية)</span>
-                </strong>
-                <span class="badge badge-success" dir="ltr" style="font-family: monospace;">${formatDateTime(act.closedAt)}</span>
-              </div>
-              <p style="font-size: 0.82rem; margin: 4px 0; color: #166534;">
-                تم اعتماد تفكيك المعروضات وإغلاق دورة النشاط بنجاح وأرشفته.
-              </p>
-              ${
-                act.closureSupervisorFeedback
-                  ? `
-                <div style="font-size: 0.8rem; color: #14532d; margin-top: 4px;">
-                  <strong>ملاحظة المشرف:</strong> ${act.closureSupervisorFeedback}
-                </div>
-              `
-                  : ''
-              }
-            </div>
-          `
-              : ''
-          }
-        </div>
-      `;
-      if (typeof refreshIcons === 'function') refreshIcons(content);
-    }
-
-    // Filter Chips Event
-    document.querySelectorAll('.filter-chip').forEach((chip) => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('.filter-chip').forEach((c) => c.classList.remove('active'));
-        chip.classList.add('active');
-        statusFilter = chip.dataset.st;
-        renderList();
-      });
-    });
-
-    // Review Form Submit Handler
+    const modalCtx = { ActivityManager, SupervisorEngine, ADCO_CATALOGS, modal, auditModal, roundSelect, inputNewAct, inputQuality, inputContinuity, inputDocs, updateEvalTotal, openSupervisorLightbox, renderActivityAuditModal: (a) => renderActivityAuditModal(a), spParentClientSelect, spBranchSelect, csClient, csBrand, csActivity, csType, csCoord, csMinScore, csCountBadge, getCurrentFilter: () => statusFilter, getSelectedBranchKey: () => selectedBranchKey, getCustomSearchActive: () => customSearchActive, getUser: () => user, MasterBranchCard, renderSupervisorBranchCards: (a) => renderSupervisorBranchCards(a), showToast, refreshIcons: global.refreshIcons };
+    renderSupervisorBranchCards = global.SupervisorBranches.create(modalCtx);
+    renderActivityAuditModal = global.SupervisorAuditModal.create(modalCtx);
+    global.SupervisorReviewModal.create(modalCtx);
+    renderList = global.SupervisorFeed.create(modalCtx);
     document.getElementById('review-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('rev-act-id').value;

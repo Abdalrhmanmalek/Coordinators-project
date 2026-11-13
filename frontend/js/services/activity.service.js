@@ -1,18 +1,23 @@
 /**
  * ADCO Field Operations System - Activity Service
- * Single Responsibility: Activity lifecycle management, 3-tier data scoping,
- * multi-brand row multiplication ($1/N$ share), follow-up photos, and supervisor closure operations.
+ * Single Responsibility: Activity CRUD, 3-tier data scoping, branch proximity, and delegation to closure service.
  */
 
-import { STORAGE_KEYS, ACTIVITY_STATUS, CLOSURE_STATUS } from '../config/constants.js';
+import { STORAGE_KEYS, ACTIVITY_STATUS } from '../config/constants.js';
 import { API_ENDPOINTS } from '../config/endpoints.js';
 import { ADCO_CATALOGS } from '../config/catalogs.js';
 import { apiClient } from '../api/http-client.js';
 import { ScoreCalculator } from '../utils/score-calculator.js';
 import { formatToEgyptTime } from '../utils/camera-compressor.esm.js';
 import { Validators } from '../utils/validators.js';
-
 import { INITIAL_SEED_ACTIVITIES } from '../store/seed-data.esm.js';
+import {
+  requestActivityClosureOp,
+  directCloseActivityOp,
+  processClosureRequestOp,
+  addFollowUpPhotosOp,
+  getExpandedBrandRowsOp
+} from './activity-closure.service.js';
 
 export { INITIAL_SEED_ACTIVITIES };
 
@@ -37,16 +42,9 @@ export class ActivityService {
   }
 
   static getActivityById(id) {
-    const all = this.getAllActivities();
-    return all.find((a) => a.id === id) || null;
+    return this.getAllActivities().find((a) => a.id === id) || null;
   }
 
-  /**
-   * 3-Tier Data Scoping Filter:
-   * 1. COORDINATOR: Single assigned client branch only
-   * 2. COORDINATOR_SUPERVISOR: All branches of assigned client
-   * 3. MARKETING_MANAGER: Global nationwide scope
-   */
   static getActivitiesForUser(userOrId) {
     const all = this.getAllActivities();
     if (!userOrId) return all;
@@ -55,12 +53,8 @@ export class ActivityService {
       const user = userOrId;
       const role = user.role;
 
-      // Tier 3: Marketing Manager / Coordination Manager (Global Visibility)
-      if (role === 'marketing_manager') {
-        return all;
-      }
+      if (role === 'marketing_manager') return all;
 
-      // Tier 2: Coordinator Supervisor (Responsible for all branches of assigned client)
       if (role === 'coordinator_supervisor') {
         const clientName = (user.assignedClientName || 'فتح الله جملة ماركت (Fathalla)').trim();
         const filtered = all.filter((a) => {
@@ -70,7 +64,6 @@ export class ActivityService {
         return filtered.length > 0 ? filtered : all;
       }
 
-      // Tier 1: Coordinator (Prioritize assigned client branch, fallback to coordinatorId/fullName, fallback to client)
       let filtered = [];
       if (user.assignedClientName && user.assignedBranchName) {
         const cName = user.assignedClientName.trim();
@@ -78,25 +71,21 @@ export class ActivityService {
         filtered = all.filter((a) => {
           const actClient = (a.client || '').trim();
           const actBranch = (a.branch || '').trim();
-          const matchClient = actClient.includes(cName) || cName.includes(actClient);
-          const matchBranch = actBranch.includes(bName) || bName.includes(actBranch);
-          return matchClient && matchBranch;
+          return (actClient.includes(cName) || cName.includes(actClient)) &&
+                 (actBranch.includes(bName) || bName.includes(actBranch));
         });
       }
 
       if (filtered.length === 0 && user.employeeId) {
         filtered = all.filter((a) => a.coordinatorId === user.employeeId);
       }
-
       if (filtered.length === 0 && user.fullName) {
         filtered = all.filter((a) => a.coordinatorName === user.fullName);
       }
-
       if (filtered.length === 0 && (user.assignedBranchName || user.branch)) {
         const b = (user.assignedBranchName || user.branch).trim();
         filtered = all.filter((a) => (a.branch || '').includes(b) || b.includes(a.branch || ''));
       }
-
       if (filtered.length === 0 && user.assignedClientName) {
         filtered = all.filter((a) => (a.client || '').includes(user.assignedClientName));
       }
@@ -133,19 +122,13 @@ export class ActivityService {
         const sameClient = !cName || (a.client || '').includes(cName) || cName.includes(a.client || '');
         return sameBranch && sameClient && a.coordinatorBranch;
       });
-      if (exactMatch && exactMatch.coordinatorBranch) {
-        return exactMatch.coordinatorBranch;
-      }
+      if (exactMatch && exactMatch.coordinatorBranch) return exactMatch.coordinatorBranch;
     }
 
     const map = ADCO_CATALOGS.supplyingBranchMap || {};
-    if (bName && map[bName]) {
-      return map[bName];
-    }
+    if (bName && map[bName]) return map[bName];
     for (const [key, val] of Object.entries(map)) {
-      if (bName && (bName.includes(key) || key.includes(bName))) {
-        return val;
-      }
+      if (bName && (bName.includes(key) || key.includes(bName))) return val;
     }
 
     if (/سموحة|المنشية|وسط/.test(bName)) return 'الإسكندرية - قطاع وسط';
@@ -169,9 +152,7 @@ export class ActivityService {
       if (res && (res.supplyingBranch || (res.data && res.data.supplyingBranch))) {
         return res.supplyingBranch || res.data.supplyingBranch;
       }
-    } catch (_) {
-      // Fallback to local relational mapping
-    }
+    } catch (_) {}
     return this.getSupplyingBranchSync(cName, bName);
   }
 
@@ -185,29 +166,20 @@ export class ActivityService {
       return (ab === bName || ab.includes(bName) || bName.includes(ab)) && a.location && a.location.latitude && a.location.longitude;
     });
     if (matchedAct && matchedAct.location) {
-      return {
-        latitude: Number(matchedAct.location.latitude),
-        longitude: Number(matchedAct.location.longitude)
-      };
+      return { latitude: Number(matchedAct.location.latitude), longitude: Number(matchedAct.location.longitude) };
     }
 
     const coordsMap = ADCO_CATALOGS.branchCoordinatesMap || {};
     if (coordsMap[bName]) return coordsMap[bName];
     for (const [key, coords] of Object.entries(coordsMap)) {
-      if (bName.includes(key) || key.includes(bName)) {
-        return coords;
-      }
+      if (bName.includes(key) || key.includes(bName)) return coords;
     }
     return null;
   }
 
   static validateBranchProximity(branchName, deviceLocation, maxAllowedMeters = ADCO_CATALOGS.maxBranchProximityMeters || 150) {
     const branchCoords = this.getBranchCoordinatesSync(branchName);
-    const result = Validators.validateBranchProximity(branchCoords, deviceLocation, maxAllowedMeters);
-    return {
-      ...result,
-      branchCoords
-    };
+    return { ...Validators.validateBranchProximity(branchCoords, deviceLocation, maxAllowedMeters), branchCoords };
   }
 
   static getCoordinatorsForClient(clientName) {
@@ -231,15 +203,8 @@ export class ActivityService {
     const all = this.getAllActivities();
     const nowIso = new Date().toISOString();
     const formattedNow = formatToEgyptTime ? formatToEgyptTime(nowIso) : nowIso.slice(0, 16).replace('T', ' ');
-
     const newId = `ACT-2026-${String(Math.floor(1000 + Math.random() * 9000))}`;
-
-    const deviceCoords = payload.location || {
-      latitude: payload.latitude,
-      longitude: payload.longitude,
-      accuracy: payload.accuracy || 10,
-      verified: true
-    };
+    const deviceCoords = payload.location || { latitude: payload.latitude, longitude: payload.longitude, accuracy: payload.accuracy || 10, verified: true };
 
     const proximityCheck = this.validateBranchProximity(
       payload.branch,
@@ -280,12 +245,7 @@ export class ActivityService {
       isClosed: false,
       closureRequested: false,
       endDate: null,
-      location: payload.location || {
-        latitude: payload.latitude || 31.2001,
-        longitude: payload.longitude || 29.9187,
-        accuracy: 10,
-        verified: true
-      },
+      location: payload.location || { latitude: payload.latitude || 31.2001, longitude: payload.longitude || 29.9187, accuracy: 10, verified: true },
       followUpHistory: [
         {
           roundNumber: 1,
@@ -295,17 +255,11 @@ export class ActivityService {
           uploadedById: payload.coordinatorId || 'ADCO-101',
           sessionScore: null,
           reviewStatus: 'Under Review',
-          photos: [
-            {
-              photoUrl: payload.photoUrl || './assets/images/fathalla-branch.avif',
-              sizeKb: 180
-            }
-          ]
+          photos: [{ photoUrl: payload.photoUrl || './assets/images/fathalla-branch.avif', sizeKb: 180 }]
         }
       ]
     };
 
-    // Attempt remote API post
     try {
       await apiClient.post(API_ENDPOINTS.ACTIVITIES.BASE, newActivity);
     } catch (err) {
@@ -321,185 +275,33 @@ export class ActivityService {
     const all = this.getAllActivities();
     const idx = all.findIndex((a) => a.id === activityId);
     if (idx === -1) throw new Error('النشاط المطلوب غير موجود');
-
     all[idx].activityDate = newIsoDate;
     all[idx].activityDateFormatted = formatToEgyptTime ? formatToEgyptTime(newIsoDate) : newIsoDate;
-
     try {
       await apiClient.patch(API_ENDPOINTS.ACTIVITIES.UPDATE_DATE(activityId), { activityDate: newIsoDate });
     } catch (_) {}
-
     this.saveAllActivities(all);
     return all[idx];
   }
 
-  static async requestActivityClosure(activityId, notes = '') {
-    const all = this.getAllActivities();
-    const idx = all.findIndex((a) => a.id === activityId);
-    if (idx === -1) throw new Error('النشاط المطلوب غير موجود');
-
-    all[idx].closureRequested = true;
-    all[idx].closureRequestNotes = notes;
-    all[idx].closureRequestedAt = new Date().toISOString();
-
-    try {
-      await apiClient.post(API_ENDPOINTS.ACTIVITIES.REQUEST_END(activityId), { notes });
-    } catch (_) {}
-
-    this.saveAllActivities(all);
-    return all[idx];
+  static requestActivityClosure(activityId, notes = '') {
+    return requestActivityClosureOp(this, activityId, notes);
   }
 
-  static async directCloseActivity(activityId, supervisorFeedback = 'تم الإغلاق المباشر من قبل مسؤول التسويق') {
-    const all = this.getAllActivities();
-    const idx = all.findIndex((a) => a.id === activityId);
-    if (idx === -1) throw new Error('النشاط المطلوب غير موجود');
-
-    const nowIso = new Date().toISOString();
-    all[idx].isClosed = true;
-    all[idx].closureRequested = false;
-    all[idx].closedAt = nowIso;
-    all[idx].endDate = formatToEgyptTime ? formatToEgyptTime(nowIso) : nowIso.slice(0, 16).replace('T', ' ');
-    all[idx].closureSupervisorFeedback = supervisorFeedback;
-
-    try {
-      await apiClient.post(API_ENDPOINTS.ACTIVITIES.DIRECT_CLOSE(activityId), { supervisorFeedback });
-    } catch (_) {}
-
-    this.saveAllActivities(all);
-    return all[idx];
+  static directCloseActivity(activityId, supervisorFeedback = 'تم الإغلاق المباشر من قبل مسؤول التسويق') {
+    return directCloseActivityOp(this, activityId, supervisorFeedback);
   }
 
-  static async processClosureRequest(activityId, decision, supervisorFeedback = '') {
-    const all = this.getAllActivities();
-    const idx = all.findIndex((a) => a.id === activityId);
-    if (idx === -1) throw new Error('النشاط المطلوب غير موجود');
-
-    const nowIso = new Date().toISOString();
-    if (decision === 'COMPLETED' || decision === 'APPROVED') {
-      all[idx].isClosed = true;
-      all[idx].closureRequested = false;
-      all[idx].closedAt = nowIso;
-      all[idx].endDate = formatToEgyptTime ? formatToEgyptTime(nowIso) : nowIso.slice(0, 16).replace('T', ' ');
-      all[idx].closureSupervisorFeedback = supervisorFeedback;
-    } else {
-      all[idx].closureRequested = false;
-      all[idx].closureRejectedAt = nowIso;
-      all[idx].closureSupervisorFeedback = supervisorFeedback;
-    }
-
-    try {
-      await apiClient.post(API_ENDPOINTS.ACTIVITIES.PROCESS_CLOSURE(activityId), { decision, supervisorFeedback });
-    } catch (_) {}
-
-    this.saveAllActivities(all);
-    return all[idx];
+  static processClosureRequest(activityId, decision, supervisorFeedback = '') {
+    return processClosureRequestOp(this, activityId, decision, supervisorFeedback);
   }
 
-  static async addFollowUpPhotos(activityId, photosBatch, user, location = null, updatedProducts = null) {
-    const all = this.getAllActivities();
-    const idx = all.findIndex((a) => a.id === activityId);
-    if (idx === -1) throw new Error('النشاط المطلوب غير موجود');
-
-    const act = all[idx];
-    if (location) {
-      const proximityCheck = this.validateBranchProximity(
-        act.branch,
-        location,
-        ADCO_CATALOGS.maxBranchProximityMeters || 150
-      );
-      if (!proximityCheck.isValid) {
-        throw new Error(proximityCheck.errorMessage || 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل');
-      }
-    }
-    const sessions = act.followUpHistory || [];
-    const nextRoundNum = sessions.length + 1;
-    const nowIso = new Date().toISOString();
-    const formattedNow = formatToEgyptTime ? formatToEgyptTime(nowIso) : nowIso.slice(0, 16).replace('T', ' ');
-
-    const newSession = {
-      roundNumber: nextRoundNum,
-      roundTitle: `متابعة إضافية #${nextRoundNum}`,
-      timestamp: formattedNow,
-      uploadedBy: user ? user.fullName : act.coordinatorName,
-      uploadedById: user ? user.employeeId : act.coordinatorId,
-      sessionScore: null,
-      reviewStatus: 'Under Review',
-      photos: photosBatch,
-      location: location || act.location
-    };
-
-    if (Array.isArray(updatedProducts) && updatedProducts.length > 0) {
-      newSession.products = updatedProducts;
-      act.products = updatedProducts;
-      const derivedBrands = [...new Set(updatedProducts.map((p) => (typeof p === 'object' ? p.brand : p)).filter(Boolean))];
-      if (derivedBrands.length > 0) {
-        act.brands = derivedBrands;
-        newSession.brands = derivedBrands;
-        act.skuVariant = updatedProducts.map((p) => (typeof p === 'object' ? p.skuItem || p.brand : p)).join(' / ');
-      }
-    }
-
-    sessions.push(newSession);
-    act.followUpHistory = sessions;
-    act.status = ACTIVITY_STATUS.UNDER_REVIEW;
-
-    try {
-      await apiClient.post(API_ENDPOINTS.ACTIVITIES.FOLLOW_UP(activityId), newSession);
-    } catch (_) {}
-
-    this.saveAllActivities(all);
-    return { updatedActivity: act, newSession };
+  static addFollowUpPhotos(activityId, photosBatch, user, location = null, updatedProducts = null) {
+    return addFollowUpPhotosOp(this, activityId, photosBatch, user, location, updatedProducts);
   }
 
-  /**
-   * Splits an activity with N selected brands into N separate rows, each with Brand Share = (1 / N)
-   */
   static getExpandedBrandRows(activitiesInput = null) {
-    const activities = activitiesInput || this.getAllActivities();
-    const expandedRows = [];
-
-    activities.forEach((act) => {
-      const brandsList = Array.isArray(act.brands) && act.brands.length > 0 ? act.brands : ['عام (أدكو)'];
-      const N = brandsList.length;
-      const shareRaw = 1 / N;
-      const shareDecimal = Number(shareRaw.toFixed(2));
-      const sharePct = Math.round(shareRaw * 100);
-      const ratingStats = ScoreCalculator.computeOverallRating(act);
-
-      brandsList.forEach((singleBrand, brandIdx) => {
-        const startDateDisplay = act.activityDate
-          ? (formatToEgyptTime ? formatToEgyptTime(act.activityDate) : act.activityDate)
-          : (formatToEgyptTime ? formatToEgyptTime(act.createdAt || act.timestamp) : (act.createdAt || '-'));
-
-        const endDateDisplay = act.isClosed
-          ? (act.endDate || (act.closedAt ? (formatToEgyptTime ? formatToEgyptTime(act.closedAt) : act.closedAt) : 'تم الإغلاق'))
-          : 'نشط ومستمر';
-
-        expandedRows.push({
-          ...act,
-          rowKey: `${act.id}-B${brandIdx + 1}`,
-          singleBrand,
-          brandCount: N,
-          brandIndex: brandIdx + 1,
-          brandShareDecimal: shareDecimal,
-          brandSharePercent: `${sharePct}%`,
-          brandShareFormatted: `${shareDecimal} (${sharePct}%)`,
-          overallRating: ratingStats.overallRating,
-          ratedSessionsCount: ratingStats.ratedCount,
-          overallRatingBadge: ratingStats.badgeText,
-          activityStartDate: startDateDisplay,
-          activityEndDate: endDateDisplay,
-          reviewerName: act.reviewerName || (act.status !== 'Under Review' ? 'م. حسام الدين غانم' : '-'),
-          reviewedAtFormatted: act.reviewedAt
-            ? (formatToEgyptTime ? formatToEgyptTime(act.reviewedAt) : act.reviewedAt.slice(0, 16).replace('T', ' '))
-            : (act.status !== 'Under Review' ? '2026-11-01 14:30' : '-'),
-          reviewNotes: act.supervisorNotes || '-'
-        });
-      });
-    });
-
-    return expandedRows;
+    return getExpandedBrandRowsOp(activitiesInput || this.getAllActivities());
   }
 
   static computeWeightedEvaluation(act) {
