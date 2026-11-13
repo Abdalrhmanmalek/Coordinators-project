@@ -56,10 +56,24 @@
   }
   populateActivityTypesDropdown();
 
-  function renderStatusBadge(status) {
-    if (status === 'Accepted') return '<span class="badge badge-success">المقبولة</span>';
-    if (status === 'Rejected') return '<span class="badge badge-danger">المرفوضة</span>';
-    return '<span class="badge badge-warning">تحت المراجعة</span>';
+  function renderStatusBadge(statusOrAct) {
+    let reviewSt = statusOrAct;
+    let endSt = null;
+    if (statusOrAct && typeof statusOrAct === 'object') {
+      reviewSt = statusOrAct.reviewStatus || statusOrAct.status;
+      endSt = statusOrAct.endStatus || (statusOrAct.isClosed ? 'ENDED' : 'OPEN');
+    }
+    if (endSt === 'ENDED' || reviewSt === 'ENDED' || reviewSt === 'CLOSED') {
+      return '<span class="badge badge-success">منتهي</span>';
+    }
+    const normalized = String(reviewSt || '').toUpperCase();
+    if (normalized === 'ACCEPTED' || reviewSt === 'Accepted' || reviewSt === 'مقبول') {
+      return '<span class="badge badge-success">مقبول</span>';
+    }
+    if (normalized === 'REJECTED' || reviewSt === 'Rejected' || reviewSt === 'مرفوض') {
+      return '<span class="badge badge-danger">مرفوض</span>';
+    }
+    return '<span class="badge badge-warning">قيد المراجعة</span>';
   }
 
   function syncFilterChipsUI() {
@@ -166,18 +180,18 @@
           <div class="bd-hero-title-group">
             <h2 class="bd-hero-client-title">${parentClient}</h2>
             <div class="bd-hero-branch-title">
-              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
               <span>${branchName}</span>
             </div>
           </div>
 
           <div class="branch-supply-pill bd-hero-supply-box">
-            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+            <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
             <span>فرع الشركة المورد للبضاعة: <strong>${supplyingBranch}</strong></span>
           </div>
 
           <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="branch-gps-map-link bd-hero-map-btn" id="bd-hero-subtitle-map-link" data-map-query="${mapsQuery}" title="اضغط لفتح موقع الفرع على خرائط جوجل (Google Maps)">
-            <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-sm" alt="" />
+            <i data-lucide="map-pin" class="ui-icon ui-icon-sm"></i>
             <span>فتح موقع الفرع على خرائط Google Maps</span>
           </a>
         </div>
@@ -206,7 +220,7 @@
           <div class="branch-meta-item">
             <span class="branch-meta-label">الموقع والإحداثيات (GPS - خرائط جوجل)</span>
             <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" class="branch-gps-map-link" id="bd-meta-gps-map-link" data-map-query="${mapsQuery}" title="افتح الإحداثيات في Google Maps">
-              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
               <span>${locObj.address || branchName} (${latNum.toFixed(4)}°N, ${lngNum.toFixed(4)}°E)</span>
             </a>
           </div>
@@ -272,7 +286,7 @@
         <div class="card db-s15">
           <p class="db-s16">لا توجد بطاقات نشاط مطابقة لهذا التصنيف في ${branchName} حالياً.</p>
           <a href="./activity-card.html" class="btn btn-primary btn-sm">
-            <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-sm" alt="" />
+            <i data-lucide="camera" class="ui-icon ui-icon-sm"></i>
             <span>توثيق نشاط ميداني جديد بالفرع</span>
           </a>
         </div>
@@ -313,20 +327,23 @@
           latestNotes = act.supervisorNotes.trim();
         }
 
+        const isClosed = act.endStatus === 'ENDED' || Boolean(act.isClosed);
+        const isPendingClosure = act.endStatus === 'ENDING_REQUESTED' || Boolean(act.closureRequested);
+
         return `
           <div class="activity-card-item" data-act-id="${act.id}" role="button" tabindex="0" style="cursor: pointer;" title="اضغط لفتح سجل المراجعات وتفاصيل النشاط بالكامل">
             <div class="activity-card-head">
-              <img src="${act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80'}" alt="${act.client}" class="activity-card-thumb" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
+              <img src="${act.photoUrl || '../assets/images/fathalla-branch.avif'}" alt="${act.client}" class="activity-card-thumb" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.avif';" />
               <div class="db-s17">
                 <div class="db-s18">
                   <strong class="db-s19">${act.client}</strong>
                   <div class="db-s20">
-                    ${act.isClosed ? `<span class="badge badge-success db-s21">منتهي</span>` : act.closureRequested ? `<span class="badge badge-warning db-s21">طلب إنهاء</span>` : ''}
-                    ${renderStatusBadge(act.status)}
+                    ${isClosed ? `<span class="badge badge-success db-s21">منتهي</span>` : isPendingClosure ? `<span class="badge badge-warning db-s21">طلب إنهاء</span>` : ''}
+                    ${renderStatusBadge(act)}
                   </div>
                 </div>
                 <div class="branch-card-sub" style="margin-bottom: 4px;">
-                  <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
                   <span>${act.branch}</span>
                 </div>
                 <p class="db-s22" style="margin-bottom: 4px;">
@@ -335,7 +352,7 @@
                 <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
                   <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                     <span class="badge badge-mint" style="font-weight: 700; font-size: 0.74rem;">
-                      <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <i data-lucide="sliders-horizontal" class="ui-icon ui-icon-xs"></i>
                       <span>نوع العرض: ${actType}${act.activityCount ? ` × ${act.activityCount}` : ''}</span>
                     </span>
                   </div>
@@ -366,7 +383,7 @@
               <div class="branch-card-feedback-preview">
                 <div class="feedback-preview-header">
                   <span class="feedback-badge-label">
-                    <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-xs" alt="" />
+                    <i data-lucide="clipboard-edit" class="ui-icon ui-icon-xs"></i>
                     <span>توجيهات مدير التسويق:</span>
                   </span>
                   <span class="feedback-reviewer-name">${latestReviewer}</span>
@@ -376,7 +393,7 @@
             ` : `
               <div class="branch-card-feedback-preview feedback-pending">
                 <span class="feedback-badge-label">
-                  <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
                   <span>بانتظار مراجعة وتوجيهات مدير التسويق للجولات المرفوعة</span>
                 </span>
               </div>
@@ -384,7 +401,7 @@
 
             <div class="db-s23" style="margin-top: 10px;">
               <span class="badge badge-warning db-s24">
-                <img src="../assets/icons/star.svg" class="ui-icon ui-icon-sm" alt="" />
+                <i data-lucide="star" class="ui-icon ui-icon-sm"></i>
                 <span>التقييم: ${ratingStats.totalWeightedScore}/100</span>
               </span>
               <span class="db-s25">
@@ -394,11 +411,11 @@
 
             <div class="activity-card-action-bar">
               <button type="button" class="btn btn-secondary btn-sm btn-open-card-details" data-act-id="${act.id}" title="فتح سجل المراجعات والجولات وتوجيهات مدير التسويق">
-                <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                <i data-lucide="calendar-clock" class="ui-icon ui-icon-xs"></i>
                 <span>سجل المراجعات (${roundsCount})</span>
               </button>
               <button type="button" class="btn btn-primary btn-sm btn-quick-add-photo" data-act-id="${act.id}" title="إضافة متابعة جديدة والتقاط الصور لهذا النشاط">
-                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
+                <i data-lucide="camera" class="ui-icon ui-icon-xs"></i>
                 <span>إضافة متابعة</span>
               </button>
             </div>
@@ -443,6 +460,10 @@
         window.location.href = `./activity-details.html?id=${actId}`;
       });
     });
+
+    if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') {
+      window.refreshIcons(container);
+    }
   }
 
   document.querySelectorAll('.filter-chip').forEach((btn) => {

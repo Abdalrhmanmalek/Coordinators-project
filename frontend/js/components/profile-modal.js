@@ -22,29 +22,32 @@ export class ProfileModal {
   }
 
   static open(user) {
+    if (!user) {
+      user = AuthService.getCurrentUser() || (typeof window !== 'undefined' && (window.currentUser || (window.AuthManager && window.AuthManager.getCurrentUser())));
+    }
     if (!user) return;
     const modal = this.ensureModalContainer();
     const role = user.role;
-    const isManager = role === 'marketing_manager' || role === 'coordination_manager' || role === 'supervisor';
+    const isManager = role === 'marketing_manager';
     const isCoordSup = role === 'coordinator_supervisor';
     const isSubPage = window.location.pathname.includes('/pages/');
     const assetsPrefix = isSubPage ? '../assets/' : './assets/';
     const avatarSrc = isManager
-      ? `${assetsPrefix}images/avatar-supervisor.svg`
-      : `${assetsPrefix}images/avatar-coordinator.svg`;
+      ? `${assetsPrefix}images/avatar-supervisor.avif`
+      : `${assetsPrefix}images/avatar-coordinator.avif`;
 
     const roleBadgeText = isManager
-      ? 'مسؤول التسويق (Marketing Manager)'
+      ? 'مسؤول التسويق'
       : isCoordSup
-      ? 'مشرف منسق (Coordinator Supervisor)'
-      : 'منسق ميداني معتمد (Field Coordinator)';
+      ? 'مشرف منسق'
+      : 'منسق ميداني';
 
     modal.innerHTML = `
       <div class="modal-sheet" style="max-width: 650px;">
         <div class="modal-header">
           <h3 style="display: flex; align-items: center; gap: 8px;">
-            <img src="${assetsPrefix}icons/user-cog.svg" class="ui-icon ui-icon-md" alt="" />
-            <span>لوحة الحساب والبيانات الشخصية</span>
+            <i data-lucide="user-cog" class="ui-icon ui-icon-md"></i>
+            <span>الملف الشخصي</span>
           </h3>
           <button type="button" class="close-modal-btn" id="close-profile-modal">&times;</button>
         </div>
@@ -67,31 +70,31 @@ export class ProfileModal {
         <div class="card" style="padding: 18px; margin-bottom: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
             <h4 style="margin: 0; display: flex; align-items: center; gap: 8px;">
-              <img src="${assetsPrefix}icons/clipboard-edit.svg" class="ui-icon ui-icon-sm" alt="" />
-              <span>البيانات الشخصية والاتصال (البريد والهاتف)</span>
+              <i data-lucide="clipboard-edit" class="ui-icon ui-icon-sm"></i>
+              <span>بيانات الاتصال</span>
             </h4>
             <span class="badge badge-warning" id="contact-lock-status-badge" style="font-size: 0.74rem;">
-              <img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
-              <span>محمية بكلمة المرور</span>
+              <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
+              <span>محمية</span>
             </span>
           </div>
 
           <!-- Gate: Locked View requiring password to view and edit -->
           <div id="contact-locked-view" style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: var(--radius-sm); padding: 18px; text-align: center;">
             <p style="font-size: 0.84rem; color: var(--adco-gray-700); margin-bottom: 12px; font-weight: 600;">
-              لحماية خصوصية الحساب، يرجى إدخال كلمة المرور الحالية لعرض وتعديل بياناتك الشخصية:
+              أدخل كلمة المرور الحالية لعرض وتعديل البيانات:
             </p>
             <div style="display: flex; gap: 8px; max-width: 380px; margin: 0 auto; flex-wrap: wrap;">
               <input
                 type="password"
                 id="unlock-contact-pass"
                 class="form-input"
-                placeholder="أدخل كلمة المرور الحالية..."
+                placeholder="كلمة المرور..."
                 style="flex: 1; min-width: 170px;"
               />
               <button type="button" class="btn btn-primary btn-sm" id="btn-unlock-contact" style="white-space: nowrap;">
-                <img src="${assetsPrefix}icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
-                <span>تأكيد وعرض</span>
+                <i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>
+                <span>تأكيد</span>
               </button>
             </div>
             <p id="unlock-contact-error" style="color: var(--adco-danger); font-size: 0.78rem; margin-top: 8px; display: none;"></p>
@@ -113,7 +116,7 @@ export class ProfileModal {
               <div style="display: flex; justify-content: flex-end; gap: 8px;">
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-relock-contact">إعادة القفل</button>
                 <button type="submit" class="btn btn-primary btn-sm">
-                  <img src="${assetsPrefix}icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+                  <i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>
                   <span>حفظ التعديلات</span>
                 </button>
               </div>
@@ -124,7 +127,7 @@ export class ProfileModal {
         <!-- Section 2: Change Password -->
         <div class="card" style="padding: 18px; margin-bottom: 16px;">
           <h4 style="margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
-            <img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+            <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
             <span>تحديث كلمة المرور</span>
           </h4>
           <form id="profile-password-form">
@@ -144,42 +147,27 @@ export class ProfileModal {
             </div>
             <div style="display: flex; justify-content: flex-end;">
               <button type="submit" class="btn btn-primary btn-sm">
-                <img src="${assetsPrefix}icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+                <i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>
                 <span>تحديث كلمة المرور</span>
               </button>
             </div>
           </form>
         </div>
 
-        <!-- Section 3: 3-Tier Demo Fast Role Switcher -->
-        <div class="card" style="padding: 16px; background: #f8fafc; border: 1px dashed #cbd5e1; margin-bottom: 16px;">
-          <h5 style="margin: 0 0 8px 0; font-size: 0.85rem; color: var(--adco-gray-700);">
-            تبديل الحساب السريع (3-Tier RBAC Demo Switcher):
-          </h5>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-secondary btn-sm" id="switch-to-coord">
-              1. منسق ميداني (ADCO-101)
-            </button>
-            <button type="button" class="btn btn-secondary btn-sm" id="switch-to-coordsup">
-              2. مشرف منسق (ADCO-501)
-            </button>
-            <button type="button" class="btn btn-secondary btn-sm" id="switch-to-manager">
-              3. مسؤول التسويق (ADCO-901)
-            </button>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <button type="button" class="btn btn-danger btn-sm" id="modal-logout-btn">
-            <img src="${assetsPrefix}icons/log-out.svg" class="ui-icon ui-icon-sm" alt="" />
-            <span>تسجيل الخروج من المنظومة</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 14px; margin-top: 4px; gap: 12px;">
+          <button type="button" class="btn btn-danger" id="modal-logout-btn" style="padding: 0.6rem 1.25rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+            <i data-lucide="log-out" class="ui-icon ui-icon-sm"></i>
+            <span>تسجيل الخروج</span>
           </button>
-          <button type="button" class="btn btn-secondary btn-sm" id="modal-close-bottom">إغلاق النافذة</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="modal-close-bottom">إغلاق</button>
         </div>
       </div>
     `;
 
     modal.classList.add('active');
+    if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') {
+      window.refreshIcons(modal);
+    }
 
     const closeModal = () => modal.classList.remove('active');
     document.getElementById('close-profile-modal').addEventListener('click', closeModal);
@@ -210,7 +198,8 @@ export class ProfileModal {
         lockedView.style.display = 'none';
         unlockedView.style.display = 'block';
         lockBadge.className = 'badge badge-success';
-        lockBadge.innerHTML = `<img src="${assetsPrefix}icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" /><span>تم التحقق (مفتوح للتعديل)</span>`;
+        lockBadge.innerHTML = `<i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i><span>تم التحقق (مفتوح للتعديل)</span>`;
+        if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') window.refreshIcons(lockBadge);
         showToast('تم تأكيد الهوية بنجاح', 'success');
       } else {
         unlockError.textContent = 'كلمة المرور غير صحيحة. حاول مجدداً.';
@@ -228,7 +217,8 @@ export class ProfileModal {
       lockedView.style.display = 'block';
       unlockPassInput.value = '';
       lockBadge.className = 'badge badge-warning';
-      lockBadge.innerHTML = `<img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" /><span>محمية بكلمة المرور</span>`;
+      lockBadge.innerHTML = `<i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i><span>محمية بكلمة المرور</span>`;
+      if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') window.refreshIcons(lockBadge);
     });
 
     // Update Contact Details Form Submit
@@ -259,19 +249,6 @@ export class ProfileModal {
 
       showToast('تم تحديث كلمة المرور بنجاح', 'success');
       document.getElementById('profile-password-form').reset();
-    });
-
-    // Switch Role sandbox (3 tiers)
-    document.getElementById('switch-to-coord').addEventListener('click', () => {
-      AuthService.switchRole('coordinator');
-    });
-
-    document.getElementById('switch-to-coordsup').addEventListener('click', () => {
-      AuthService.switchRole('coordinator_supervisor');
-    });
-
-    document.getElementById('switch-to-manager').addEventListener('click', () => {
-      AuthService.switchRole('marketing_manager');
     });
 
     // Modal Logout

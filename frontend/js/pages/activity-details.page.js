@@ -130,8 +130,11 @@
       userRole === 'coordinator_supervisor' ||
       userRole === 'supervisor'
     ) && userRole !== 'marketing_manager' && userRole !== 'admin';
-    const isActivityActive = !act.isClosed && (act.status === 'Accepted' || act.status === 'نشط' || !act.status);
-    const canRequestClosure = isCoordOrSupervisor && isActivityActive && !act.closureRequested;
+    const isClosed = act.endStatus === 'ENDED' || Boolean(act.isClosed);
+    const isClosureRequested = act.endStatus === 'ENDING_REQUESTED' || Boolean(act.closureRequested);
+    const revSt = act.reviewStatus || (act.status === 'Accepted' ? 'ACCEPTED' : (act.status === 'Rejected' ? 'REJECTED' : 'UNDER_REVIEW'));
+    const isActivityActive = !isClosed && (revSt === 'ACCEPTED' || act.status === 'نشط' || !act.status);
+    const canRequestClosure = isCoordOrSupervisor && isActivityActive && !isClosureRequested;
 
     const scoreVal = ratingStats.totalWeightedScore || (act.evaluation && act.evaluation.totalScore) || 88;
     const tierText = (ratingStats.badgeTier && ratingStats.badgeTier !== 'undefined')
@@ -141,11 +144,11 @@
     mount.innerHTML = `
       <div class="ad-hero-visual">
         <div class="ad-hero-img-wrap" id="ad-hero-thumb-click" title="اضغط للتكبير والفحص عالي الدقة">
-          <img src="${act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80'}" alt="${act.client}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
+          <img src="${act.photoUrl || '../assets/images/fathalla-branch.avif'}" alt="${act.client}" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.avif';" />
         </div>
         <div class="ad-hero-badges">
-          <span class="badge ${act.status === 'Accepted' ? 'badge-success' : act.status === 'Under Review' ? 'badge-warning' : 'badge-danger'}">
-            ${act.status === 'Accepted' ? 'معتمد' : act.status === 'Under Review' ? 'تحت المراجعة' : 'مرفوض'}
+          <span class="badge ${isClosed ? 'badge-success' : isClosureRequested ? 'badge-warning' : (revSt === 'ACCEPTED' ? 'badge-success' : revSt === 'UNDER_REVIEW' ? 'badge-warning' : 'badge-danger')}">
+            ${isClosed ? 'منتهي' : isClosureRequested ? 'طلب إنهاء' : (revSt === 'ACCEPTED' ? 'معتمد' : revSt === 'UNDER_REVIEW' ? 'تحت المراجعة' : 'مرفوض')}
           </span>
           <span class="badge badge-mint">
             التقييم: ${scoreVal}/100 (${tierText})
@@ -156,14 +159,14 @@
       <div class="ad-hero-details">
         <!-- Supplying Sector: Prominent inside internal view -->
         <div class="ad-supplying-sector-box">
-          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
           <span>فرع الشركة المورد للبضاعة: <strong>${supplyingBranch}</strong></span>
         </div>
 
         <div class="ad-meta-grid">
           <div class="ad-meta-item">
             <span class="ad-meta-label">
-              <img src="../assets/icons/layout-dashboard.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="layout-dashboard" class="ui-icon ui-icon-xs"></i>
               <span>نوع النشاط ووسيلة العرض</span>
             </span>
             <span class="ad-meta-val">${act.activityType || act.activity || 'جندولة رئيسية'}</span>
@@ -171,7 +174,7 @@
 
           <div class="ad-meta-item">
             <span class="ad-meta-label">
-              <img src="../assets/icons/user-cog.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="user-cog" class="ui-icon ui-icon-xs"></i>
               <span>المنسق الميداني المسؤول</span>
             </span>
             <span class="ad-meta-val">${formatTwoWordName(act.coordinatorName || user.name)}</span>
@@ -179,7 +182,7 @@
 
           <div class="ad-meta-item">
             <span class="ad-meta-label">
-              <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
               <span>تاريخ التأسيس</span>
             </span>
             <span class="ad-meta-val">${formatDateTime(act.timestamp || act.activityDate)}</span>
@@ -187,7 +190,7 @@
 
           <div class="ad-meta-item">
             <span class="ad-meta-label">
-              <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="shield-check" class="ui-icon ui-icon-xs"></i>
               <span>المشرف المعتمد</span>
             </span>
             <span class="ad-meta-val">${act.reviewerName || 'م. حسام الدين غانم'}</span>
@@ -220,17 +223,17 @@
         ${canRequestClosure ? `
           <div class="ad-closure-prompt-box" style="margin-top: 14px; padding: 12px 14px; background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.45); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 8px; font-size: 0.84rem; color: #92400e; font-weight: 600;">
-              <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
+              <i data-lucide="archive" class="ui-icon ui-icon-sm"></i>
               <span>هل تم انتهاء مدة العرض أو ترغب في تفكيك النشاط؟ يمكنك تقديم طلب إنهاء لمدير التسويق.</span>
             </div>
             <button type="button" class="btn btn-secondary btn-sm" id="ad-hero-closure-btn" style="border-color: #d97706; color: #b45309; font-weight: 700;">
-              <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="archive" class="ui-icon ui-icon-xs"></i>
               <span>طلب إنهاء النشاط</span>
             </button>
           </div>
         ` : act.closureRequested ? `
           <div class="ad-closure-prompt-box" style="margin-top: 14px; padding: 12px 14px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; display: flex; align-items: center; gap: 10px;">
-            <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
+            <i data-lucide="clock" class="ui-icon ui-icon-sm"></i>
             <div style="font-size: 0.85rem; color: #92400e;">
               <strong>طلب إنهاء وتفكيك هذا النشاط قيد مراجعة واعتماد مدير التسويق.</strong>
               <span style="display: block; font-size: 0.78rem; color: #64748b; margin-top: 2px;">السبب المسجل: ${act.closureReasonType || act.closureNotes || 'انتهاء مدة الحملة المعتمدة'}</span>
@@ -263,7 +266,7 @@
         closureBtn.style.color = '#b45309';
         closureBtn.style.fontWeight = '700';
         closureBtn.innerHTML = `
-          <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="archive" class="ui-icon ui-icon-sm"></i>
           <span>طلب إنهاء النشاط</span>
         `;
         closureBtn.addEventListener('click', openClosureModal);
@@ -278,7 +281,7 @@
         badge.style.alignItems = 'center';
         badge.style.gap = '6px';
         badge.innerHTML = `
-          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+          <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
           <span>طلب إنهاء قيد المراجعة</span>
         `;
         headerActions.appendChild(badge);
@@ -289,12 +292,16 @@
     if (thumbBtn) {
       thumbBtn.addEventListener('click', () => {
         openLightbox(
-          act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=1280&q=80',
+          act.photoUrl || '../assets/images/fathalla-branch.avif',
           `صورة النشاط التأسيسي — ${act.client}`,
           formatDateTime(act.timestamp),
           act.coordinatorName
         );
       });
+    }
+
+    if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') {
+      window.refreshIcons(mount);
     }
   }
 
@@ -313,7 +320,7 @@
             timestamp: currentActivity.timestamp || '2026-10-30 10:15',
             uploadedBy: currentActivity.coordinatorName || 'أحمد محمود العبد',
             uploadedById: currentActivity.coordinatorId || 'ADCO-101',
-            reviewStatus: currentActivity.status || 'Accepted',
+            reviewStatus: currentActivity.reviewStatus || currentActivity.status || 'ACCEPTED',
             sessionScore: 88,
             scoreBreakdown: { newActivity: 36, executionQuality: 17, continuity: 21, documentation: 14 },
             sessionNotes: currentActivity.supervisorNotes || 'بداية جيدة وتنسيق مرتب للجندولة وتواجد الأصناف.',
@@ -321,7 +328,7 @@
             brands: currentActivity.brands || ['فلفيتا', 'فييا'],
             photos: [
               {
-                photoUrl: currentActivity.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80',
+                photoUrl: currentActivity.photoUrl || '../assets/images/fathalla-branch.avif',
                 sizeKb: 184
               }
             ]
@@ -333,7 +340,7 @@
 
     mount.innerHTML = history
       .map((round, idx) => {
-        const photoUrl = (round.photos && round.photos[0] && round.photos[0].photoUrl) || currentActivity.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';
+        const photoUrl = (round.photos && round.photos[0] && round.photos[0].photoUrl) || currentActivity.photoUrl || '../assets/images/fathalla-branch.avif';
         const breakdown = round.scoreBreakdown || { newActivity: 35, executionQuality: 18, continuity: 20, documentation: 15 };
         const totalRoundScore = round.sessionScore !== undefined && round.sessionScore !== null
           ? round.sessionScore
@@ -342,6 +349,7 @@
         const reviewer = round.reviewerName || 'مسؤول التسويق';
 
         const isClosureEvent = round.closureRequest === true;
+        const isRoundAccepted = round.reviewStatus === 'Accepted' || round.reviewStatus === 'ACCEPTED';
 
         return `
           <div class="ad-round-card" data-round-idx="${idx}">
@@ -351,8 +359,8 @@
                 <h3 class="ad-round-title">${round.roundTitle || `جولة المتابعة رقم ${idx + 1}`}</h3>
               </div>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="badge ${round.reviewStatus === 'Accepted' ? 'badge-success' : 'badge-warning'}">
-                  ${round.reviewStatus === 'Accepted' ? 'معتمدة' : 'تحت المراجعة'}
+                <span class="badge ${isRoundAccepted ? 'badge-success' : 'badge-warning'}">
+                  ${isRoundAccepted ? 'معتمدة' : 'تحت المراجعة'}
                 </span>
                 <span style="font-size: 0.82rem; color: #64748b; font-family: monospace;">
                   ${formatDateTime(round.timestamp)}
@@ -362,14 +370,14 @@
 
             <div class="ad-round-body-grid">
               <div class="ad-round-photo-wrap" data-img-url="${photoUrl}" data-img-title="${round.roundTitle}" title="اضغط للتكبير">
-                <img src="${photoUrl}" alt="${round.roundTitle}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
+                <img src="${photoUrl}" alt="${round.roundTitle}" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.avif';" />
               </div>
 
               <div class="ad-round-content">
                 ${isClosureEvent ? `
                   <div style="background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 14px; margin-bottom: 10px;">
                     <div style="display: flex; align-items: center; gap: 8px; color: #b45309; font-weight: 700; margin-bottom: 6px; font-size: 0.9rem;">
-                      <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <i data-lucide="archive" class="ui-icon ui-icon-xs"></i>
                       <span>طلب إنهاء وتفكيك النشاط قيد مراجعة واعتماد مدير التسويق</span>
                     </div>
                     <p style="font-size: 0.85rem; color: #475569; margin: 0; line-height: 1.5;">${round.sessionNotes}</p>
@@ -405,7 +413,7 @@
                   <div class="ad-manager-note-box">
                     <div class="ad-manager-note-header">
                       <span>
-                        <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-xs" alt="" />
+                        <i data-lucide="clipboard-edit" class="ui-icon ui-icon-xs"></i>
                         <span>توجيهات وملاحظات مدير التسويق:</span>
                       </span>
                       <span>${reviewer}</span>
@@ -420,13 +428,13 @@
                   ${isClosureEvent ? `
                     <span>•</span>
                     <span style="color: #d97706; display: inline-flex; align-items: center; gap: 4px;">
-                      <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
                       <span>قيد مراجعة الاعتماد</span>
                     </span>
                   ` : `
                     <span>•</span>
                     <span style="color: #059669; display: inline-flex; align-items: center; gap: 4px;">
-                      <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <i data-lucide="shield-check" class="ui-icon ui-icon-xs"></i>
                       <span>تم التحقق الجغرافي (ضمن نطاق الفرع)</span>
                     </span>
                   `}
@@ -446,6 +454,10 @@
         openLightbox(url, title, 'توثيق الجولة الميداني', currentActivity.coordinatorName);
       });
     });
+
+    if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') {
+      window.refreshIcons(mount);
+    }
   }
 
   function setupFollowUpForm() {
@@ -518,7 +530,7 @@
 
         if (!newFollowUpPhoto) {
           // Provide realistic fallback demo photo if camera wasn't clicked
-          newFollowUpPhoto = 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';
+          newFollowUpPhoto = '../assets/images/fathalla-branch.avif';
           newFollowUpHash = 'mock-hash-' + Date.now();
         }
 

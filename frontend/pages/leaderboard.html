@@ -9,36 +9,48 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   </script>
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/layout.css" />
-  <link rel="stylesheet" href="../css/components.css" />
-  <link rel="stylesheet" href="../css/leaderboard.css" />
-  <link rel="stylesheet" href="../css/enhancements.css" />
-  <link rel="stylesheet" href="../css/styles.css" />
-  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+    <link rel="stylesheet" href="../css/app.min.css" />
+<script src="../js/vendor/lucide.min.js"></script>
 </head>
 <body>
   <div id="app-header-mount"></div>
 
   <main class="web-main-workspace lb-workspace">
-    <!-- Header Title & Filter Bar -->
+    <!-- Header Title -->
     <header class="lb-page-header">
       <div class="lb-header-info">
-        <h1 class="lb-page-title">المتصدرين في العمليات الميدانية (Top Coordinators)</h1>
-        <p class="lb-page-sub">تصنيف نقاط الأداء وجودة توثيق العروض بناءً على الأنشطة المعتمدة لدى المشرفين</p>
+        <h1 class="lb-page-title">لوحة المتصدرين</h1>
       </div>
+    </header>
 
-      <!-- Period Tabs & Quick Search -->
-      <div class="lb-header-actions">
+    <!-- Modern Filter Toolbar -->
+    <div class="leaderboard-toolbar">
+      <div class="lb-toolbar-controls">
+        <div class="lb-month-selector-pill">
+          <span class="lb-month-label">
+            <i data-lucide="calendar" class="ui-icon ui-icon-sm"></i>
+            <span>الشهر:</span>
+          </span>
+          <select id="lb-month-select" class="lb-month-select" aria-label="اختر شهر التقييم">
+            <option value="2026-11" selected>نوفمبر 2026</option>
+            <option value="2026-10">أكتوبر 2026</option>
+            <option value="2026-09">سبتمبر 2026</option>
+          </select>
+          <span id="lb-month-status-badge" class="badge badge-warning lb-status-badge">
+            مؤقت
+          </span>
+        </div>
+
         <div class="lb-period-segmented" role="tablist" aria-label="فترات التقييم">
           <button type="button" class="lb-period-btn active" data-period="month" role="tab" aria-selected="true">هذا الشهر</button>
           <button type="button" class="lb-period-btn" data-period="week" role="tab" aria-selected="false">هذا الأسبوع</button>
           <button type="button" class="lb-period-btn" data-period="all" role="tab" aria-selected="false">الكل</button>
         </div>
+      </div>
 
+      <div class="lb-toolbar-search">
         <div class="lb-search-input-wrap">
-          <img src="../assets/icons/search.svg" class="ui-icon ui-icon-xs lb-search-ico" alt="" />
+          <i data-lucide="search" class="ui-icon ui-icon-xs lb-search-ico"></i>
           <input
             type="search"
             id="lb-search-input"
@@ -48,7 +60,7 @@
           />
         </div>
       </div>
-    </header>
+    </div>
 
     <!-- TOP 3 CARDS GRID (Fish.Audio Style: 3 Equal-Height Horizontal Cards) -->
     <section class="top-cards-section" aria-label="أبطال التميز الميداني">
@@ -63,11 +75,11 @@
         <!-- Table Column Header (Hidden on small mobile, visible tablet/desktop) -->
         <div class="ranking-table-head">
           <div class="col-rank">الترتيب</div>
-          <div class="col-user">المنسق الميداني</div>
-          <div class="col-stat">إجمالي النقاط</div>
-          <div class="col-stat">الأنشطة المقبولة</div>
-          <div class="col-stat">الجولات المكتملة</div>
-          <div class="col-stat">معدل الجودة</div>
+          <div class="col-user">المنسق</div>
+          <div class="col-stat">النقاط</div>
+          <div class="col-stat">المقبولة</div>
+          <div class="col-stat">الجولات</div>
+          <div class="col-stat">الجودة</div>
         </div>
 
         <!-- Rows Container -->

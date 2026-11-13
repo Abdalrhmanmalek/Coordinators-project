@@ -9,14 +9,8 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   </script>
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/layout.css" />
-  <link rel="stylesheet" href="../css/components.css" />
-  <link rel="stylesheet" href="../css/dashboard.css" />
-  <link rel="stylesheet" href="../css/enhancements.css" />
-  <link rel="stylesheet" href="../css/styles.css" />
-  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+    <link rel="stylesheet" href="../css/app.min.css" />
+<script src="../js/vendor/lucide.min.js"></script>
 </head>
 <body>
   <div id="app-header-mount"></div>
@@ -30,12 +24,12 @@
       </div>
       <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <a href="./dashboard.html" class="btn btn-secondary" id="bd-back-btn">
-          <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>العودة للوحة الرئيسية</span>
+          <i data-lucide="arrow-left" class="ui-icon ui-icon-sm"></i>
+          <span>رجوع</span>
         </a>
         <a href="./activity-card.html" class="btn btn-primary">
-          <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>تسجيل نشاط بالفرع</span>
+          <i data-lucide="plus-circle" class="ui-icon ui-icon-sm"></i>
+          <span>نشاط جديد</span>
         </a>
       </div>
     </div>
@@ -49,17 +43,17 @@
     <div class="kpi-row">
       <div class="kpi-card">
         <div class="kpi-icon-wrap">
-          <img src="../assets/icons/layout-dashboard.svg" class="ui-icon ui-icon-lg" alt="" />
+          <i data-lucide="layout-dashboard" class="ui-icon ui-icon-lg"></i>
         </div>
         <div>
           <div class="kpi-num" id="bd-kpi-total">0</div>
-          <div class="kpi-title">إجمالي الأنشطة المسجلة بالفرع</div>
+          <div class="kpi-title">إجمالي الأنشطة</div>
         </div>
       </div>
 
       <div class="kpi-card">
         <div class="kpi-icon-wrap db-s3">
-          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-lg" alt="" />
+          <i data-lucide="check-circle-2" class="ui-icon ui-icon-lg"></i>
         </div>
         <div>
           <div class="kpi-num db-s4" id="bd-kpi-accepted">0</div>
@@ -69,7 +63,7 @@
 
       <div class="kpi-card" id="bd-kpi-card-under-review">
         <div class="kpi-icon-wrap db-s5">
-          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-lg" alt="" />
+          <i data-lucide="clock" class="ui-icon ui-icon-lg"></i>
         </div>
         <div>
           <div class="kpi-num db-s6" id="bd-kpi-under-review">0</div>
@@ -82,7 +76,7 @@
     <div class="card db-s7" style="margin-bottom: 18px; padding: 18px 22px;">
       <div class="db-s8" style="margin-bottom: 12px;">
         <div class="db-s9">
-          <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="sliders-horizontal" class="ui-icon ui-icon-sm"></i>
           <span>تصفية أنشطة الفرع المتقدمة (حسب نوع النشاط، التاريخ والوقت، وحالة النشاط)</span>
         </div>
         <button type="button" id="bd-reset-filters-btn" class="btn btn-secondary btn-sm" style="min-height: 32px; padding: 4px 12px; font-size: 0.78rem;">
@@ -125,22 +119,22 @@
           <span class="chip-count-pill" id="bd-cnt-all">0</span>
         </button>
         <button type="button" class="filter-chip" data-filter="Accepted">
-          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>
           <span>المقبولة</span>
           <span class="chip-count-pill" id="bd-cnt-accepted">0</span>
         </button>
         <button type="button" class="filter-chip" data-filter="Under Review">
-          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="clock" class="ui-icon ui-icon-sm"></i>
           <span>تحت المراجعة</span>
           <span class="chip-count-pill" id="bd-cnt-review">0</span>
         </button>
         <button type="button" class="filter-chip" data-filter="Rejected">
-          <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="x-circle" class="ui-icon ui-icon-sm"></i>
           <span>المرفوضة</span>
           <span class="chip-count-pill" id="bd-cnt-rejected">0</span>
         </button>
         <button type="button" class="filter-chip" data-filter="CLOSED">
-          <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="archive" class="ui-icon ui-icon-sm"></i>
           <span>المنتهية</span>
           <span class="chip-count-pill" id="bd-cnt-closed">0</span>
         </button>

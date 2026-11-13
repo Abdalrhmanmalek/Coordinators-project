@@ -14,13 +14,6 @@
   const passInput = document.getElementById('password');
   const btn = document.getElementById('login-submit-btn');
 
-  // Fast login helper function for quickFill buttons
-  global.quickFill = function (empId, pass) {
-    if (empInput) empInput.value = empId;
-    if (passInput) passInput.value = pass;
-    if (loginForm) loginForm.dispatchEvent(new Event('submit'));
-  };
-
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -28,7 +21,7 @@
       const pass = passInput ? passInput.value.trim() : '';
 
       if (!empId || !pass) {
-        toast('يرجى إدخال الرقم الوظيفي وكلمة المرور', 'warning');
+        toast('يرجى إدخال كود الموظف وكلمة المرور', 'warning');
         return;
       }
 
@@ -42,7 +35,7 @@
         const user = session.user || session;
         toast(`مرحباً بك ${user.fullName}`, 'success');
         setTimeout(() => {
-          if (user.role === 'marketing_manager' || user.role === 'coordination_manager' || user.role === 'supervisor') {
+          if (user.role === 'marketing_manager') {
             window.location.href = './supervisor-panel.html';
           } else {
             window.location.href = './dashboard.html';
@@ -52,7 +45,7 @@
         toast(err.message || 'بيانات الدخول غير صحيحة', 'error');
         if (btn) {
           btn.disabled = false;
-          btn.innerHTML = `<img src="../assets/icons/log-in.svg" class="ui-icon" alt="" /><span>تسجيل الدخول</span>`;
+          btn.innerHTML = `<i data-lucide="log-in" class="ui-icon"></i><span>تسجيل الدخول</span>`;
         }
       }
     });

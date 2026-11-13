@@ -47,6 +47,9 @@
       modal.classList.remove('is-hidden');
       modal.classList.add('active');
       modal.style.display = 'flex';
+      if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') {
+        window.refreshIcons(modal);
+      }
 
       // Check if modal already has form selects defined
       let brandEl = document.getElementById('picker-brand');
@@ -62,46 +65,42 @@
           <div class="modal-sheet custom-modal-card ac-s70 modal-content modal-card" onclick="event.stopPropagation()">
             <div class="modal-header">
               <h3 class="ac-s71" style="display: flex; align-items: center; gap: 8px;">
-                <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-md" alt="" style="filter: brightness(0) invert(1);" />
-                <span>إضافة منتج عبر الهيكل الرباعي</span>
+                <i data-lucide="plus-circle" class="ui-icon ui-icon-md"></i>
+                <span>إضافة منتج</span>
               </h3>
               <button type="button" class="close-modal-btn ac-s73" id="close-product-modal-btn">&times;</button>
             </div>
 
-            <p class="ac-s74" style="color: #64748b; font-size: 0.88rem; margin: 6px 0 16px 0;">
-              حدد البراند والمجموعات للوصول للصنف بدقة، وسيتم إدراجه تلقائياً في قائمة العرض:
-            </p>
-
-            <form id="product-picker-form" onsubmit="event.preventDefault();">
+            <form id="product-picker-form" onsubmit="event.preventDefault();" style="margin-top: 14px;">
               <!-- 1. Brand -->
               <div class="form-group" style="margin-bottom: 12px;">
-                <label class="form-label ac-s76" for="picker-brand" style="font-weight: 700;">1. اسم البراند (Brand Name) *</label>
+                <label class="form-label ac-s76" for="picker-brand" style="font-weight: 700;">العلامة التجارية *</label>
                 <select id="picker-brand" class="form-select ac-s77"></select>
               </div>
 
               <!-- 2. Main Group -->
               <div class="form-group" style="margin-bottom: 12px;">
-                <label class="form-label ac-s76" for="picker-main-group" style="font-weight: 700;">2. مجموعة رئيسية (Main Group) *</label>
+                <label class="form-label ac-s76" for="picker-main-group" style="font-weight: 700;">المجموعة الرئيسية *</label>
                 <select id="picker-main-group" class="form-select ac-s77"></select>
               </div>
 
               <!-- 3. Sub Group -->
               <div class="form-group" style="margin-bottom: 12px;">
-                <label class="form-label ac-s76" for="picker-sub-group" style="font-weight: 700;">3. مجموعة فرعية (Sub Group) *</label>
+                <label class="form-label ac-s76" for="picker-sub-group" style="font-weight: 700;">المجموعة الفرعية *</label>
                 <select id="picker-sub-group" class="form-select ac-s77"></select>
               </div>
 
               <!-- 4. Item / SKU -->
               <div class="form-group" style="margin-bottom: 16px;">
-                <label class="form-label ac-s76" for="picker-sku" style="font-weight: 700;">4. الصنف (Item / SKU) *</label>
+                <label class="form-label ac-s76" for="picker-sku" style="font-weight: 700;">الصنف *</label>
                 <select id="picker-sku" class="form-select ac-s77"></select>
               </div>
 
               <div class="ac-s78" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-product-modal">إلغاء</button>
                 <button type="button" class="btn btn-primary btn-sm" id="btn-confirm-add-product">
-                  <img src="../assets/icons/plus.svg" class="ui-icon ui-icon-sm" alt="" style="filter: brightness(0) invert(1);" />
-                  <span>إضافة الصنف</span>
+                  <i data-lucide="plus" class="ui-icon ui-icon-sm"></i>
+                  <span>إضافة منتج</span>
                 </button>
               </div>
             </form>
@@ -195,7 +194,17 @@
 
           if (!brandVal || !skuVal) return;
 
+          const catalogs = global.ADCO_CATALOGS || {};
+          const brandMap = catalogs.brandDetailsMap || {};
+          const brandEntry = brandMap[brandVal] || {};
+          const brandId = brandEntry.id || `BRD-${encodeURIComponent(brandVal).slice(0, 8)}`;
+          const productGroupId = `GRP-${encodeURIComponent(mainVal + '-' + subVal).slice(0, 10)}`;
+          const skuId = `SKU-${encodeURIComponent(skuVal).slice(0, 12)}`;
+
           const product = {
+            brandId: brandId,
+            productGroupId: productGroupId,
+            skuId: skuId,
             brandName: brandVal,
             brand: brandVal,
             mainGroup: mainVal,

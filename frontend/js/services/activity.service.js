@@ -56,7 +56,7 @@ export class ActivityService {
       const role = user.role;
 
       // Tier 3: Marketing Manager / Coordination Manager (Global Visibility)
-      if (role === 'marketing_manager' || role === 'coordination_manager' || role === 'supervisor') {
+      if (role === 'marketing_manager') {
         return all;
       }
 
@@ -271,7 +271,7 @@ export class ActivityService {
       supervisorNotes: 'قيد مراجعة وتوثيق أول متابعة',
       reviewerName: null,
       reviewedAt: null,
-      photoUrl: payload.photoUrl || 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=720&q=80',
+      photoUrl: payload.photoUrl || './assets/images/fathalla-branch.avif',
       photoHash: payload.photoHash || '',
       timestamp: nowIso,
       createdAt: nowIso,
@@ -297,7 +297,7 @@ export class ActivityService {
           reviewStatus: 'Under Review',
           photos: [
             {
-              photoUrl: payload.photoUrl || 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=720&q=80',
+              photoUrl: payload.photoUrl || './assets/images/fathalla-branch.avif',
               sizeKb: 180
             }
           ]

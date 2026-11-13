@@ -53,7 +53,7 @@ const user = AuthManager.checkAuthGuard();
       coordBranchMount.innerHTML = `
         <div class="supplying-branch-readonly-wrap is-bound" id="supplying-branch-readonly-wrap" title="حقل مرتبط تلقائياً بقاعدة البيانات بناءً على العميل وفرع العميل (غير قابل للتعديل اليدوي)">
           <span class="supplying-branch-readonly-icon">
-            <img src="../assets/icons/building-2.svg" class="ui-icon ui-icon-sm" alt="" />
+            <i data-lucide="building-2" class="ui-icon ui-icon-sm"></i>
           </span>
           <input
             type="text"
@@ -97,7 +97,7 @@ const user = AuthManager.checkAuthGuard();
       if (supplyingBranchDbBadge) {
         supplyingBranchDbBadge.classList.add('is-fetching');
         supplyingBranchDbBadge.innerHTML = `
-          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+          <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
           <span>جاري الجلب...</span>
         `;
       }
@@ -112,7 +112,7 @@ const user = AuthManager.checkAuthGuard();
         if (supplyingBranchDbBadge) {
           supplyingBranchDbBadge.classList.remove('is-fetching');
           supplyingBranchDbBadge.innerHTML = `
-            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="shield-check" class="ui-icon ui-icon-xs"></i>
             <span>تلقائي</span>
           `;
         }
@@ -124,7 +124,7 @@ const user = AuthManager.checkAuthGuard();
         if (supplyingBranchDbBadge) {
           supplyingBranchDbBadge.classList.remove('is-fetching');
           supplyingBranchDbBadge.innerHTML = `
-            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="shield-check" class="ui-icon ui-icon-xs"></i>
             <span>تلقائي</span>
           `;
         }
@@ -279,7 +279,7 @@ const user = AuthManager.checkAuthGuard();
               <strong style="font-size: 0.88rem; color: var(--adco-green-deep);">${p.sku}</strong>
             </div>
             <button type="button" class="btn btn-secondary btn-sm" onclick="removeProductItem(${index})" style="padding: 6px 10px; color: #dc2626; border-color: #fca5a5; background: #fef2f2; flex-shrink: 0; white-space: nowrap;" title="حذف هذا الصنف">
-              <img src="../assets/icons/circle-x.svg" class="ui-icon ui-icon-sm" alt="" />
+              <i data-lucide="circle-x" class="ui-icon ui-icon-sm"></i>
               <span>حذف</span>
             </button>
           </div>
@@ -679,7 +679,7 @@ const user = AuthManager.checkAuthGuard();
                   session.location
                     ? `
                   <div style="font-size: 0.74rem; color: #065f46; display: flex; align-items: center; gap: 4px; margin-top: 3px;">
-                    <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                    <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
                     <span>موقع الهاتف GPS: ${session.location.latitude}&deg;, ${session.location.longitude}&deg;</span>
                   </div>
                 `
@@ -767,7 +767,7 @@ const user = AuthManager.checkAuthGuard();
           <div class="reviews-feed-header">
             <div>
               <h3 class="reviews-feed-title">
-                <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-md" alt="" />
+                <i data-lucide="clipboard-edit" class="ui-icon ui-icon-md"></i>
                 <span>سجل المراجعات وتوجيهات مدير التسويق (${sessions.length} جولات)</span>
               </h3>
               <p class="reviews-feed-subtitle">
@@ -827,7 +827,7 @@ const user = AuthManager.checkAuthGuard();
                       </div>
                       ${s.location ? `
                         <div class="review-round-gps">
-                          <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                          <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
                           <span>موقع الهاتف GPS: ${s.location.latitude}&deg; N, ${s.location.longitude}&deg; E (نطاق معتمد &le; 150م)</span>
                         </div>
                       ` : ''}
@@ -843,7 +843,7 @@ const user = AuthManager.checkAuthGuard();
                       ${renderStatusBadge(s.reviewStatus || act.status)}
                       ${roundScore100 !== null ? `
                         <span class="badge badge-warning" style="font-size: 0.76rem; font-weight: 800; display: flex; align-items: center; gap: 4px;">
-                          <img src="../assets/icons/star.svg" class="ui-icon ui-icon-xs" alt="" />
+                          <i data-lucide="star" class="ui-icon ui-icon-xs"></i>
                           <span>التقييم: ${roundScore100} / 100</span>
                         </span>
                       ` : `
@@ -860,7 +860,7 @@ const user = AuthManager.checkAuthGuard();
                     <div class="timeline-thumbs-grid">
                       ${(s.photos || []).map((p, pIdx) => `
                         <div class="timeline-thumb-item inline-review-thumb" data-sidx="${sIdx}" data-pidx="${pIdx}" title="اضغط لتكبير الصورة">
-                          <img src="${p.photoUrl || act.photoUrl}" alt="${s.roundTitle}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
+                          <img src="${p.photoUrl || act.photoUrl}" alt="${s.roundTitle}" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.avif';" />
                         </div>
                       `).join('')}
                     </div>
@@ -871,7 +871,7 @@ const user = AuthManager.checkAuthGuard();
                     <div class="round-criteria-box" style="margin-top: 10px; background: #ffffff; border: 1px solid var(--adco-green-border); border-radius: 8px; padding: 10px 12px;">
                       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
                         <span style="font-size: 0.8rem; font-weight: 700; color: var(--adco-green-deep); display: flex; align-items: center; gap: 5px;">
-                          <img src="../assets/icons/trophy.svg" class="ui-icon ui-icon-xs" alt="" />
+                          <i data-lucide="trophy" class="ui-icon ui-icon-xs"></i>
                           <span>تقييم مدير التسويق للجولة (المعايير الأربعة الرسمية):</span>
                         </span>
                         <span class="badge badge-success" style="font-size: 0.80rem; font-weight: 800;">${roundScore100} / 100 نقطة</span>
@@ -901,7 +901,7 @@ const user = AuthManager.checkAuthGuard();
                   <div class="review-supervisor-bubble ${isPending ? 'is-pending' : ''}">
                     <div class="review-bubble-header">
                       <span class="review-bubble-title">
-                        <img src="../assets/icons/${isPending ? 'clock' : 'clipboard-edit'}.svg" class="ui-icon ui-icon-xs" alt="" />
+                        <i data-lucide="${isPending ? 'clock' : 'clipboard-edit'}" class="ui-icon ui-icon-xs"></i>
                         <span>${isPending ? 'حالة التقييم والتوجيه:' : 'توجيهات مدير التسويق للمنسق:'}</span>
                       </span>
                       <div class="review-bubble-meta">
@@ -929,14 +929,14 @@ const user = AuthManager.checkAuthGuard();
           <div class="add-followup-callout">
             <div class="add-followup-callout-inner">
               <div class="add-followup-callout-icon">
-                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-lg" alt="" />
+                <i data-lucide="camera" class="ui-icon ui-icon-lg"></i>
               </div>
               <h4 class="add-followup-callout-title">إضافة متابعة ميدانية جديدة بالصور (متابعة #${roundsCount + 1})</h4>
               <p class="add-followup-callout-desc">
                 المنسق المتميز يقوم بتوثيق النشاط بشكل دوري ومستمر لتأكيد استمرارية العرض، ونظافة الستاند، وتوافر جميع الأصناف. كل جولة متابعة جديدة ترفع نقاط تقييمك العام لدى مدير التسويق.
               </p>
               <button type="button" class="btn btn-primary btn-add-followup-cta btn-trigger-followup" id="btn-add-followup-bottom">
-                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-md" alt="" />
+                <i data-lucide="camera" class="ui-icon ui-icon-md"></i>
                 <span>التقاط وإضافة متابعة جديدة (متابعة #${roundsCount + 1})</span>
               </button>
             </div>
@@ -950,7 +950,7 @@ const user = AuthManager.checkAuthGuard();
           <div class="card" style="padding: 24px;">
             <div class="overall-rating-banner">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="../assets/icons/star.svg" class="ui-icon ui-icon-md" alt="" />
+                <i data-lucide="star" class="ui-icon ui-icon-md"></i>
                 <div>
                   <strong style="font-size: 1rem; display: block;">${ratingStats.badgeText}</strong>
                   <span style="font-size: 0.78rem;">متوسط تقييمات المشرف عبر جولات المتابعة</span>
@@ -964,11 +964,11 @@ const user = AuthManager.checkAuthGuard();
 
             <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
               <button type="button" class="btn btn-primary btn-sm btn-trigger-followup" id="btn-add-followup-top">
-                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-sm" alt="" />
+                <i data-lucide="camera" class="ui-icon ui-icon-sm"></i>
                 <span>إضافة متابعة بالصور (متابعة #${roundsCount + 1})</span>
               </button>
               <button type="button" class="btn btn-secondary btn-sm" id="btn-open-timeline">
-                <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-sm" alt="" />
+                <i data-lucide="calendar-clock" class="ui-icon ui-icon-sm"></i>
                 <span>سجل المراجعات والتوجيهات (${roundsCount})</span>
               </button>
             </div>
@@ -1006,7 +1006,7 @@ const user = AuthManager.checkAuthGuard();
             <div class="card" style="margin-top: 16px; background: #f8fafc; border: 1.5px solid var(--adco-green-border); padding: 16px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--adco-gray-200); padding-bottom: 8px; flex-wrap: wrap; gap: 8px;">
                 <strong style="color: var(--adco-green-deep); font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                  <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+                  <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
                   <span>معايير التقييم الرسمي (إجمالي 100 نقطة)</span>
                 </strong>
                 <span class="badge badge-success" style="font-size: 0.92rem; font-weight: 800;">
@@ -1037,7 +1037,7 @@ const user = AuthManager.checkAuthGuard();
             <div class="card" style="margin-top: 18px; background: ${act.isClosed ? '#f0fdf4' : act.closureRequested ? '#fffdf7' : '#f8fafc'}; border: 1.5px solid ${act.isClosed ? '#86efac' : act.closureRequested ? '#f59e0b' : '#cbd5e1'}; padding: 18px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
                 <h4 style="margin: 0; display: flex; align-items: center; gap: 6px; color: ${act.isClosed ? '#166534' : act.closureRequested ? '#92400e' : 'var(--adco-green-deep)'};">
-                  <img src="../assets/icons/${act.isClosed ? 'check-circle-2' : act.closureRequested ? 'clock' : 'shield-check'}.svg" class="ui-icon ui-icon-sm" alt="" />
+                  <i data-lucide="${(act.endStatus === 'ENDED' || act.isClosed) ? 'check-circle-2' : (act.endStatus === 'ENDING_REQUESTED' || act.closureRequested) ? 'clock' : 'shield-check'}" class="ui-icon ui-icon-sm"></i>
                   <span>${act.isClosed ? 'تم إنهاء وتفكيك النشاط' : act.closureRequested ? 'طلب إنهاء النشاط قيد المراجعة' : 'حالة إتمام وتفكيك النشاط'}</span>
                 </h4>
                 ${
@@ -1081,11 +1081,11 @@ const user = AuthManager.checkAuthGuard();
                     ? `
                   <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button type="button" class="btn btn-primary btn-sm" id="btn-detail-accept-closure">
-                      <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+                      <i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>
                       <span>موافقة وإغلاق النشاط</span>
                     </button>
                     <button type="button" class="btn btn-danger-subtle btn-sm" id="btn-detail-reject-closure">
-                      <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+                      <i data-lucide="x-circle" class="ui-icon ui-icon-sm"></i>
                       <span>رفض طلب الإنهاء</span>
                     </button>
                   </div>
@@ -1099,13 +1099,13 @@ const user = AuthManager.checkAuthGuard();
                     (user && user.role === 'supervisor')
                       ? `
                     <button type="button" class="btn btn-danger-subtle btn-sm" id="btn-detail-direct-close" style="width: auto;">
-                      <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+                      <i data-lucide="x-circle" class="ui-icon ui-icon-sm"></i>
                       <span>إنهاء النشاط فورياً (قرار المشرف المباشر)</span>
                     </button>
                   `
                       : `
                     <button type="button" class="btn btn-outline btn-sm" id="btn-request-closure" style="width: auto;">
-                      <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+                      <i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>
                       <span>طلب انهاء النشاط</span>
                     </button>
                   `
@@ -1120,15 +1120,15 @@ const user = AuthManager.checkAuthGuard();
           <div class="card sticky-panel" style="padding: 24px;">
             <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
               <h4 style="margin: 0; display: flex; align-items: center; gap: 6px;">
-                <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-sm" alt="" />
+                <i data-lucide="camera" class="ui-icon ui-icon-sm"></i>
                 <span>توثيق العرض الميداني</span>
               </h4>
               <span class="badge badge-mint" style="font-size: 0.72rem;">صورة العرض الميداني المعتمدة</span>
             </div>
 
-            <img src="${act.photoUrl}" alt="${act.client}" class="camera-preview-thumb" id="main-card-hero-img" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.svg';" style="cursor: pointer;" title="اضغط للتكبير والفحص" />
+            <img src="${act.photoUrl}" alt="${act.client}" class="camera-preview-thumb" id="main-card-hero-img" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.avif';" style="cursor: pointer;" title="اضغط للتكبير والفحص" />
             <div style="font-size: 0.75rem; color: var(--adco-green-dark); margin-top: 6px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-              <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="shield-check" class="ui-icon ui-icon-xs"></i>
               <span>صورة العرض الميداني — اضغط للتكبير والمعاينة</span>
             </div>
 
@@ -1136,7 +1136,7 @@ const user = AuthManager.checkAuthGuard();
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-top: 14px; font-size: 0.82rem;">
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                 <span style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--adco-green-deep);">
-                  <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-sm" alt="" />
+                  <i data-lucide="map-pin" class="ui-icon ui-icon-sm"></i>
                   <span>الموقع الجغرافي (GPS):</span>
                 </span>
                 <a href="https://www.google.com/maps?q=${(act.location || {}).latitude || 31.2156},${(act.location || {}).longitude || 29.9553}" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="padding: 2px 8px; font-size: 0.72rem; min-height: 24px;">
@@ -1152,7 +1152,7 @@ const user = AuthManager.checkAuthGuard();
 
               <div style="border-top: 1px dashed #cbd5e1; margin-top: 10px; padding-top: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; color: #334155;">
                 <span style="display: flex; align-items: center; gap: 6px;">
-                  <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <i data-lucide="calendar-clock" class="ui-icon ui-icon-xs"></i>
                   <span><strong>تاريخ وتوقيت التوثيق:</strong></span>
                 </span>
                 <span dir="ltr" style="font-family: monospace; font-weight: 700; color: var(--adco-green-deep); font-size: 0.78rem;">${formatDateTime(act.timestamp)}</span>
@@ -1161,7 +1161,7 @@ const user = AuthManager.checkAuthGuard();
 
             <div style="margin-top: 14px;">
               <h4 style="margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-sm" alt="" />
+                <i data-lucide="clipboard-edit" class="ui-icon ui-icon-sm"></i>
                 <span>ملاحظات المشرف</span>
               </h4>
               <p style="font-size: 0.88rem;">${act.supervisorNotes || 'لا توجد ملاحظات مسجلة حتى الآن.'}</p>
@@ -1550,13 +1550,13 @@ const user = AuthManager.checkAuthGuard();
         showToast(err.message, 'error');
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" /><span>اعتماد وتأكيد رفع الصورة والموقع</span>`;
+        btn.innerHTML = `<i data-lucide="check-circle-2" class="ui-icon"></i><span>اعتماد وتأكيد رفع الصورة والموقع</span>`;
       }
     });
 
     let initialProcessedPhotos = [
       {
-        photoUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=720&q=80',
+        photoUrl: '../assets/images/fathalla-branch.avif',
         photoHash: 'a8f5f167f44f4964e6c998dee827110c92b8b7f483021a874f63218b10f6c1d9',
         sizeKb: 176,
         width: 1280,
@@ -1675,53 +1675,105 @@ const user = AuthManager.checkAuthGuard();
       btn.innerHTML = `<span>جاري التحقق من الموقع الجغرافي (GPS)...</span>`;
 
       try {
-        // Ensure live device GPS coordinates are captured via navigator.geolocation.getCurrentPosition
+        // Ensure live device GPS coordinates are captured
         if (!currentDeviceLocation) {
           await requestDeviceLocation(branchVal);
         }
 
-        // Validate Haversine proximity against branch coordinates (max 150m)
-        if (ActivityManager && typeof ActivityManager.validateBranchProximity === 'function') {
-          const proxCheck = ActivityManager.validateBranchProximity(branchVal, currentDeviceLocation, 150);
-          if (!proxCheck.isValid) {
-            throw new Error(proxCheck.errorMessage || 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل');
+        const catalogs = window.ADCO_CATALOGS || {};
+        const bMap = catalogs.branchDetailsMap || {};
+        const cMap = catalogs.clientDetailsMap || {};
+        const branchEntry = bMap[branchVal] || {};
+        const clientEntry = cMap[clientVal] || {};
+        const branchId = branchEntry.id || `BR-${encodeURIComponent(branchVal).slice(0, 10)}`;
+        const branchCode = branchEntry.code || 'ALX-00944';
+        const clientId = clientEntry.id || `CLI-${encodeURIComponent(clientVal).slice(0, 8)}`;
+
+        // Item 3: Ensure open Branch Card ID
+        const urlParams = new URLSearchParams(window.location.search);
+        let branchCardId = urlParams.get('branchCardId');
+        if (!branchCardId) {
+          const storedCards = JSON.parse(localStorage.getItem('ADCO_BRANCH_CARDS') || '{}');
+          const branchKey = `${clientId}::${branchId}`;
+          if (storedCards[branchKey]) {
+            branchCardId = storedCards[branchKey].id;
+          } else {
+            branchCardId = `BC-${branchCode}-${Date.now().toString().slice(-4)}`;
+            storedCards[branchKey] = { id: branchCardId, clientId, branchId, branchCode, openedAt: new Date().toISOString(), status: 'OPEN' };
+            localStorage.setItem('ADCO_BRANCH_CARDS', JSON.stringify(storedCards));
           }
         }
 
+        // Item 4: Send structured IDs
+        const productsPayload = selectedProducts.map((p) => ({
+          brandId: p.brandId || `BRD-${encodeURIComponent(p.brand || 'VELV').slice(0, 8)}`,
+          productGroupId: p.productGroupId || 'GRP-DEFAULT',
+          skuId: p.skuId || `SKU-${encodeURIComponent(p.sku || p.skuItem || 'DEF').slice(0, 10)}`
+        }));
+
+        // Item 7: Multiple photos array per round
+        const photosPayload = initialProcessedPhotos.map((p) => ({
+          photoUrl: p.photoUrl,
+          photoHash: p.photoHash || 'placeholder-hash',
+          width: p.width || 1280,
+          height: p.height || 720,
+          sizeKb: p.sizeKb || 165,
+          capturedAt: p.capturedAt || new Date().toISOString(),
+          originType: p.originType || 'CAMERA_DIRECT'
+        }));
+
         const payload = {
+          branchCardId,
           coordinatorId: user.employeeId,
           coordinatorName: user.fullName,
           client: clientVal,
+          clientId,
           branch: branchVal,
+          branchId,
+          branchCode,
           coordinatorBranch: coordBranchVal,
           activity: activityVal,
           activityType: activityTypeVal,
           activityCount: activityCountVal,
+          products: productsPayload,
           brands: distinctBrands,
-          products: selectedProducts,
           skuVariant: skuVal,
           activityDate: actDateVal || undefined,
           magazineDate: activityVal === 'فرشة مجلة' ? (magStartVal + (magEndVal ? ' إلى ' + magEndVal : '')) : '',
           magazineStartDate: activityVal === 'فرشة مجلة' ? magStartVal : null,
           magazineEndDate: activityVal === 'فرشة مجلة' ? magEndVal : null,
-          photoUrl: initialProcessedPhotos[0].photoUrl,
-          photoHash: initialProcessedPhotos[0].photoHash,
-          initialPhotos: initialProcessedPhotos,
+          photos: photosPayload,
+          initialPhotos: photosPayload,
+          photoUrl: photosPayload[0] ? photosPayload[0].photoUrl : '',
+          photoHash: photosPayload[0] ? photosPayload[0].photoHash : '',
           latitude: currentDeviceLocation ? currentDeviceLocation.latitude : undefined,
           longitude: currentDeviceLocation ? currentDeviceLocation.longitude : undefined,
-          location: currentDeviceLocation
+          location: currentDeviceLocation,
+          locationConfirmedOutOfRange: window._adcoConfirmedOutOfRange || false
         };
 
         btn.innerHTML = `<span>جاري اعتماد البيانات...</span>`;
         const res = await ActivityManager.submitActivity(payload);
-        showToast('تم التحقق من نطاق الفرع وتسجيل بطاقة النشاط بنجاح', 'success');
+        window._adcoConfirmedOutOfRange = false;
+        showToast('تم اعتماد النشاط وحفظه بنجاح داخل بطاقة الفرع', 'success');
         setTimeout(() => {
-          window.location.href = `./activity-card.html?id=${res.record.id}`;
+          const targetId = res.record ? (res.record.activityRef || res.record.id) : '';
+          window.location.href = `./activity-details.html?id=${encodeURIComponent(targetId)}`;
         }, 400);
       } catch (err) {
-        showToast(err.message, 'error', 5000);
         btn.disabled = false;
-        btn.innerHTML = `<img src="../assets/icons/check-circle-2.svg" class="ui-icon" alt="" /><span>اعتماد وإرسال بطاقة النشاط</span>`;
+        btn.innerHTML = `<i data-lucide="check-circle-2" class="ui-icon"></i><span>اعتماد وإرسال بطاقة النشاط</span>`;
+
+        // Item 6: Out-of-range confirmation dialog (< 500m)
+        if (err.code === 'CONFIRM_OUT_OF_RANGE') {
+          const userConfirmed = confirm(err.message + '\n\nاضغط "موافق" للإرسال مع إشعار المشرف بتأكيد الموقع، أو "إلغاء" للعودة.');
+          if (userConfirmed) {
+            window._adcoConfirmedOutOfRange = true;
+            document.getElementById('activity-form').dispatchEvent(new Event('submit'));
+            return;
+          }
+        }
+        showToast(err.message, 'error', 6000);
       }
     });
 })(typeof window !== 'undefined' ? window : globalThis);

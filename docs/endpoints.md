@@ -340,7 +340,7 @@ All error responses from the backend follow this standardized JSON schema:
         "skuItem": "فييا سائل غسيل أطباق بالليمون الأخضر 1 لتر"
       }
     ],
-    "photoUrl": "https://cdn.adco.com.eg/photos/2026/11/act-0841.jpg",
+    "photoUrl": "https://cdn.adco.com.eg/photos/2026/11/act-0841.avif",
     "photoHash": "a8f5f167f44f4964e6c998dee827110c92b8b7f483021a874f63218b10f6c1d9",
     "latitude": 31.2156,
     "longitude": 29.9553
@@ -411,7 +411,7 @@ All error responses from the backend follow this standardized JSON schema:
     "roundTitle": "متابعة إضافية #2",
     "photos": [
       {
-        "photoUrl": "https://cdn.adco.com.eg/photos/2026/11/followup-2.jpg",
+        "photoUrl": "https://cdn.adco.com.eg/photos/2026/11/followup-2.avif",
         "photoHash": "b4c7d912f44f4964e6c998dee827110c92b8b7f483021a874f63218b10f6c2e3",
         "sizeKb": 184
       }
@@ -515,7 +515,7 @@ All error responses from the backend follow this standardized JSON schema:
   * **`201 Created`**:
     ```json
     {
-      "url": "https://cdn.adco.com.eg/media/2026/act-img-9912.jpg",
+      "url": "https://cdn.adco.com.eg/media/2026/act-img-9912.avif",
       "photoHash": "a8f5f167f44f4964e6c998dee827110c92b8b7f483021a874f63218b10f6c1d9",
       "sizeKb": 184,
       "width": 1280,

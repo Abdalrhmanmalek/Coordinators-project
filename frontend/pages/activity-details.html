@@ -9,15 +9,8 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   </script>
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/layout.css" />
-  <link rel="stylesheet" href="../css/components.css" />
-  <link rel="stylesheet" href="../css/activity-details.css" />
-  <link rel="stylesheet" href="../css/dashboard.css" />
-  <link rel="stylesheet" href="../css/enhancements.css" />
-  <link rel="stylesheet" href="../css/styles.css" />
-  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+    <link rel="stylesheet" href="../css/app.min.css" />
+<script src="../js/vendor/lucide.min.js"></script>
 </head>
 <body>
   <div id="app-header-mount"></div>
@@ -26,20 +19,20 @@
     <!-- Top Breadcrumb & Actions Bar -->
     <div class="ad-header-row">
       <div class="ad-header-info">
-        <h1 class="ad-title" id="ad-client-title">تفاصيل النشاط وسجل المراجعات</h1>
+        <h1 class="ad-title" id="ad-client-title">تفاصيل النشاط</h1>
         <p class="ad-subtitle" id="ad-branch-sub">
-          <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+          <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
           <span id="ad-branch-text">جاري التحميل...</span>
         </p>
       </div>
       <div class="ad-header-actions" id="ad-header-actions">
         <a href="./dashboard.html" class="btn btn-secondary" id="ad-back-btn">
-          <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>العودة للرئيسية</span>
+          <i data-lucide="arrow-left" class="ui-icon ui-icon-sm"></i>
+          <span>رجوع</span>
         </a>
         <a href="#ad-new-followup-section" class="btn btn-primary" id="ad-jump-followup-btn">
-          <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>إضافة متابعة جديدة</span>
+          <i data-lucide="camera" class="ui-icon ui-icon-sm"></i>
+          <span>متابعة جديدة</span>
         </a>
       </div>
     </div>
@@ -53,8 +46,8 @@
     <section class="ad-section-wrap" aria-label="سجل المراجعات وجولات المتابعة">
       <div class="ad-section-title-wrap">
         <h2 class="ad-section-heading">
-          <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>سجل المراجعات وجولات المتابعة الميدانية</span>
+          <i data-lucide="calendar-clock" class="ui-icon ui-icon-sm"></i>
+          <span>سجل المتابعات</span>
         </h2>
         <span class="badge badge-mint" id="ad-rounds-count-badge">0 جولات</span>
       </div>
@@ -66,29 +59,24 @@
 
     <!-- Section 2: Integrated Add New Follow-Up Section (إضافة متابعة جديدة) -->
     <section class="ad-new-followup-card" id="ad-new-followup-section" aria-label="إضافة متابعة جديدة">
-      <div class="ad-section-title-wrap" style="margin: 0;">
+      <div class="ad-section-title-wrap" style="margin: 0 0 12px 0;">
         <h2 class="ad-section-heading" style="color: var(--adco-green-deep);">
-          <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>إضافة جولة متابعة جديدة لهذا النشاط</span>
+          <i data-lucide="camera" class="ui-icon ui-icon-sm"></i>
+          <span>إضافة متابعة</span>
         </h2>
         <span class="badge badge-success" id="ad-next-round-badge">الجولة التالية</span>
       </div>
-
-      <p style="font-size: 0.88rem; color: #475569; margin: 0;">
-        التقط صورة المتابعة الحديثة عبر كاميرا الهاتف مباشرة للتحقق من استمرارية العرض وجودة رص المنتجات مع تسجيل الإحداثيات الجغرافية الحية تلقائياً.
-      </p>
 
       <form id="ad-new-followup-form" style="display: flex; flex-direction: column; gap: 16px;">
         <!-- Camera Capture / Upload Dropzone -->
         <div>
           <label class="form-label" style="font-weight: 700; margin-bottom: 6px; display: block;">
-            صورة المتابعة الميدانية * (كاميرا مباشرة بدقة 720p)
+            صورة المتابعة *
           </label>
           <div class="ad-upload-dropzone" id="ad-camera-dropzone">
             <input type="file" id="ad-camera-input" accept="image/*" capture="environment" style="display: none;" />
-            <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-lg" style="width: 38px; height: 38px; color: var(--adco-green-main);" alt="" />
-            <strong style="font-size: 0.95rem; color: var(--adco-green-deep);">اضغط هنا لفتح الكاميرا والتقاط صورة المتابعة</strong>
-            <span style="font-size: 0.8rem; color: #64748b;">يتم ضغط الصورة تلقائياً بجودة 720p وتوليد بصمة SHA-256</span>
+            <i data-lucide="camera" class="ui-icon ui-icon-lg" style="width: 38px; height: 38px; color: var(--adco-green-main);"></i>
+            <strong style="font-size: 0.95rem; color: var(--adco-green-deep);">التقاط صورة المتابعة</strong>
           </div>
 
           <!-- Preview Wrap -->
@@ -103,13 +91,13 @@
         <!-- Automatic GPS Proximity Capture Card -->
         <div class="ad-gps-capture-box">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-md" style="color: var(--adco-green-main);" alt="" />
+            <i data-lucide="map-pin" class="ui-icon ui-icon-md" style="color: var(--adco-green-main);"></i>
             <div>
-              <strong style="font-size: 0.88rem; color: #1e293b; display: block;">الموقع الجغرافي للمنسق (Live GPS)</strong>
+              <strong style="font-size: 0.88rem; color: #1e293b; display: block;">الموقع الميداني</strong>
               <span style="font-size: 0.78rem; color: #64748b;" id="ad-gps-status-text">جاري التقاط الإحداثيات الحية للهاتف...</span>
             </div>
           </div>
-          <span class="badge badge-mint" id="ad-gps-badge">فحص النطاق (&lt;=150م)</span>
+          <span class="badge badge-mint" id="ad-gps-badge">فحص النطاق</span>
         </div>
 
         <!-- Optional SKU Modification Accordion / Checkbox -->
@@ -117,17 +105,16 @@
           <label class="ad-optional-sku-toggle" for="ad-toggle-sku-edit">
             <input type="checkbox" id="ad-toggle-sku-edit" />
             <div>
-              <strong style="font-size: 0.88rem; color: #1e293b; display: block;">تعديل المنتجات والأصناف المشاركة في هذه الجولة (اختياري)</strong>
-              <span style="font-size: 0.76rem; color: #64748b;">فعّل هذا الخيار إذا تغيرت المنتجات أو تم تجديد تشكيلة العرض في هذه المتابعة.</span>
+              <strong style="font-size: 0.88rem; color: #1e293b; display: block;">تعديل المنتجات (اختياري)</strong>
             </div>
           </label>
 
           <div id="ad-sku-edit-container" class="is-hidden" style="margin-top: 12px; padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
             <div class="ad-sku-edit-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 12px; flex-wrap: wrap;">
-              <span style="font-size: 0.84rem; font-weight: 700; color: #334155;">الأصناف المسجلة في هذه الجولة:</span>
+              <span style="font-size: 0.84rem; font-weight: 700; color: #334155;">الأصناف المسجلة:</span>
               <button type="button" class="btn btn-primary btn-sm" id="ad-open-product-modal-btn">
-                <img src="../assets/icons/plus.svg" class="ui-icon ui-icon-xs" alt="" />
-                <span>+ إضافة صنف جديد</span>
+                <i data-lucide="plus" class="ui-icon ui-icon-xs"></i>
+                <span>إضافة منتج</span>
               </button>
             </div>
             <div id="ad-edit-selected-products-mount" style="display: flex; flex-direction: column; gap: 8px;">
@@ -139,8 +126,8 @@
         <!-- Form Submission Button -->
         <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 6px;">
           <button type="submit" class="btn btn-primary" id="ad-submit-followup-btn" style="min-width: 200px;">
-            <img src="../assets/icons/circle-check-big.svg" class="ui-icon ui-icon-sm" alt="" />
-            <span>حفظ واعتماد جولة المتابعة</span>
+            <i data-lucide="circle-check-big" class="ui-icon ui-icon-sm"></i>
+            <span>حفظ المتابعة</span>
           </button>
         </div>
       </form>
@@ -201,7 +188,7 @@
     <div class="modal-content modal-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
         <strong style="color: var(--adco-green-deep); font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
-          <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="archive" class="ui-icon ui-icon-sm"></i>
           <span>تقديم طلب إنهاء وتفكيك النشاط</span>
         </strong>
         <button type="button" class="btn btn-secondary btn-xs" id="ad-close-closure-modal-btn">إلغاء</button>
@@ -231,7 +218,7 @@
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
           <button type="button" class="btn btn-secondary btn-sm" id="ad-cancel-closure-btn">تراجع</button>
           <button type="submit" class="btn btn-primary btn-sm" id="ad-confirm-closure-btn">
-            <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="archive" class="ui-icon ui-icon-xs"></i>
             <span>تأكيد وإرسال الطلب</span>
           </button>
         </div>

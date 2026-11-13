@@ -188,7 +188,7 @@
       uploader: session ? session.uploadedBy : act.coordinatorName
     };
 
-    const fallbackRetailPhoto = 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';
+    const fallbackRetailPhoto = '../assets/images/fathalla-branch.avif';
     const photoImg = document.getElementById('eval-photo-img');
     if (photoImg) {
       photoImg.src = photoUrl || fallbackRetailPhoto;
@@ -339,7 +339,7 @@
   const lightboxModal = document.getElementById('photo-lightbox');
   function openPhotoLightbox() {
     if (!lightboxModal) return;
-    const fallbackRetailPhoto = 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';
+    const fallbackRetailPhoto = '../assets/images/fathalla-branch.avif';
     document.getElementById('lb-image').src = currentEvaluatingMedia.photoUrl || fallbackRetailPhoto;
     document.getElementById('lb-round-title').textContent = currentEvaluatingMedia.title || act.client;
     document.getElementById('lb-timestamp').textContent = formatDateTime(currentEvaluatingMedia.timestamp);
@@ -393,7 +393,7 @@
         </div>
 
         ${historyList.map((s, idx) => {
-          const photoUrl = (s.photos && s.photos[0] && s.photos[0].photoUrl) || act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';
+          const photoUrl = (s.photos && s.photos[0] && s.photos[0].photoUrl) || act.photoUrl || '../assets/images/fathalla-branch.avif';
           const bk = s.scoreBreakdown || { newActivity: 35, executionQuality: 18, continuity: 20, documentation: 15 };
           const roundScore = s.sessionScore !== undefined && s.sessionScore !== null
             ? s.sessionScore
@@ -437,7 +437,7 @@
                   </div>
 
                   <div style="font-size: 0.76rem; color: #64748b; display: flex; align-items: center; gap: 4px;">
-                    <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                    <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
                     <span>GPS: ${Number(loc.latitude).toFixed(5)}° N, ${Number(loc.longitude).toFixed(5)}° E (المسافة: ${loc.distanceMeters || 0}م)</span>
                   </div>
 
@@ -558,15 +558,15 @@
       continuity: Number(inputContinuity.value) || 0,
       documentation: Number(inputDocs.value) || 0
     };
-    const rawScore = Number(((breakdown.executionQuality / 20) * 10).toFixed(1));
+    // Item 9: The server computes the total from the four pillar scores; no client-side rawScore is sent
     const newActivityDate = dateInput ? dateInput.value : undefined;
 
     try {
       if (SupervisorEngine && typeof SupervisorEngine.reviewActivity === 'function') {
-        await SupervisorEngine.reviewActivity(act.id, status, rawScore, notes, roundNum, breakdown, user, newActivityDate);
+        await SupervisorEngine.reviewActivity(act.id, status, null, notes, roundNum, breakdown, user, newActivityDate);
       } else {
         act.status = status;
-        act.supervisorScore = rawScore;
+        act.reviewStatus = status === 'Accepted' ? 'ACCEPTED' : (status === 'Rejected' ? 'REJECTED' : 'UNDER_REVIEW');
         act.supervisorNotes = notes;
         act.evaluationBreakdown = breakdown;
         if (newActivityDate) act.activityDate = new Date(newActivityDate).toISOString();

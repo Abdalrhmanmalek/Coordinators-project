@@ -94,7 +94,7 @@ flowchart TD
 ## 2. Screen-by-Screen Data Inputs & Validation Rules
 
 ### 2.1 Authentication: Login (`frontend/pages/login.html`)
-* **Header Layout:** Company logo (`ADCO-logo.png`), pill badge (`بوابة العمليات الميدانية المعتمدة`), and main heading (`منظومة ادارة العمليات`) are stacked vertically and centered directly underneath each other (`display: flex; flex-direction: column; align-items: center; text-align: center;`).
+* **Header Layout:** Company logo (`ADCO-logo.avif`), pill badge (`بوابة العمليات الميدانية المعتمدة`), and main heading (`منظومة ادارة العمليات`) are stacked vertically and centered directly underneath each other (`display: flex; flex-direction: column; align-items: center; text-align: center;`).
 * **Inputs:**
   * `employeeId` (Text, trimmed): Required, 3–20 alphanumeric chars (`/^[A-Za-z0-9_-]{3,20}$/`).
   * `password` (Password with show/hide toggle): Required, minimum 6 chars.

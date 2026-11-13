@@ -9,14 +9,8 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   </script>
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/layout.css" />
-  <link rel="stylesheet" href="../css/components.css" />
-  <link rel="stylesheet" href="../css/evaluation.css" />
-  <link rel="stylesheet" href="../css/enhancements.css" />
-  <link rel="stylesheet" href="../css/styles.css" />
-  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+    <link rel="stylesheet" href="../css/app.min.css" />
+<script src="../js/vendor/lucide.min.js"></script>
 </head>
 <body>
   <div id="app-header-mount"></div>
@@ -26,8 +20,8 @@
     <div class="eval-page-header">
       <div class="eval-header-title-col">
         <h1 class="eval-page-title" id="eval-header-title">
-          <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-md" alt="" />
-          <span id="eval-title-client">فحص وتقييم بطاقة النشاط</span>
+          <i data-lucide="clipboard-edit" class="ui-icon ui-icon-md"></i>
+          <span id="eval-title-client">تقييم النشاط</span>
         </h1>
         <p class="eval-page-subtitle">
           <span id="eval-title-branch">جاري تحميل بيانات الفرع...</span>
@@ -37,20 +31,20 @@
 
       <div class="eval-header-actions">
         <a href="./supervisor-panel.html" class="btn btn-secondary" id="eval-back-route-btn" title="العودة لشاشة المراجعة">
-          <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>العودة لقائمة الأنشطة والمراجعة</span>
+          <i data-lucide="arrow-left" class="ui-icon ui-icon-sm"></i>
+          <span>رجوع</span>
         </a>
         <span class="badge badge-success" id="eval-header-score-badge">100 / 100 نقطة</span>
         <div id="eval-header-status-badge"></div>
       </div>
     </div>
 
-    <!-- 1. TOP SECTION: Branch Details & Master Info (بيانات الفرع والنشاط الرئيسية) -->
+    <!-- 1. TOP SECTION: Branch Details & Master Info -->
     <section class="eval-card-section" id="section-branch-details">
       <div class="eval-section-title-row">
         <h2 class="eval-section-heading-text">
-          <img src="../assets/icons/layout-dashboard.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>بيانات الفرع وتفاصيل النشاط الرئيسية</span>
+          <i data-lucide="layout-dashboard" class="ui-icon ui-icon-sm"></i>
+          <span>بيانات الفرع والنشاط</span>
         </h2>
         <span class="badge badge-mint" id="eval-status-display-badge">مطابق للمواصفات</span>
       </div>
@@ -60,12 +54,12 @@
         <div>
           <h3 class="eval-client-main-name" id="eval-client-name">-</h3>
           <p class="eval-branch-sub-line">
-            <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
             <span id="eval-branch-name">-</span>
           </p>
         </div>
         <div class="eval-supplying-pill" id="eval-supplying-branch-box">
-          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
           <span>فرع الشركة المورد للبضاعة: <strong id="eval-supplying-branch">-</strong></span>
         </div>
       </div>
@@ -74,7 +68,7 @@
       <div class="eval-details-grid">
         <div class="eval-info-box">
           <span class="eval-box-label">
-            <img src="../assets/icons/user-cog.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="user-cog" class="ui-icon ui-icon-xs"></i>
             <span>المنسق الميداني المسؤول</span>
           </span>
           <span class="eval-box-val" id="eval-coord-name">-</span>
@@ -82,7 +76,7 @@
 
         <div class="eval-info-box">
           <span class="eval-box-label">
-            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="shield-check" class="ui-icon ui-icon-xs"></i>
             <span>قطاع / فرع المنسق</span>
           </span>
           <span class="eval-box-val" id="eval-coord-sector">-</span>
@@ -90,7 +84,7 @@
 
         <div class="eval-info-box">
           <span class="eval-box-label">
-            <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="sliders-horizontal" class="ui-icon ui-icon-xs"></i>
             <span>نوع النشاط وطريقة العرض</span>
           </span>
           <span class="eval-box-val" id="eval-activity-type">-</span>
@@ -98,7 +92,7 @@
 
         <div class="eval-info-box">
           <span class="eval-box-label">
-            <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="calendar-clock" class="ui-icon ui-icon-xs"></i>
             <span>تاريخ وتوقيت بدء النشاط (مصر)</span>
           </span>
           <span class="eval-box-val highlight-date" id="eval-start-date" dir="ltr">-</span>
@@ -106,7 +100,7 @@
 
         <div class="eval-info-box">
           <span class="eval-box-label">
-            <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
             <span>حالة وتاريخ انتهاء النشاط</span>
           </span>
           <span class="eval-box-val" id="eval-end-date">-</span>
@@ -114,7 +108,7 @@
 
         <div class="eval-info-box span-full">
           <span class="eval-box-label">
-            <img src="../assets/icons/star.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="star" class="ui-icon ui-icon-xs"></i>
             <span>المنتجات والأصناف المشمولة بالعرض (SKU)</span>
           </span>
           <span class="eval-box-val" id="eval-sku-variant">-</span>
@@ -122,7 +116,7 @@
 
         <div class="eval-info-box span-full">
           <span class="eval-box-label">
-            <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="check-circle-2" class="ui-icon ui-icon-xs"></i>
             <span>العلامات التجارية وحصة العرض (Brand Share)</span>
           </span>
           <span class="eval-box-val highlight-brand" id="eval-brands-share">-</span>
@@ -130,7 +124,7 @@
 
         <div class="eval-info-box span-full is-hidden" id="eval-magazine-box">
           <span class="eval-box-label">
-            <img src="../assets/icons/sheet.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="sheet" class="ui-icon ui-icon-xs"></i>
             <span>تاريخ المجلة وفترة العرض</span>
           </span>
           <span class="eval-box-val" id="eval-magazine-date">-</span>
@@ -142,7 +136,7 @@
     <section class="eval-card-section" id="section-media-gps">
       <div class="eval-section-title-row">
         <h2 class="eval-section-heading-text">
-          <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="camera" class="ui-icon ui-icon-sm"></i>
           <span>المعاينة الميدانية: صور العرض وفحص مطابقة الموقع (GPS)</span>
         </h2>
         <span class="badge badge-mint" id="eval-active-round-badge">الجولة التأسيسية</span>
@@ -153,24 +147,24 @@
         <div class="eval-photo-card">
           <div class="eval-photo-card-header">
             <div class="eval-section-heading-text" style="font-size: 0.95rem;">
-              <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="camera" class="ui-icon ui-icon-xs"></i>
               <span id="eval-photo-heading">صورة العرض الميداني</span>
             </div>
             <button type="button" class="btn btn-secondary btn-xs" id="eval-header-zoom-btn" title="تكبير الصورة وفحص التفاصيل">
-              <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="camera" class="ui-icon ui-icon-xs"></i>
               <span>تكبير وفحص عالي الدقة</span>
             </button>
           </div>
 
           <div class="eval-photo-wrapper" id="eval-photo-click-area" title="اضغط للتكبير والفحص عالي الدقة">
-            <img id="eval-photo-img" src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80" alt="صورة العرض الميداني" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';" />
+            <img id="eval-photo-img" src="../assets/images/fathalla-branch.avif" alt="صورة العرض الميداني" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.avif';" />
           </div>
 
           <!-- Camera Metadata Box -->
           <div class="eval-exif-box">
             <div class="eval-exif-header">
               <span style="display: flex; align-items: center; gap: 6px;">
-                <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+                <i data-lucide="shield-check" class="ui-icon ui-icon-xs"></i>
                 <span>فحص وبصمة الصورة (Metadata)</span>
               </span>
               <span id="eval-photo-origin-badge" class="badge badge-success">كاميرا مباشرة</span>
@@ -187,7 +181,7 @@
           </div>
 
           <button type="button" id="eval-view-history-btn" class="btn btn-secondary" style="width: 100%; min-height: 40px;">
-            <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-sm" alt="" />
+            <i data-lucide="calendar-clock" class="ui-icon ui-icon-sm"></i>
             <span>عرض سجل المتابعات والعمليات الكاملة</span>
           </button>
         </div>
@@ -195,7 +189,7 @@
         <!-- Column B: GPS Validation & Proximity Comparison -->
         <div class="eval-gps-card">
           <div class="eval-section-heading-text" style="font-size: 0.95rem;">
-            <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+            <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
             <span>فحص ومطابقة الموقع الجغرافي (GPS Proximity)</span>
           </div>
 
@@ -207,7 +201,7 @@
               <span class="badge badge-success" id="eval-proximity-status-badge">ضمن النطاق المعتمد (<= 150م)</span>
             </div>
             <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" id="eval-gps-compare-link" title="معاينة المسار على خرائط Google">
-              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
               <span>مقارنة الموقعين على الخريطة</span>
             </a>
           </div>
@@ -223,7 +217,7 @@
               <div style="font-size: 0.74rem; color: #64748b;" id="eval-coord-accuracy">دقة الرصد: ±10 متر</div>
               <a href="#" target="_blank" rel="noopener noreferrer" class="eval-loc-link" id="eval-coord-map-link">
                 <span>فتح لوكيشن المنسق في خرائط Google</span>
-                <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-xs" alt="" />
+                <i data-lucide="arrow-left" class="ui-icon ui-icon-xs"></i>
               </a>
             </div>
 
@@ -236,7 +230,7 @@
               <div style="font-size: 0.74rem; color: #64748b;" id="eval-branch-address-label">الفرع المعتمد لدى الشركة</div>
               <a href="#" target="_blank" rel="noopener noreferrer" class="eval-loc-link" id="eval-branch-map-link">
                 <span>فتح لوكيشن الفرع في خرائط Google</span>
-                <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-xs" alt="" />
+                <i data-lucide="arrow-left" class="ui-icon ui-icon-xs"></i>
               </a>
             </div>
           </div>
@@ -244,21 +238,21 @@
           <!-- Field Verification Checkpoints (Eliminates Awkward Blank Space) -->
           <div class="eval-verification-checklist">
             <div class="eval-check-item">
-              <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="shield-check" class="ui-icon ui-icon-xs"></i>
               <div>
                 <strong>نطاق القرب الجغرافي:</strong>
                 <span id="eval-chk-proximity">مطابق للموقع الرسمي للفرع (ضمن 150م)</span>
               </div>
             </div>
             <div class="eval-check-item">
-              <img src="../assets/icons/circle-check-big.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="circle-check-big" class="ui-icon ui-icon-xs"></i>
               <div>
                 <strong>صحة ومصدر التوثيق:</strong>
                 <span id="eval-chk-meta">التقاط مباشر من كاميرا المنسق</span>
               </div>
             </div>
             <div class="eval-check-item">
-              <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="check-circle-2" class="ui-icon ui-icon-xs"></i>
               <div>
                 <strong>الربط الإداري الميداني:</strong>
                 <span>معتمد على فرع الشركة المورد</span>
@@ -274,15 +268,15 @@
             </div>
             <div class="eval-quick-btn-group" role="group" aria-label="خيارات التقييم السريع">
               <button type="button" class="eval-quick-btn active status-accepted" data-status="Accepted">
-                <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-xs" alt="" />
+                <i data-lucide="check-circle-2" class="ui-icon ui-icon-xs"></i>
                 <span>مقبول</span>
               </button>
               <button type="button" class="eval-quick-btn status-rejected" data-status="Rejected">
-                <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-xs" alt="" />
+                <i data-lucide="x-circle" class="ui-icon ui-icon-xs"></i>
                 <span>غير مقبول</span>
               </button>
               <button type="button" class="eval-quick-btn status-review" data-status="Under Review">
-                <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
                 <span>تحت المراجعة</span>
               </button>
             </div>
@@ -296,7 +290,7 @@
     <section class="eval-form-section" id="section-evaluation-form">
       <div class="eval-section-title-row">
         <h2 class="eval-section-heading-text">
-          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
           <span>معايير التقييم والدرجات وقرار الاعتماد النهائي (100 نقطة)</span>
         </h2>
         <span class="badge badge-success" id="eval-live-total-badge">100 / 100 نقطة</span>
@@ -324,7 +318,7 @@
         <div class="eval-scoring-card">
           <div class="eval-scoring-header">
             <strong>
-              <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+              <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
               <span>توزيع درجات التقييم الرسمي (إجمالي 100 نقطة)</span>
             </strong>
             <span class="badge badge-success" id="eval-scoring-card-badge">100 / 100 نقطة</span>
@@ -386,8 +380,8 @@
 
         <div class="eval-submit-btn-row">
           <button type="submit" class="btn btn-primary eval-primary-submit-btn" id="eval-submit-btn">
-            <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-md" alt="" />
-            <span>اعتماد التقييم وحفظ القرار النهائي وتحديث السجل العام</span>
+            <i data-lucide="check-circle-2" class="ui-icon ui-icon-md"></i>
+            <span>حفظ التقييم</span>
           </button>
         </div>
       </form>
@@ -399,8 +393,8 @@
     <div class="modal-sheet sp-s51">
       <div class="modal-header">
         <h3 class="sp-s11" id="audit-modal-title">
-          <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-md" alt="" />
-          <span>سجل إجراءات ومتابعات النشاط الكاملة</span>
+          <i data-lucide="calendar-clock" class="ui-icon ui-icon-md"></i>
+          <span>سجل الإجراءات</span>
         </h3>
         <button type="button" class="close-modal-btn" id="close-audit-modal">&times;</button>
       </div>

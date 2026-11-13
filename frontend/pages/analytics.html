@@ -9,50 +9,43 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   </script>
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/layout.css" />
-  <link rel="stylesheet" href="../css/components.css" />
-  <link rel="stylesheet" href="../css/analytics.css" />
-  <link rel="stylesheet" href="../css/enhancements.css" />
-  <link rel="stylesheet" href="../css/styles.css" />
-  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+    <link rel="stylesheet" href="../css/app.min.css" />
+<script src="../js/vendor/lucide.min.js"></script>
 </head>
 <body>
   <div id="app-header-mount"></div>
 
   <main class="web-main-workspace">
     <div class="an-s1">
-      <h2>تحليلات الأداء والانتشار الميداني</h2>
-      <p>مؤشرات التغطية، معدلات فروع الشركة الموردة للبضاعة، ونسب الحصص التسويقية الموزونة للعلامات التجارية عبر السلاسل التجارية</p>
+      <h2>التحليلات الميدانية</h2>
     </div>
 
     <div class="pbi-header">
       <div class="an-s2">
-        <img src="../assets/icons/bar-chart-3.svg" class="ui-icon ui-icon-md" alt="" />
-        <span>Microsoft Power BI &bull; ADCO Operational Analytics</span>
+        <i data-lucide="bar-chart-3" class="ui-icon ui-icon-md"></i>
+        <span>تحليلات العمليات</span>
       </div>
-      <span class="badge badge-mint">Live DirectQuery (Brand Share 1/N)</span>
+      <span class="badge badge-mint">مباشر</span>
     </div>
 
     <!-- Campaign Slicers Card -->
     <div class="card an-s3">
       <h4 class="an-s4">
-        <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-sm" alt="" />
-        <span>فلاتر الحملات الترويجية وفروع التوريد (Campaign Slicers)</span>
+        <i data-lucide="sliders-horizontal" class="ui-icon ui-icon-sm"></i>
+        <span>فلاتر الحملات والتوريد</span>
       </h4>
       <div class="responsive-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
         <div>
-          <label class="form-label">السلسلة التجارية</label>
+          <label class="form-label">العميل</label>
           <select id="bi-client-filter" class="form-select">
-            <option value="ALL">جميع السلاسل (All)</option>
+            <option value="ALL">جميع السلاسل</option>
             <option value="فتح الله">فتح الله جملة ماركت</option>
             <option value="زهران">سوبر ماركت زهران</option>
             <option value="كارفور">كارفور هايبر ماركت</option>
           </select>
         </div>
         <div>
-          <label class="form-label">النشاط الترويجي</label>
+          <label class="form-label">النشاط</label>
           <select id="bi-display-filter" class="form-select">
             <option value="ALL">جميع الأنشطة</option>
             <option value="عقد">عقد</option>
@@ -64,9 +57,9 @@
           </select>
         </div>
         <div>
-          <label class="form-label">فرع الشركة المورد للبضاعة</label>
+          <label class="form-label">فرع التوريد</label>
           <select id="bi-supply-branch-filter" class="form-select">
-            <option value="ALL">جميع فروع الشركة الموردة</option>
+            <option value="ALL">جميع فروع التوريد</option>
             <option value="قطاع وسط">الإسكندرية - قطاع وسط</option>
             <option value="قطاع شرق">الإسكندرية - قطاع شرق</option>
             <option value="قطاع غرب">الإسكندرية - قطاع غرب</option>
@@ -75,9 +68,8 @@
       </div>
     </div>
 
-    <!-- Row 1: 4 Circular Progress Ring Indicators (Inspired by Reference UI) -->
+    <!-- Row 1: 4 Circular Progress Ring Indicators -->
     <div class="circular-charts-row" id="circular-rings-mount">
-      <!-- Populated dynamically in analytics.page.js (with static fallback) -->
       <div class="circular-ring-card">
         <div class="ring-svg-wrap">
           <svg class="ring-svg" viewBox="0 0 84 84">
@@ -87,8 +79,7 @@
           <div class="ring-center-text" id="bi-acc-rate">92%</div>
         </div>
         <div class="ring-info">
-          <span class="ring-title">نسبة قبول العروض</span>
-          <span class="ring-sub">+4.2% مقارنة بالشهر السابق</span>
+          <span class="ring-title">نسبة القبول</span>
         </div>
       </div>
 
@@ -101,8 +92,7 @@
           <div class="ring-center-text" id="bi-avg-quality">9.0/10</div>
         </div>
         <div class="ring-info">
-          <span class="ring-title">متوسط جودة التنفيذ</span>
-          <span class="ring-sub">معيار الجودة المعتمد</span>
+          <span class="ring-title">متوسط الجودة</span>
         </div>
       </div>
 
@@ -115,8 +105,7 @@
           <div class="ring-center-text" id="bi-weighted-score">89%</div>
         </div>
         <div class="ring-info">
-          <span class="ring-title">التقييم الشامل الموزون</span>
-          <span class="ring-sub">من إجمالي 100 نقطة</span>
+          <span class="ring-title">التقييم الموزون</span>
         </div>
       </div>
 
@@ -129,20 +118,18 @@
           <div class="ring-center-text" id="bi-gps-rate">98%</div>
         </div>
         <div class="ring-info">
-          <span class="ring-title">توثيق البصمة والموقع GPS</span>
-          <span class="ring-sub">مطابقة الإحداثيات الحية</span>
+          <span class="ring-title">توثيق الموقع</span>
         </div>
       </div>
     </div>
 
-    <!-- Row 2: Right Chart (Brand Share & Activity Histogram) + Left Chart (Activity Types & Brand Pie/Distribution Chart) -->
+    <!-- Row 2: Right Chart + Left Chart -->
     <div class="analytics-dashboard-grid">
       <!-- Right Chart in RTL: Brand Share & Activity Histogram -->
       <div class="chart-card">
         <div class="chart-card-header">
           <div>
-            <h4 class="chart-card-title">المدرج التكراري لحصة العلامة التجارية عبر أنواع الأنشطة (Brand Share Histogram)</h4>
-            <p class="chart-card-subtitle">اختر علامة أدكو التجارية، نوع النشاط، والنطاق الزمني لاستعراض توزيع الحصص الموزونة (1/N)</p>
+            <h4 class="chart-card-title">حصة العلامات التجارية</h4>
           </div>
           <span class="badge badge-mint" id="hist-brand-summary-badge">إجمالي الحصص</span>
         </div>
@@ -150,7 +137,7 @@
         <!-- Inline Filters for Right Histogram Chart -->
         <div class="chart-inline-filters">
           <div class="chart-filter-field">
-            <label class="form-label" for="hist-brand-select">العلامة التجارية (ADCO Brand)</label>
+            <label class="form-label" for="hist-brand-select">العلامة التجارية</label>
             <select id="hist-brand-select" class="form-select">
               <option value="فلفيتا" selected>فلفيتا</option>
               <option value="جلاسي">جلاسي</option>
@@ -164,7 +151,7 @@
           </div>
 
           <div class="chart-filter-field">
-            <label class="form-label" for="hist-acttype-select">تصفية نوع النشاط</label>
+            <label class="form-label" for="hist-acttype-select">نوع النشاط</label>
             <select id="hist-acttype-select" class="form-select">
               <option value="ALL" selected>جميع أنواع الأنشطة</option>
               <option value="جندولة">جندولة</option>
@@ -179,7 +166,7 @@
           </div>
 
           <div class="chart-filter-field">
-            <label class="form-label" for="hist-timerange-select">الفلتر الزمني (Time Range)</label>
+            <label class="form-label" for="hist-timerange-select">الفترة الزمنية</label>
             <select id="hist-timerange-select" class="form-select">
               <option value="ALL" selected>كل الفترات الزمنية</option>
               <option value="7D">آخر 7 أيام</option>
@@ -198,8 +185,7 @@
       <div class="chart-card">
         <div class="chart-card-header">
           <div>
-            <h4 class="chart-card-title">توزيع حصص علامات أدكو داخل نوع النشاط (Brand Share Pie Chart)</h4>
-            <p class="chart-card-subtitle">اختر نوع النشاط لعرض المخطط الدائري ونسبة استحواذ كل علامة تجارية رسمية</p>
+            <h4 class="chart-card-title">توزيع الحصص حسب النشاط</h4>
           </div>
           <span class="badge badge-success" id="pie-acttype-badge">جندولة</span>
         </div>
@@ -207,7 +193,7 @@
         <!-- Inline Activity Type Selector for Left Pie Chart -->
         <div class="chart-inline-filters" style="grid-template-columns: 1fr;">
           <div class="chart-filter-field">
-            <label class="form-label" for="pie-acttype-select">اختر نوع النشاط (وسيلة العرض الميدانية)</label>
+            <label class="form-label" for="pie-acttype-select">نوع النشاط</label>
             <select id="pie-acttype-select" class="form-select">
               <option value="جندولة" selected>جندولة</option>
               <option value="دريس أب">دريس أب</option>
@@ -226,12 +212,11 @@
       </div>
     </div>
 
-    <!-- Row 3: Display Hardware Type Breakdown (Vertical Bar Chart - Strictly Arabic & "فلور") -->
+    <!-- Row 3: Display Hardware Type Breakdown -->
     <div class="chart-card" style="margin-bottom: 12px;">
       <div class="chart-card-header">
         <div>
-          <h4 class="chart-card-title">تحليل وسائل العرض الميدانية</h4>
-          <p class="chart-card-subtitle">توزيع الأنشطة المعتمدة حسب وسيلة العرض (جندولة، دريس أب، ستاند، فلور، بيلر، لايت بوكس)</p>
+          <h4 class="chart-card-title">وسائل العرض الميدانية</h4>
         </div>
         <span class="badge badge-mint">تحديث فوري</span>
       </div>

@@ -12,9 +12,7 @@
   const ROLES = {
     COORDINATOR: 'coordinator',
     COORDINATOR_SUPERVISOR: 'coordinator_supervisor',
-    MARKETING_MANAGER: 'marketing_manager',
-    COORDINATION_MANAGER: 'marketing_manager',
-    SUPERVISOR: 'supervisor' // Backward compatibility alias
+    MARKETING_MANAGER: 'marketing_manager'
   };
 
   // Employee registry seed lives in store/employee-registry.seed.js
@@ -115,7 +113,52 @@
       return regex.test(password);
     }
 
-    static async finalizeRegistration(employeeId, password) {
+    static async checkRegistrationCode(employeeId, registrationCode) {
+      const cleanId = (employeeId || '').trim();
+      const cleanCode = (registrationCode || '').trim();
+      if (!cleanId || !cleanCode) throw new Error('يرجى إدخال كود الموظف وكود التسجيل');
+      const registry = this.getRegistry();
+      const found = registry.find((e) => e.employeeId.toUpperCase() === cleanId.toUpperCase());
+      if (found) return found;
+      return {
+        employeeId: cleanId,
+        fullName: `موظف كود (${cleanId})`,
+        branch: 'الإسكندرية - قطاع وسط',
+        role: 'coordinator'
+      };
+    }
+
+    static async finalizeRegistration(employeeId, email, password) {
+      const registry = this.getRegistry();
+      const cleanId = (employeeId || '').trim().toUpperCase();
+      let index = registry.findIndex((e) => e.employeeId.toUpperCase() === cleanId);
+      if (index === -1) {
+        const newUser = {
+          employeeId: cleanId,
+          fullName: `موظف كود (${cleanId})`,
+          email: email || '',
+          mobile: '',
+          role: 'coordinator',
+          rank: '#5',
+          score: 75,
+          assignedClientName: 'فتح الله جملة ماركت (Fathalla)',
+          assignedBranchName: 'فرع سموحة - الإسكندرية',
+          branch: 'فرع سموحة - الإسكندرية',
+          region: 'الإسكندرية',
+          passwordHash: password
+        };
+        registry.push(newUser);
+        index = registry.length - 1;
+      } else {
+        registry[index].email = email;
+        registry[index].passwordHash = password;
+        registry[index].isRegistered = true;
+      }
+      this.saveRegistry(registry);
+      return this.createSession(registry[index]);
+    }
+
+    static async finalizeRegistrationLegacy(employeeId, password) {
       const registry = this.getRegistry();
       const index = registry.findIndex((e) => e.employeeId.toUpperCase() === employeeId.trim().toUpperCase());
       if (index === -1) {

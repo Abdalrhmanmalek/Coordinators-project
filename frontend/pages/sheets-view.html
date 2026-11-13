@@ -9,14 +9,8 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   </script>
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/layout.css" />
-  <link rel="stylesheet" href="../css/components.css" />
-  <link rel="stylesheet" href="../css/sheets.css" />
-  <link rel="stylesheet" href="../css/enhancements.css" />
-  <link rel="stylesheet" href="../css/styles.css" />
-  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+    <link rel="stylesheet" href="../css/app.min.css" />
+<script src="../js/vendor/lucide.min.js"></script>
 </head>
 <body>
   <div id="app-header-mount"></div>
@@ -25,12 +19,11 @@
     <!-- Header Title & Export Action -->
     <div class="sh-s1">
       <div>
-        <h2>سجلات Google Sheets الحية وحصص العلامات التجارية</h2>
-        <p>عرض تحليلي موحد مع تكرار صفوف الأنشطة لكل علامة تجارية واحتساب حصة الظهور (1 / N)</p>
+        <h2>التقارير والشيتات</h2>
       </div>
       <button type="button" id="export-excel-btn" class="btn btn-primary">
-        <img src="../assets/icons/file-spreadsheet.svg" class="ui-icon" alt="" />
-        <span>تصدير ملف Excel (.CSV)</span>
+        <i data-lucide="file-spreadsheet" class="ui-icon"></i>
+        <span>تصدير Excel</span>
       </button>
     </div>
 
@@ -38,24 +31,24 @@
     <div class="card sh-s2">
       <div class="sh-s3">
         <h4 class="sh-s4">
-          <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>تصفية وتخصيص معايير الشيت (Multi-Parameter Filters)</span>
+          <i data-lucide="sliders-horizontal" class="ui-icon ui-icon-sm"></i>
+          <span>تصفية البيانات</span>
         </h4>
         <button type="button" id="reset-sheet-filters" class="btn btn-secondary btn-sm sh-s5">
-          إعادة ضبط الفلاتر
+          إعادة ضبط
         </button>
       </div>
 
       <div class="responsive-form-grid sh-s6">
         <div>
-          <label class="form-label sh-s7">العميل / السلسلة</label>
+          <label class="form-label sh-s7">العميل</label>
           <select id="flt-client" class="form-select sh-s8">
             <option value="ALL">جميع العملاء</option>
           </select>
         </div>
 
         <div>
-          <label class="form-label sh-s7">العلامة التجارية (Brand)</label>
+          <label class="form-label sh-s7">العلامة التجارية</label>
           <select id="flt-brand" class="form-select sh-s8">
             <option value="ALL">جميع العلامات</option>
           </select>
@@ -76,32 +69,32 @@
         </div>
 
         <div>
-          <label class="form-label sh-s7">حالة الاعتماد (Status)</label>
+          <label class="form-label sh-s7">حالة الاعتماد</label>
           <select id="flt-status" class="form-select sh-s8">
             <option value="ALL">جميع الحالات</option>
-            <option value="Accepted">مقبول (Accepted)</option>
-            <option value="Under Review">قيد المراجعة (Under Review)</option>
-            <option value="Rejected">مرفوض (Rejected)</option>
+            <option value="Accepted">مقبول</option>
+            <option value="Under Review">قيد المراجعة</option>
+            <option value="Rejected">مرفوض</option>
           </select>
         </div>
 
         <div>
           <label class="form-label sh-s7">حالة إنهاء النشاط</label>
           <select id="flt-closure" class="form-select sh-s8">
-            <option value="ALL">الكل (نشط ومنتهي)</option>
-            <option value="ACTIVE">أنشطة نشطة ومستمرة</option>
-            <option value="CLOSED">أنشطة منتهية ومفككة</option>
-            <option value="PENDING">طلبات إنهاء قيد الانتظار</option>
+            <option value="ALL">الكل</option>
+            <option value="ACTIVE">نشط</option>
+            <option value="CLOSED">منتهي</option>
+            <option value="PENDING">قيد الإنهاء</option>
           </select>
         </div>
 
         <div>
-          <label class="form-label sh-s7">تاريخ بدء النشاط (من)</label>
+          <label class="form-label sh-s7">من تاريخ</label>
           <input type="date" id="flt-date-from" class="form-input sh-s8" />
         </div>
 
         <div>
-          <label class="form-label sh-s7">تاريخ بدء النشاط (إلى)</label>
+          <label class="form-label sh-s7">إلى تاريخ</label>
           <input type="date" id="flt-date-to" class="form-input sh-s8" />
         </div>
 
@@ -110,8 +103,7 @@
             type="text"
             id="sheet-search"
             class="form-input sh-s10"
-           
-            placeholder="بحث حر برقم البطاقة، اسم المنسق، المشرف المراجع، الفرع، أو الملاحظات..."
+            placeholder="بحث برقم البطاقة، المنسق، الفرع..."
           />
         </div>
       </div>
@@ -119,7 +111,7 @@
 
     <div class="sheets-toolbar">
       <div class="sh-s11">
-        <img src="../assets/icons/table-2.svg" class="ui-icon ui-icon-md" alt="" />
+        <i data-lucide="table-2" class="ui-icon ui-icon-md"></i>
         <span class="sh-s12">ADCO_Master_Brand_Share_Sheet_2026</span>
       </div>
       <span class="badge badge-mint" id="total-rows-badge">جاري التحميل...</span>
@@ -135,17 +127,17 @@
             <th>المنسق</th>
             <th>العميل</th>
             <th>الفرع</th>
-            <th>العلامة التجارية (Brand)</th>
-            <th>حصة البراند (1 / N)</th>
+            <th>العلامة التجارية</th>
+            <th>حصة البراند</th>
             <th>النشاط</th>
             <th>نوع النشاط</th>
-            <th>عدد النشاط</th>
-            <th>تاريخ بدء النشاط</th>
-            <th>تاريخ انتهاء النشاط</th>
-            <th>تاريخ إصدار المجلة</th>
-            <th>التقييم العام للنشاط</th>
+            <th>العدد</th>
+            <th>تاريخ البدء</th>
+            <th>تاريخ الانتهاء</th>
+            <th>تاريخ المجلة</th>
+            <th>التقييم</th>
             <th>الحالة</th>
-            <th>المشرف المراجع</th>
+            <th>المشرف</th>
             <th>تاريخ المراجعة</th>
             <th>حالة الإنهاء</th>
             <th>ملاحظات المشرف</th>

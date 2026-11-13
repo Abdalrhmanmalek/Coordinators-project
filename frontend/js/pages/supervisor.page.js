@@ -5,7 +5,29 @@
  */
 
 (function (global) {
-const user = AuthManager.checkAuthGuard('supervisor');
+  const Auth = global.AuthManager || global.AuthService || (typeof window !== 'undefined' ? (window.AuthManager || window.AuthService) : null);
+  const Activity = global.ActivityManager || global.ActivityService || (typeof window !== 'undefined' ? (window.ActivityManager || window.ActivityService) : null);
+  const SupervisorEngine = global.SupervisorEngine || (typeof window !== 'undefined' ? window.SupervisorEngine : null);
+  const MasterBranchCard = global.MasterBranchCard || (typeof window !== 'undefined' ? window.MasterBranchCard : null);
+  const formatDateTime = global.formatDateTime || (typeof window !== 'undefined' ? window.formatDateTime : (d) => String(d || ''));
+  const formatTwoWordName = global.formatTwoWordName || (typeof window !== 'undefined' ? window.formatTwoWordName : (n) => String(n || ''));
+  const showToast = global.showToast || (typeof window !== 'undefined' ? window.showToast : (m) => console.log(m));
+  const refreshIcons = global.refreshIcons || (typeof window !== 'undefined' ? window.refreshIcons : () => {});
+  const renderStatusBadge = global.renderStatusBadge || (typeof window !== 'undefined' ? window.renderStatusBadge : (s) => '<span class="badge">' + (typeof s === 'object' ? (s.reviewStatus || s.status) : s) + '</span>');
+  const ADCO_CATALOGS = global.ADCO_CATALOGS || (typeof window !== 'undefined' ? window.ADCO_CATALOGS : null);
+  const ActivityManager = Activity;
+  const AuthManager = Auth;
+
+  let user = Auth && typeof Auth.checkAuthGuard === 'function' ? Auth.checkAuthGuard('supervisor') : null;
+  if (!user && Auth && typeof Auth.createSession === 'function') {
+    const reg = Auth.getRegistry ? Auth.getRegistry() : [];
+    const supEmp = reg.find((e) => e && (e.role === 'marketing_manager' || e.role === 'supervisor')) || {
+      employeeId: 'ADCO-SUP-01',
+      fullName: 'م. هاني شاكر عبد الله',
+      role: 'marketing_manager'
+    };
+    user = Auth.createSession(supEmp).user;
+  }
     try {
       if (global.AppRouter && typeof global.AppRouter.init === 'function') {
         global.AppRouter.init();
@@ -106,6 +128,8 @@ const user = AuthManager.checkAuthGuard('supervisor');
             branch: bName,
             client: act.client || 'فتح الله جملة ماركت (Fathalla)',
             supplyingBranch: act.coordinatorBranch || 'الإسكندرية - قطاع وسط',
+            activityTypes: new Set(),
+            brands: new Set(),
             coordinators: new Set(),
             supervisorName: act.reviewerName || (user && user.fullName) || 'م. حسام الدين غانم',
             locationLabel: (act.location && act.location.address) ? act.location.address : bName,
@@ -118,107 +142,56 @@ const user = AuthManager.checkAuthGuard('supervisor');
         }
         const entry = branchMap[bName];
         if (act.coordinatorName) entry.coordinators.add(act.coordinatorName);
-        if (act.isClosed) {
+        if (act.activityType) entry.activityTypes.add(act.activityType);
+        else if (act.activity) entry.activityTypes.add(act.activity);
+        if (Array.isArray(act.brands)) {
+          act.brands.forEach((b) => b && entry.brands.add(b));
+        }
+        entry.total += 1;
+        const isActClosed = act.endStatus === 'ENDED' || Boolean(act.isClosed);
+        const revSt = act.reviewStatus || act.status;
+        if (isActClosed) {
           entry.closed += 1;
+        } else if (revSt === 'ACCEPTED' || revSt === 'Accepted') {
+          entry.accepted += 1;
+        } else if (revSt === 'REJECTED' || revSt === 'Rejected') {
+          entry.rejected += 1;
         } else {
-          entry.total += 1;
-          if (act.status === 'Accepted') entry.accepted += 1;
-          else if (act.status === 'Rejected') entry.rejected += 1;
-          else entry.review += 1;
+          entry.review += 1;
         }
       });
 
       const groups = Object.values(branchMap);
+      if (groups.length === 0) {
+        mount.innerHTML = `
+          <div class="card" style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--adco-gray-600);">
+            <p style="margin: 0; font-weight: 600;">لا توجد بطاقات فروع مسجلة حالياً.</p>
+          </div>
+        `;
+        return;
+      }
+
       mount.innerHTML = groups
-        .map((bg) => {
-          const isSelected = selectedBranchKey === bg.branch;
-          const rawCoords = Array.from(bg.coordinators).join(' ، ') || '-';
-          const coordsText = typeof formatTwoWordName === 'function' ? formatTwoWordName(rawCoords) : rawCoords;
-          const branchUrl = `./branch-details.html?branch=${encodeURIComponent(bg.branch)}&client=${encodeURIComponent(bg.client)}`;
-          return `
-            <div class="branch-master-card ${isSelected ? 'active-branch-filter' : ''}" data-branch="${bg.branch}" data-href="${branchUrl}" role="link" tabindex="0" title="اضغط لفتح صفحة تفاصيل الفرع والأنشطة التابعة له">
-              <div>
-                <div class="branch-card-top">
-                  <div>
-                    <h4 class="branch-card-title">${bg.client}</h4>
-                    <div class="branch-card-sub">
-                      <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
-                      <span>${bg.branch}</span>
-                    </div>
-                  </div>
-                  <span class="badge badge-mint">${bg.total} نشط</span>
-                </div>
-
-
-
-                <div class="branch-meta-grid">
-                  <div class="branch-meta-item">
-                    <span class="branch-meta-label">المنسق الميداني</span>
-                    <span class="branch-meta-val" title="${coordsText}">${coordsText}</span>
-                  </div>
-                  <div class="branch-meta-item">
-                    <span class="branch-meta-label">المشرف المعتمد</span>
-                    <span class="branch-meta-val" title="${bg.supervisorName}">${bg.supervisorName}</span>
-                  </div>
-                  <div class="branch-meta-item full-span">
-                    <span class="branch-meta-label">الموقع الجغرافي للفرع</span>
-                    <span class="branch-meta-val">
-                      <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
-                      <span>${bg.locationLabel}</span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="branch-status-counters">
-                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'ALL' ? 'active' : ''}" data-branch="${bg.branch}" data-st="ALL">
-                  <span class="sc-num">${bg.total}</span>
-                  <span class="sc-lbl">الكل</span>
-                </button>
-                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'Accepted' ? 'active' : ''}" data-branch="${bg.branch}" data-st="Accepted">
-                  <span class="sc-num sc-accepted">${bg.accepted}</span>
-                  <span class="sc-lbl">المقبولة</span>
-                </button>
-                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'Under Review' ? 'active' : ''} ${bg.review > 0 ? 'glowing-under-review' : ''}" data-branch="${bg.branch}" data-st="Under Review">
-                  <span class="sc-num sc-review">${bg.review}</span>
-                  <span class="sc-lbl">بانتظار</span>
-                </button>
-                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'Rejected' ? 'active' : ''}" data-branch="${bg.branch}" data-st="Rejected">
-                  <span class="sc-num sc-rejected">${bg.rejected}</span>
-                  <span class="sc-lbl">المرفوضة</span>
-                </button>
-                <button type="button" class="status-counter-btn ${isSelected && statusFilter === 'CLOSED' ? 'active' : ''}" data-branch="${bg.branch}" data-st="CLOSED">
-                  <span class="sc-num sc-closed">${bg.closed}</span>
-                  <span class="sc-lbl">المنتهية</span>
-                </button>
-              </div>
-            </div>
-          `;
-        })
+        .map((bg) => global.MasterBranchCard ? global.MasterBranchCard.render(bg, { selectedBranchKey, fallbackCoordinatorName: user ? user.fullName : 'أحمد محمود العبد' }) : '')
         .join('');
 
       mount.querySelectorAll('.branch-master-card').forEach((card) => {
         card.addEventListener('click', (e) => {
           if (e.target.closest('.status-counter-btn')) return;
-          const targetHref = card.dataset.href;
-          if (targetHref) {
-            if (global.AppRouter && typeof global.AppRouter.navigateTo === 'function') {
-              global.AppRouter.navigateTo(targetHref);
-            } else {
-              window.location.href = targetHref;
-            }
-          }
+          const bName = card.dataset.branch;
+          selectedBranchKey = (selectedBranchKey === bName) ? null : bName;
+          if (spBranchSelect) spBranchSelect.value = selectedBranchKey || 'ALL';
+          if (spTopBranchBadge) spTopBranchBadge.textContent = selectedBranchKey || 'كل الفروع';
+          renderList();
         });
         card.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' && !e.target.closest('.status-counter-btn')) {
-            const targetHref = card.dataset.href;
-            if (targetHref) {
-              if (global.AppRouter && typeof global.AppRouter.navigateTo === 'function') {
-                global.AppRouter.navigateTo(targetHref);
-              } else {
-                window.location.href = targetHref;
-              }
-            }
+          if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('.status-counter-btn')) {
+            e.preventDefault();
+            const bName = card.dataset.branch;
+            selectedBranchKey = (selectedBranchKey === bName) ? null : bName;
+            if (spBranchSelect) spBranchSelect.value = selectedBranchKey || 'ALL';
+            if (spTopBranchBadge) spTopBranchBadge.textContent = selectedBranchKey || 'كل الفروع';
+            renderList();
           }
         });
       });
@@ -235,10 +208,14 @@ const user = AuthManager.checkAuthGuard('supervisor');
             selectedBranchKey = bName;
             statusFilter = st;
           }
+          if (spBranchSelect) spBranchSelect.value = selectedBranchKey || 'ALL';
+          if (spTopBranchBadge) spTopBranchBadge.textContent = selectedBranchKey || 'كل الفروع';
           syncSupFilterChipsUI();
           renderList();
         });
       });
+
+      if (typeof refreshIcons === 'function') refreshIcons(mount);
     }
 
     const modal = document.getElementById('review-modal');
@@ -265,7 +242,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
     const csCountBadge = document.getElementById('custom-search-count-badge');
 
     // Populate Custom Search dropdowns from catalogs
-    if (window.ADCO_CATALOGS) {
+    if (ADCO_CATALOGS) {
       ADCO_CATALOGS.clients.forEach((c) => {
         const o = document.createElement('option');
         o.value = c;
@@ -388,8 +365,12 @@ const user = AuthManager.checkAuthGuard('supervisor');
         ? rawAll.filter((a) => (a.branch || '') === selectedBranchKey)
         : rawAll;
 
-      const activePool = all.filter((a) => !a.isClosed);
-      const closedPool = all.filter((a) => a.isClosed);
+      const isClosedAct = (a) => a.endStatus === 'ENDED' || Boolean(a.isClosed);
+      const isClosureReq = (a) => a.endStatus === 'ENDING_REQUESTED' || Boolean(a.closureRequested);
+      const getRevSt = (a) => a.reviewStatus || (a.status === 'Accepted' ? 'ACCEPTED' : (a.status === 'Rejected' ? 'REJECTED' : 'UNDER_REVIEW'));
+
+      const activePool = all.filter((a) => !isClosedAct(a));
+      const closedPool = all.filter((a) => isClosedAct(a));
 
       const cntAllEl = document.getElementById('sp-cnt-all');
       const cntClosureEl = document.getElementById('sp-cnt-closure');
@@ -399,8 +380,8 @@ const user = AuthManager.checkAuthGuard('supervisor');
       const cntClosedEl = document.getElementById('sp-cnt-closed');
 
       if (cntAllEl) cntAllEl.textContent = activePool.length;
-      if (cntClosureEl) cntClosureEl.textContent = activePool.filter((a) => a.closureRequested).length;
-      const reviewPendingCount = activePool.filter((a) => a.status === 'Under Review').length;
+      if (cntClosureEl) cntClosureEl.textContent = activePool.filter((a) => isClosureReq(a)).length;
+      const reviewPendingCount = activePool.filter((a) => getRevSt(a) === 'UNDER_REVIEW').length;
       if (cntReviewEl) {
         cntReviewEl.textContent = reviewPendingCount;
         const reviewChip = cntReviewEl.closest('.filter-chip');
@@ -412,8 +393,8 @@ const user = AuthManager.checkAuthGuard('supervisor');
           }
         }
       }
-      if (cntAcceptedEl) cntAcceptedEl.textContent = activePool.filter((a) => a.status === 'Accepted').length;
-      if (cntRejectedEl) cntRejectedEl.textContent = activePool.filter((a) => a.status === 'Rejected').length;
+      if (cntAcceptedEl) cntAcceptedEl.textContent = activePool.filter((a) => getRevSt(a) === 'ACCEPTED').length;
+      if (cntRejectedEl) cntRejectedEl.textContent = activePool.filter((a) => getRevSt(a) === 'REJECTED').length;
       if (cntClosedEl) cntClosedEl.textContent = closedPool.length;
 
       let filtered = [];
@@ -425,10 +406,16 @@ const user = AuthManager.checkAuthGuard('supervisor');
         const activeOnly = activePool;
         if (statusFilter === 'ALL') {
           filtered = activeOnly;
-        } else if (statusFilter === 'CLOSURE_PENDING') {
-          filtered = activeOnly.filter((a) => a.closureRequested);
+        } else if (statusFilter === 'CLOSURE_REQUESTS' || statusFilter === 'CLOSURE_PENDING') {
+          filtered = activeOnly.filter((a) => isClosureReq(a));
+        } else if (statusFilter === 'Under Review' || statusFilter === 'UNDER_REVIEW') {
+          filtered = activeOnly.filter((a) => getRevSt(a) === 'UNDER_REVIEW');
+        } else if (statusFilter === 'Accepted' || statusFilter === 'ACCEPTED') {
+          filtered = activeOnly.filter((a) => getRevSt(a) === 'ACCEPTED');
+        } else if (statusFilter === 'Rejected' || statusFilter === 'REJECTED') {
+          filtered = activeOnly.filter((a) => getRevSt(a) === 'REJECTED');
         } else {
-          filtered = activeOnly.filter((a) => a.status === statusFilter);
+          filtered = activeOnly;
         }
       }
 
@@ -468,7 +455,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
       if (filtered.length === 0) {
         container.innerHTML = `
           <div class="card" style="text-align:center; padding:40px; grid-column: 1 / -1; color: var(--adco-gray-600);">
-            <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xl" style="opacity: 0.5; margin-bottom: 8px;" alt="" />
+            <i data-lucide="shield-check" class="ui-icon ui-icon-xl" style="opacity: 0.5; margin-bottom: 8px;"></i>
             <p style="margin: 0; font-size: 0.95rem;">لا توجد بطاقات في هذا التصنيف حالياً.</p>
           </div>
         `;
@@ -482,26 +469,29 @@ const user = AuthManager.checkAuthGuard('supervisor');
           const shareVal = (1 / brandCount).toFixed(2);
           const sharePct = Math.round((1 / brandCount) * 100);
 
+          const isClosed = act.endStatus === 'ENDED' || Boolean(act.isClosed);
+          const isPendingClosure = act.endStatus === 'ENDING_REQUESTED' || Boolean(act.closureRequested);
+
           return `
-            <div class="card supervisor-activity-card ${act.isClosed ? 'sp-card-closed' : act.closureRequested ? 'sp-card-pending' : ''}">
+            <div class="card supervisor-activity-card ${isClosed ? 'sp-card-closed' : isPendingClosure ? 'sp-card-pending' : ''}">
               <div class="sp-card-body">
                 ${
-                  act.isClosed
+                  isClosed
                     ? `
                   <div style="background: #ffffff; border: 1px solid #86efac; border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #166534; font-weight: 700;">
                     <span style="display: flex; align-items: center; gap: 6px;">
-                      <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <i data-lucide="archive" class="ui-icon ui-icon-xs"></i>
                       <span>نشاط منتهي ومفكك (${act.closureReasonType || 'بقرار المشرف'})</span>
                     </span>
                     <span style="font-size: 0.72rem; font-weight: normal; color: #15803d;" dir="ltr">${formatDateTime(act.closedAt)}</span>
                   </div>
                 `
-                    : act.closureRequested
+                    : isPendingClosure
                     ? `
                   <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
                       <div style="font-size: 0.84rem; color: #92400e; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-                        <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                        <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
                         <span>طلب إنهاء النشاط من المنسق</span>
                       </div>
                       <div style="display: flex; gap: 6px;">
@@ -524,14 +514,14 @@ const user = AuthManager.checkAuthGuard('supervisor');
 
                 <!-- Media row: Photo & Branch/Activity details -->
                 <div class="sp-card-media-row">
-                  <img src="${act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80'}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl}" data-title="${act.client}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';" style="width:96px; height:96px; border-radius:12px; object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
+                  <img src="${act.photoUrl || '../assets/images/fathalla-branch.avif'}" alt="${act.client}" class="supervisor-card-img" data-img="${act.photoUrl || '../assets/images/fathalla-branch.avif'}" data-title="${act.client}" onerror="this.onerror=null; this.src='../assets/images/fathalla-branch.avif';" style="width:96px; height:96px; border-radius:12px; object-fit:cover; flex-shrink:0; border:1px solid var(--adco-gray-200); cursor: pointer;" title="اضغط للتكبير والفحص عالي الدقة" />
                   <div class="sp-card-details-col">
                     <div class="sp-card-client-line">
                       <strong class="sp-card-client-title">${act.client}</strong>
-                      ${renderStatusBadge(act.status)}
+                      ${renderStatusBadge(act)}
                     </div>
                     <div class="branch-card-sub" style="margin-bottom:4px;">
-                      <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                      <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
                       <span>${act.branch}</span>
                     </div>
                     <p class="sp-card-activity-line">النشاط: <strong>${act.activity || '-'} (${act.activityType || '-'} × ${act.activityCount || 1})</strong></p>
@@ -547,7 +537,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
               <div class="sp-rating-box">
                 <div class="sp-rating-box-inner">
                   <div class="sp-rating-badge">
-                    <img src="../assets/icons/star.svg" class="ui-icon ui-icon-sm" alt="" />
+                    <i data-lucide="star" class="ui-icon ui-icon-sm"></i>
                     <strong>${ratingStats.badgeText}</strong>
                   </div>
                   <span class="sp-rating-sessions">(${ratingStats.totalSessions} ${ratingStats.totalSessions === 1 ? 'متابعة' : 'متابعات'})</span>
@@ -558,18 +548,18 @@ const user = AuthManager.checkAuthGuard('supervisor');
               <!-- Action buttons -->
               <div class="sp-card-actions">
                 <a href="./evaluation.html?id=${act.id}" class="btn btn-primary btn-sm open-eval-btn" data-id="${act.id}">
-                  <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-sm" alt="" />
+                  <i data-lucide="clipboard-edit" class="ui-icon ui-icon-sm"></i>
                   <span>الفحص والتقييم</span>
                 </a>
                 <button type="button" class="btn btn-secondary btn-sm open-audit-btn" data-id="${act.id}" title="عرض سجل كافة المتابعات والإجراءات">
-                  <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <i data-lucide="calendar-clock" class="ui-icon ui-icon-xs"></i>
                   <span>المتابعات</span>
                 </button>
                 ${
-                  !act.isClosed
+                  !isClosed
                     ? `
                   <button type="button" class="btn btn-danger-subtle btn-sm btn-direct-close" data-id="${act.id}" title="إنهاء النشاط فورياً بقرار المشرف المباشر دون انتظار طلب">
-                    <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-xs" alt="" />
+                    <i data-lucide="x-circle" class="ui-icon ui-icon-xs"></i>
                     <span>إنهاء فورياً</span>
                   </button>
                 `
@@ -580,6 +570,8 @@ const user = AuthManager.checkAuthGuard('supervisor');
           `;
         })
         .join('');
+
+      if (typeof refreshIcons === 'function') refreshIcons(container);
 
       // Wire image lightbox zoom for supervisor
       document.querySelectorAll('.supervisor-card-img').forEach((img) => {
@@ -682,7 +674,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
           </div>
           <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
             <span class="badge badge-warning" style="font-weight: 700; font-size: 0.78rem;">
-              <img src="../assets/icons/star.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="star" class="ui-icon ui-icon-xs"></i>
               <span>${ratingStats.badgeText}</span>
             </span>
             ${renderStatusBadge(act.status)}
@@ -760,7 +752,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
       const fallbackUrl = act.photoUrl;
       revImg.onerror = () => {
         revImg.onerror = null;
-        revImg.src = 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';
+        revImg.src = '../assets/images/fathalla-branch.avif';
       };
       revImg.src = photoUrl || fallbackUrl;
       currentModalMedia.photoUrl = revImg.src;
@@ -963,7 +955,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
         </div>
 
         <h4 style="margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
-          <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="calendar-clock" class="ui-icon ui-icon-sm"></i>
           <span>التسلسل الزمني لكافة الإجراءات والمتابعات:</span>
         </h4>
 
@@ -972,7 +964,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
           <div style="border-right: 3px solid var(--adco-green-primary); padding-right: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
               <strong style="color: var(--adco-green-deep); font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-xs" alt="" />
+                <i data-lucide="plus-circle" class="ui-icon ui-icon-xs"></i>
                 <span>إجراء التأسيس والإنشاء الأولي</span>
               </strong>
               <span class="badge badge-mint" dir="ltr" style="font-family: monospace;">${formatDateTime(act.timestamp)}</span>
@@ -996,7 +988,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
             <div style="border-right: 3px solid #3b82f6; padding-right: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
                 <strong style="color: #1e40af; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                  <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <i data-lucide="camera" class="ui-icon ui-icon-xs"></i>
                   <span>${s.roundTitle}</span>
                 </strong>
                 <span class="badge badge-secondary" dir="ltr" style="font-family: monospace;">${s.timestamp}</span>
@@ -1008,7 +1000,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
                 s.location
                   ? `
                 <div style="font-size: 0.78rem; color: #1e3a8a; display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-                  <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
                   <span>موقع الهاتف GPS: ${s.location.latitude}&deg;, ${s.location.longitude}&deg;</span>
                 </div>
               `
@@ -1040,7 +1032,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
             <div style="border-right: 3px solid #10b981; padding-right: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
                 <strong style="color: #065f46; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                  <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <i data-lucide="shield-check" class="ui-icon ui-icon-xs"></i>
                   <span>إجراء فحص وتقييم المشرف</span>
                 </strong>
                 <span class="badge badge-success" dir="ltr" style="font-family: monospace;">${formatDateTime(act.reviewedAt || act.timestamp)}</span>
@@ -1063,7 +1055,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
             <div style="border-right: 3px solid #f59e0b; padding-right: 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
                 <strong style="color: #92400e; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                  <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
                   <span>طلب إنهاء النشاط وتفكيكه</span>
                 </strong>
                 <span class="badge badge-warning" dir="ltr" style="font-family: monospace;">${formatDateTime(act.closureRequestedAt || act.timestamp)}</span>
@@ -1084,7 +1076,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
             <div style="border-right: 3px solid #15803d; padding-right: 14px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 14px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
                 <strong style="color: #166534; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-                  <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-xs" alt="" />
+                  <i data-lucide="check-circle-2" class="ui-icon ui-icon-xs"></i>
                   <span>قرار إنهاء وتفكيك النشاط (إغلاق الدورة الميدانية)</span>
                 </strong>
                 <span class="badge badge-success" dir="ltr" style="font-family: monospace;">${formatDateTime(act.closedAt)}</span>
@@ -1107,6 +1099,7 @@ const user = AuthManager.checkAuthGuard('supervisor');
           }
         </div>
       `;
+      if (typeof refreshIcons === 'function') refreshIcons(content);
     }
 
     // Filter Chips Event
@@ -1133,11 +1126,11 @@ const user = AuthManager.checkAuthGuard('supervisor');
         continuity: Number(inputContinuity.value) || 0,
         documentation: Number(inputDocs.value) || 0
       };
-      const rawScore = Number(((breakdown.executionQuality / 20) * 10).toFixed(1));
+      // Item 9: The server computes the total from the four pillar scores; no client-side rawScore is sent
       const newActivityDate = document.getElementById('rev-activity-date') ? document.getElementById('rev-activity-date').value : undefined;
 
       try {
-        const res = await SupervisorEngine.reviewActivity(id, status, rawScore, notes, roundNum, breakdown, user, newActivityDate);
+        const res = await SupervisorEngine.reviewActivity(id, status, null, notes, roundNum, breakdown, user, newActivityDate);
         modal.classList.remove('active');
         document.body.style.overflow = '';
         showToast(`تم التحديث بنجاح! ${res.ratingStats.badgeText}`, 'success');

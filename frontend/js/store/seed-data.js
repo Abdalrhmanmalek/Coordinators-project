@@ -1,4 +1,9 @@
 /**
+ * [DEVELOPMENT / OFFLINE DEMO SEED ONLY]
+ * This dataset is strictly for client-side demo and offline prototype simulation.
+ * In production, all activities are fetched from the ADCO Backend API.
+ */
+/**
  * ADCO Seed / Demo Activities Dataset
  * Pure data module. Exposed as window.ADCO_SEED_ACTIVITIES.
  * High-resolution realistic retail supermarket shelf & gondola photography.
@@ -24,10 +29,12 @@
       activityCount: 3,
       displayType: 'فرشة مجلة - جندولة',
       magazineDate: '2026-11-01',
-      photoUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
+      photoUrl: '../assets/images/fathalla-branch.avif',
       photoHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
       location: { latitude: 31.2156, longitude: 29.9553, accuracy: 8, address: 'فرع سموحة - الإسكندرية', capturedAt: '2026-10-30 10:15' },
       status: 'Accepted',
+      reviewStatus: 'ACCEPTED',
+      endStatus: 'OPEN',
       supervisorScore: 8.5,
       overallRating: 8.5,
       ratedSessionsCount: 2,
@@ -62,7 +69,7 @@
           ],
           photos: [
             {
-              photoUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
+              photoUrl: '../assets/images/fathalla-branch.avif',
               photoHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
               sizeKb: 184,
               width: 1280,
@@ -95,7 +102,7 @@
           ],
           photos: [
             {
-              photoUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
+              photoUrl: '../assets/images/fathalla-branch.avif',
               photoHash: '7d865e959b2466918c9863afca942d0fb89d7c9ac0c99bafc3749504ded97730',
               sizeKb: 172,
               width: 1280,
@@ -103,7 +110,7 @@
               capturedAt: '2026-10-31 11:40'
             },
             {
-              photoUrl: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?auto=format&fit=crop&w=800&q=80',
+              photoUrl: '../assets/images/fathalla-branch.avif',
               photoHash: '4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a',
               sizeKb: 190,
               width: 1280,
@@ -133,10 +140,12 @@
       activityCount: 2,
       displayType: 'عقد - ستاند',
       magazineDate: '',
-      photoUrl: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80',
+      photoUrl: '../assets/images/fathalla-branch.avif',
       photoHash: '3a5b6c7d8e9f0123456789abcdef0123456789abcdef0123456789abcdef0123',
       location: { latitude: 31.2284, longitude: 29.9482, accuracy: 12, address: 'فرع رشدي - كفر عبده', capturedAt: '2026-10-31 08:30' },
       status: 'Under Review',
+      reviewStatus: 'UNDER_REVIEW',
+      endStatus: 'OPEN',
       supervisorScore: null,
       overallRating: null,
       ratedSessionsCount: 0,
@@ -164,7 +173,7 @@
           ],
           photos: [
             {
-              photoUrl: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80',
+              photoUrl: '../assets/images/fathalla-branch.avif',
               photoHash: '3a5b6c7d8e9f0123456789abcdef0123456789abcdef0123456789abcdef0123',
               sizeKb: 168,
               width: 1280,
@@ -194,10 +203,12 @@
       activityCount: 4,
       displayType: 'مهرجان - بوديوم',
       magazineDate: '',
-      photoUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=800&q=80',
+      photoUrl: '../assets/images/fathalla-branch.avif',
       photoHash: '9f8e7d6c5b4a32109876543210fedcba9f8e7d6c5b4a32109876543210fedcba',
       location: { latitude: 31.1921, longitude: 29.9145, accuracy: 6, address: 'فرع محرم بك - قناة السويس', capturedAt: '2026-10-29 14:20' },
       status: 'Accepted',
+      reviewStatus: 'ACCEPTED',
+      endStatus: 'OPEN',
       supervisorScore: 9.5,
       overallRating: 9.5,
       ratedSessionsCount: 2,
@@ -233,7 +244,7 @@
           ],
           photos: [
             {
-              photoUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=800&q=80',
+              photoUrl: '../assets/images/fathalla-branch.avif',
               photoHash: '9f8e7d6c5b4a32109876543210fedcba9f8e7d6c5b4a32109876543210fedcba',
               sizeKb: 195,
               width: 1280,
@@ -267,7 +278,7 @@
           ],
           photos: [
             {
-              photoUrl: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800&q=80',
+              photoUrl: '../assets/images/fathalla-branch.avif',
               photoHash: '1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890',
               sizeKb: 182,
               width: 1280,
@@ -296,10 +307,12 @@
       activityCount: 2,
       displayType: 'عقد - سايد جندولة',
       magazineDate: '',
-      photoUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
+      photoUrl: '../assets/images/fathalla-branch.avif',
       photoHash: '5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f',
       location: { latitude: 31.2421, longitude: 29.9654, accuracy: 7, address: 'فرع لوران - الكورنيش', capturedAt: '2026-11-01 11:30' },
       status: 'Accepted',
+      reviewStatus: 'ACCEPTED',
+      endStatus: 'OPEN',
       supervisorScore: 9.0,
       overallRating: 9.0,
       ratedSessionsCount: 1,
@@ -334,7 +347,7 @@
           ],
           photos: [
             {
-              photoUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
+              photoUrl: '../assets/images/fathalla-branch.avif',
               photoHash: '5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f',
               sizeKb: 180,
               width: 1280,
@@ -363,10 +376,12 @@
       activityCount: 1,
       displayType: 'إضافي - ستاند',
       magazineDate: '',
-      photoUrl: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?auto=format&fit=crop&w=800&q=80',
+      photoUrl: '../assets/images/fathalla-branch.avif',
       photoHash: '7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b',
       location: { latitude: 31.2854, longitude: 30.0123, accuracy: 9, address: 'فرع المنتزه - شيراتون', capturedAt: '2026-11-02 14:15' },
       status: 'Under Review',
+      reviewStatus: 'UNDER_REVIEW',
+      endStatus: 'OPEN',
       supervisorScore: null,
       overallRating: null,
       ratedSessionsCount: 0,
@@ -393,7 +408,7 @@
           ],
           photos: [
             {
-              photoUrl: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?auto=format&fit=crop&w=800&q=80',
+              photoUrl: '../assets/images/fathalla-branch.avif',
               photoHash: '7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b',
               sizeKb: 175,
               width: 1280,
@@ -421,10 +436,12 @@
       activityType: 'ستاند',
       activityCount: 2,
       displayType: 'افتتاح فرع جديد - ستاند',
-      photoUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
+      photoUrl: '../assets/images/fathalla-branch.avif',
       photoHash: 'e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7',
       location: { latitude: 31.2489, longitude: 29.9678, accuracy: 6, address: 'فرع لوران - الكورنيش', capturedAt: '2026-11-03 09:30' },
       status: 'Accepted',
+      reviewStatus: 'ACCEPTED',
+      endStatus: 'OPEN',
       supervisorScore: 9.2,
       overallRating: 9.2,
       ratedSessionsCount: 1,
@@ -459,7 +476,7 @@
           ],
           photos: [
             {
-              photoUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
+              photoUrl: '../assets/images/fathalla-branch.avif',
               photoHash: 'e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7',
               sizeKb: 215,
               width: 1280,

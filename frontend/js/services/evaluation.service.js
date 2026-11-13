@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ADCO Field Operations System - Evaluation Service
  * Single Responsibility: Supervisor reviews, 100-Point criteria scoring, audit trail logs, and decision workflows
  */
@@ -17,7 +17,7 @@ export class EvaluationService {
   static async reviewActivity(
     activityId,
     decision,
-    rawScore,
+    rawScore = null,
     notes = '',
     roundNumber = 1,
     breakdown = null,
@@ -42,14 +42,16 @@ export class EvaluationService {
     // 2. Set review breakdown or fallback defaults
     const evalBreakdown = breakdown || {
       newActivity: decision === 'Accepted' ? 40 : decision === 'Under Review' ? 25 : 0,
-      executionQuality: Math.round(((rawScore || 8) / 10) * 20),
+      executionQuality: 20,
       continuity: 20,
       documentation: 15
     };
 
+    const reviewStatusEnum = decision === 'Accepted' ? 'ACCEPTED' : decision === 'Rejected' ? 'REJECTED' : 'UNDER_REVIEW';
+
     act.evaluationBreakdown = evalBreakdown;
     act.status = decision;
-    act.supervisorScore = rawScore;
+    act.reviewStatus = reviewStatusEnum;
     act.supervisorNotes = notes;
     act.reviewedAt = nowIso;
     act.reviewerName = reviewerUser ? reviewerUser.fullName : 'م. حسام الدين غانم';
@@ -59,8 +61,7 @@ export class EvaluationService {
     if (Array.isArray(act.followUpHistory)) {
       const session = act.followUpHistory.find((s) => Number(s.roundNumber) === Number(roundNumber));
       if (session) {
-        session.sessionScore = rawScore;
-        session.reviewStatus = decision;
+        session.reviewStatus = reviewStatusEnum;
         session.supervisorFeedback = notes;
         session.reviewedAt = formattedNow;
       }
@@ -70,11 +71,11 @@ export class EvaluationService {
     act.overallRating = ratingStats.overallRating;
     act.ratedSessionsCount = ratingStats.ratedCount;
 
-    // Send to backend
+    // Send to backend (Item 9: Send four pillar numbers directly; server computes total)
     try {
       await apiClient.post(API_ENDPOINTS.SUPERVISOR.REVIEW(activityId), {
         decision,
-        rawScore,
+        reviewStatus: reviewStatusEnum,
         notes,
         roundNumber,
         breakdown: evalBreakdown,

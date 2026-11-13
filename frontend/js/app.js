@@ -26,6 +26,7 @@
   class AppRouter {
     static init() {
       this.cleanupLegacyCaches();
+      this.initPopstateListener();
 
       if (typeof global.setupNetworkListener === 'function') {
         global.setupNetworkListener(async () => {
@@ -46,8 +47,16 @@
       this.registerServiceWorker();
     }
 
+    static initPopstateListener() {
+      if (this._popstateInit) return;
+      this._popstateInit = true;
+      window.addEventListener('popstate', () => {
+        this.navigateTo(window.location.href, { isPopState: true });
+      });
+    }
+
     /**
-     * Desktop Outside-Click Dismissal (TASK 6.2):
+     * Desktop Outside-Click Dismissal:
      * When any floating window or modal is open, clicking anywhere outside the window bounds
      * automatically closes/dismisses it without needing to click the 'X' button.
      */
@@ -59,7 +68,6 @@
         const overlay = e.target;
         if (!overlay) return;
 
-        // If clicked directly on the modal overlay / backdrop outside the modal window
         if (
           overlay.classList &&
           (overlay.classList.contains('modal-overlay') || overlay.classList.contains('lightbox-overlay'))
@@ -96,32 +104,220 @@
     }
 
     /**
-     * Smooth Page Transitions & Top Scroll Guarantee
+     * Client-Side SPA Router Navigation:
+     * Swaps ONLY the <main> content area without triggering a browser page reload or flashing the persistent navbar.
      */
-    static navigateTo(targetUrl) {
+    static async navigateTo(targetUrl, options = {}) {
       if (!targetUrl) return;
 
-      if (document.body) {
-        document.body.classList.add('page-is-leaving');
+      const cleanUrl = targetUrl.trim();
+      if (!cleanUrl || cleanUrl.startsWith('#') || cleanUrl.startsWith('javascript:') || cleanUrl.startsWith('mailto:') || cleanUrl.startsWith('tel:')) {
+        return;
       }
 
-      setTimeout(() => {
-        window.location.href = targetUrl;
-      }, 90);
+      // Close mobile drawer if open
+      const drawer = document.getElementById('web-mobile-drawer');
+      if (drawer) drawer.classList.remove('open');
+
+      // 1. Immediately toggle active class on the persistent navbar in place
+      this.updateActiveNavLink(cleanUrl);
+
+      // 2. Avoid duplicate fetch if already on same exact URL
+      try {
+        const resolved = new URL(cleanUrl, window.location.href);
+        if (resolved.href === window.location.href && !options.isPopState) {
+          return;
+        }
+      } catch (_) {}
+
+      // 3. SPA View Swap: Fetch new page and swap ONLY the <main> container
+      try {
+        const currentMain = document.querySelector('main') || document.querySelector('.web-main-workspace') || document.querySelector('#app-view');
+        if (currentMain) {
+          currentMain.style.transition = 'opacity 0.12s ease';
+          currentMain.style.opacity = '0.35';
+        }
+
+        const resp = await fetch(cleanUrl);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const html = await resp.text();
+
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(html, 'text/html');
+
+        const newMain = newDoc.querySelector('main') || newDoc.querySelector('.web-main-workspace') || newDoc.querySelector('#app-view');
+        if (!newMain) throw new Error('Target document lacks a main view container');
+
+        if (newDoc.title) {
+          document.title = newDoc.title;
+        }
+
+        // Swap main content without destroying or re-rendering the persistent navbar
+        if (currentMain && currentMain.parentNode) {
+          newMain.style.opacity = '0';
+          newMain.style.transition = 'opacity 0.18s ease';
+          currentMain.parentNode.replaceChild(newMain, currentMain);
+          requestAnimationFrame(() => {
+            newMain.style.opacity = '1';
+          });
+        } else {
+          document.body.appendChild(newMain);
+        }
+
+        // Swap page-level modals/overlays (preserving persistent modals like profile modal)
+        document.querySelectorAll('.modal-overlay:not(#adco-profile-modal), .fullscreen-eval-view, .lightbox-overlay').forEach((el) => el.remove());
+        newDoc.querySelectorAll('.modal-overlay:not(#adco-profile-modal), .fullscreen-eval-view, .lightbox-overlay').forEach((modalEl) => {
+          document.body.appendChild(modalEl.cloneNode(true));
+        });
+
+        // Update browser URL & history without full reload
+        if (!options.isPopState) {
+          window.history.pushState({ url: cleanUrl }, newDoc.title || document.title, cleanUrl);
+        }
+
+        // Execute page controller scripts
+        const scripts = newDoc.querySelectorAll('script');
+        scripts.forEach((s) => {
+          const src = s.getAttribute('src');
+          if (src) {
+            if (src.includes('.page.js') || src.includes('master-branch-card.js') || src.includes('activity-card-item.js')) {
+              const freshScript = document.createElement('script');
+              freshScript.src = src;
+              document.body.appendChild(freshScript);
+            }
+          } else if (s.textContent && !s.textContent.includes('scrollRestoration')) {
+            const inlineScript = document.createElement('script');
+            inlineScript.textContent = s.textContent;
+            document.body.appendChild(inlineScript);
+          }
+        });
+
+        // Trigger icon rendering, animations, top scroll
+        if (typeof global.refreshIcons === 'function') {
+          global.refreshIcons(document.body);
+        }
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        this.triggerSlideUpBoxes(newMain);
+        this.updateActiveNavLink(cleanUrl);
+        this.updatePendingReviewBadge();
+      } catch (err) {
+        console.warn('SPA view swap fallback to standard navigation:', err);
+        window.location.href = cleanUrl;
+      }
+    }
+
+    static getPageTitle(path) {
+      const p = String(path || (typeof window !== 'undefined' ? window.location.pathname : ''));
+      const user = global.AuthManager ? global.AuthManager.getCurrentUser() : null;
+      const isManager = user && user.role === 'marketing_manager';
+      if (p.includes('supervisor-panel') || p.includes('supervisor')) return 'الإشراف';
+      if (p.includes('branch-details')) return 'تفاصيل الفرع';
+      if (p.includes('dashboard')) return isManager ? 'الأنشطة' : 'الرئيسية';
+      if (p.includes('activity-details')) return 'تفاصيل النشاط';
+      if (p.includes('activity-card')) return 'نشاط جديد';
+      if (p.includes('evaluation')) return 'تقييم النشاط';
+      if (p.includes('sheets')) return 'التقارير';
+      if (p.includes('analytics')) return 'التحليلات';
+      if (p.includes('leaderboard')) return 'المتصدرين';
+      return 'الرئيسية';
+    }
+
+    static updateActiveNavLink(currentPath) {
+      const raw = String(currentPath || (typeof window !== 'undefined' ? window.location.pathname : ''));
+      const p = raw.split('?')[0].split('#')[0];
+
+      let activeId = 'dashboard';
+      if (p.includes('supervisor-panel') || p.includes('supervisor')) {
+        activeId = 'supervisor';
+      } else if (p.includes('sheets-view') || p.includes('sheets')) {
+        activeId = 'sheets';
+      } else if (p.includes('analytics')) {
+        activeId = 'analytics';
+      } else if (p.includes('leaderboard')) {
+        activeId = 'leaderboard';
+      } else if (p.includes('activity-card')) {
+        activeId = 'activity-card';
+      } else if (p.includes('dashboard') || p.endsWith('/') || p.endsWith('/index.html')) {
+        activeId = 'dashboard';
+      }
+
+      const navbar = document.getElementById('app-navbar') || document.querySelector('.web-top-navbar') || document.querySelector('.top-navbar');
+      if (navbar) {
+        navbar.querySelectorAll('.web-nav-item, .nav-link').forEach((link) => {
+          const navId = link.dataset.navId || '';
+          const href = link.getAttribute('href') || '';
+          const isActive = navId === activeId || (navId === 'dashboard' && activeId === 'dashboard' && href.includes('dashboard'));
+          link.classList.toggle('active', isActive);
+          if (isActive) {
+            link.setAttribute('aria-current', 'page');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+      }
+
+      // Also update drawer links if present
+      const drawer = document.getElementById('web-mobile-drawer');
+      if (drawer) {
+        drawer.querySelectorAll('.web-mobile-drawer-item').forEach((link) => {
+          const navId = link.dataset.navId || '';
+          const href = link.getAttribute('href') || '';
+          const isActive = navId === activeId || (navId === 'dashboard' && activeId === 'dashboard' && href.includes('dashboard'));
+          link.classList.toggle('active', isActive);
+        });
+      }
+
+      // Update mobile center title badge cleanly (NEVER brand company text)
+      const mobileTitleBadge = document.getElementById('web-mobile-title-badge');
+      if (mobileTitleBadge) {
+        const pageTitle = this.getPageTitle(p);
+        mobileTitleBadge.setAttribute('title', pageTitle);
+        const span = mobileTitleBadge.querySelector('.wmct-name');
+        if (span) span.textContent = pageTitle;
+      }
+    }
+
+    static updatePendingReviewBadge() {
+      const user = global.AuthManager ? global.AuthManager.getCurrentUser() : null;
+      const isSupervisor = user && user.role === 'marketing_manager';
+      if (!isSupervisor) return;
+
+      const Activity = global.ActivityManager || global.ActivityService;
+      if (!Activity || typeof Activity.getAllActivities !== 'function') return;
+
+      try {
+        const allActs = Activity.getAllActivities();
+        const pendingCount = allActs.filter((a) => !a.isClosed && a.status === 'Under Review').length;
+        const supLink = document.querySelector('.web-nav-item[data-nav-id="supervisor"], .nav-link[data-nav-id="supervisor"]');
+        if (supLink) {
+          let badge = supLink.querySelector('.nav-pending-badge');
+          if (pendingCount > 0) {
+            if (!badge) {
+              badge = document.createElement('span');
+              badge.className = 'nav-pending-badge glowing-under-review';
+              supLink.appendChild(badge);
+            }
+            badge.textContent = pendingCount;
+            badge.title = `${pendingCount} أنشطة بانتظار التقييم`;
+          } else if (badge) {
+            badge.remove();
+          }
+        }
+      } catch (err) {
+        console.warn('Pending badge update handled gracefully:', err);
+      }
     }
 
     static initSmoothPageTransitions() {
       if (this._transitionsInitialized) return;
       this._transitionsInitialized = true;
 
-      // Disable browser auto scroll restoration so refresh and page loads ALWAYS start cleanly at the top (0,0)
       try {
         if ('scrollRestoration' in history) {
           history.scrollRestoration = 'manual';
         }
       } catch (_) {}
 
-      // Guarantee immediate top alignment on page load and refresh
       if (typeof window !== 'undefined') {
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         if (document.documentElement) document.documentElement.scrollTop = 0;
@@ -135,7 +331,7 @@
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       });
 
-      // Intercept internal same-origin navigation links for smooth fade/slide exit
+      // Intercept internal same-origin navigation links for SPA routing
       document.addEventListener('click', (e) => {
         if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         const anchor = e.target.closest('a[href]');
@@ -162,7 +358,7 @@
           .keys()
           .then((keys) => {
             keys.forEach((key) => {
-              if (key !== 'adco-field-cache-v6') {
+              if (key !== 'adco-field-cache-v11') {
                 caches.delete(key).catch(() => {});
               }
             });
@@ -172,13 +368,20 @@
     }
 
     /**
-     * Renders sticky, full-width Website Top Navigation Bar (height 68px)
+     * Renders sticky, full-width Website Top Navigation Bar (height 64px)
      * Mounted to #app-header-mount (or replaces legacy .app-header if present)
      */
     static renderTopNavbar() {
+      // 1. Mount Navbar ONCE outside dynamic viewport: if already mounted, never destroy or re-create it
+      const existingNavbar = document.getElementById('app-navbar') || document.querySelector('.web-top-navbar') || document.querySelector('.top-navbar');
+      if (existingNavbar) {
+        this.updateActiveNavLink(window.location.pathname);
+        this.updatePendingReviewBadge();
+        return existingNavbar;
+      }
+
       let mount = document.getElementById('app-header-mount');
       if (!mount) {
-        // Fallback: check if legacy header exists and replace its container or inject at body top
         const legacyHeader = document.querySelector('.app-header');
         if (legacyHeader) {
           mount = document.createElement('div');
@@ -187,13 +390,18 @@
         } else {
           mount = document.createElement('div');
           mount.id = 'app-header-mount';
-          document.body.insertBefore(mount, document.body.firstChild);
+          const mainEl = document.querySelector('main') || document.querySelector('.web-main-workspace') || document.querySelector('#app-view');
+          if (mainEl && mainEl.parentNode) {
+            mainEl.parentNode.insertBefore(mount, mainEl);
+          } else {
+            document.body.insertBefore(mount, document.body.firstChild);
+          }
         }
       }
 
       const user = global.AuthManager ? global.AuthManager.getCurrentUser() : null;
       const Activity = global.ActivityManager || global.ActivityService || (typeof window !== 'undefined' ? window.ActivityManager : null);
-      const isManager = user && (user.role === 'marketing_manager' || user.role === 'coordination_manager' || user.role === 'supervisor');
+      const isManager = user && user.role === 'marketing_manager';
       const isCoordSupervisor = user && user.role === 'coordinator_supervisor';
       const isSupervisor = isManager;
       const isHttp = typeof window !== 'undefined' && /^https?:$/.test(window.location.protocol);
@@ -204,17 +412,17 @@
 
       // Clean, zero-emoji navigation links
       const coordinatorLinks = [
-        { id: 'dashboard', label: 'الرئيسية', icon: 'house.svg', href: `${prefix}dashboard.html` },
-        { id: 'activity-card', label: 'نشاط جديد', icon: 'plus-circle.svg', href: `${prefix}activity-card.html` },
-        { id: 'leaderboard', label: 'المتصدرين', icon: 'trophy.svg', href: `${prefix}leaderboard.html` }
+        { id: 'dashboard', label: 'الرئيسية', icon: 'house', href: `${prefix}dashboard.html` },
+        { id: 'activity-card', label: 'نشاط جديد', icon: 'plus-circle', href: `${prefix}activity-card.html` },
+        { id: 'leaderboard', label: 'المتصدرين', icon: 'trophy', href: `${prefix}leaderboard.html` }
       ];
 
       const supervisorLinks = [
-        { id: 'supervisor', label: 'الإشراف', icon: 'house.svg', href: `${prefix}supervisor-panel.html` },
-        { id: 'sheets', label: 'الشيتات', icon: 'table-2.svg', href: `${prefix}sheets-view.html` },
-        { id: 'analytics', label: 'التحليلات', icon: 'bar-chart-3.svg', href: `${prefix}analytics.html` },
-        { id: 'dashboard', label: 'الأنشطة', icon: 'shield-check.svg', href: `${prefix}dashboard.html` },
-        { id: 'leaderboard', label: 'المتصدرين', icon: 'trophy.svg', href: `${prefix}leaderboard.html` }
+        { id: 'supervisor', label: 'الإشراف', icon: 'house', href: `${prefix}supervisor-panel.html` },
+        { id: 'sheets', label: 'التقارير', icon: 'table-2', href: `${prefix}sheets-view.html` },
+        { id: 'analytics', label: 'التحليلات', icon: 'bar-chart-3', href: `${prefix}analytics.html` },
+        { id: 'dashboard', label: 'الأنشطة', icon: 'shield-check', href: `${prefix}dashboard.html` },
+        { id: 'leaderboard', label: 'المتصدرين', icon: 'trophy', href: `${prefix}leaderboard.html` }
       ];
 
       const navLinks = isSupervisor ? supervisorLinks : coordinatorLinks;
@@ -229,33 +437,36 @@
       }
 
       const avatarSrc = isSupervisor
-        ? `${assetsPrefix}images/avatar-supervisor.svg`
-        : `${assetsPrefix}images/avatar-coordinator.svg`;
+        ? `${assetsPrefix}images/avatar-supervisor.avif`
+        : `${assetsPrefix}images/avatar-coordinator.avif`;
+
+      const userName = user ? (user.fullName || user.name || 'المستخدم') : 'المستخدم';
+      const roleLabel = isManager ? 'مسؤول التسويق' : isCoordSupervisor ? 'مشرف منسق' : 'منسق ميداني';
 
       const dashUrl = `${prefix}dashboard.html`;
       const leaderUrl = `${prefix}leaderboard.html`;
+      const pageTitle = this.getPageTitle(path);
 
       mount.innerHTML = `
-        <header class="web-top-navbar" role="banner">
+        <header id="app-navbar" class="web-top-navbar top-navbar" role="banner">
           <div class="web-navbar-inner">
             <!-- Right: Logo & Platform Title -->
             <a href="${dashUrl}" class="web-brand-group">
-              <img src="${assetsPrefix}images/ADCO-logo.png" alt="ADCO Logo" class="web-brand-logo" />
+              <img src="${assetsPrefix}images/ADCO-logo.avif" alt="ADCO Logo" class="web-brand-logo" />
               <div class="web-brand-text">
-                <span class="web-brand-title">(ADCO) شركة الاسكندريه للكيماويات و المنظفات</span>
-                <span class="web-brand-sub">منظومة إدارة العمليات الميدانية والتقارير</span>
+                <span class="web-brand-title">شركة الاسكندريه للكيماويات و المنظفات (ADCO)</span>
               </div>
             </a>
 
-            <!-- Center: Navigation Links -->
+            <!-- Center: Navigation Links with Crisp Bold Typography & Instant SPA Switching -->
             <nav class="web-nav-links" role="navigation" aria-label="روابط المنظومة الرئيسية">
               ${navLinks
                 .map((link) => {
-                  const isActive = path.includes(link.id);
+                  const isActive = path.includes(link.id) || (link.id === 'dashboard' && (path.endsWith('/') || path.endsWith('/index.html')));
                   const showPendingBadge = isSupervisor && link.id === 'supervisor' && pendingReviewCount > 0;
                   return `
-                    <a href="${link.href}" class="web-nav-item ${isActive ? 'active' : ''}">
-                      <img src="${assetsPrefix}icons/${link.icon}" class="ui-icon ui-icon-md" alt="" />
+                    <a href="${link.href}" class="web-nav-item nav-link ${isActive ? 'active' : ''}" data-nav-id="${link.id}" ${isActive ? 'aria-current="page"' : ''}>
+                      <i data-lucide="${link.icon}" class="ui-icon ui-icon-md"></i>
                       <span>${link.label}</span>
                       ${showPendingBadge ? `<span class="nav-pending-badge glowing-under-review" title="${pendingReviewCount} أنشطة بانتظار التقييم">${pendingReviewCount}</span>` : ''}
                     </a>
@@ -264,10 +475,9 @@
                 .join('')}
             </nav>
 
-            <!-- Center Mobile Brand: Company Name in the middle space -->
-            <div class="web-mobile-center-title">
-              <span class="wmct-name">(ADCO) شركة الاسكندريه للكيماويات و المنظفات</span>
-              <span class="wmct-sub"><i class="wmct-dot"></i>ADCO</span>
+            <!-- Center Mobile Page Title Badge: Clean page name pill, NEVER brand text -->
+            <div class="web-mobile-center-title" id="web-mobile-title-badge" title="${pageTitle}">
+              <span class="wmct-name">${pageTitle}</span>
             </div>
 
             <!-- Left: Rank, Profile & Logout -->
@@ -279,118 +489,91 @@
                   !isManager
                     ? `
                   <a href="${leaderUrl}" class="web-rank-badge" id="web-hdr-rank-badge" title="عرض الترتيب ونقاط الأداء">
-                    <img src="${assetsPrefix}icons/trophy.svg" class="ui-icon ui-icon-sm" alt="" />
+                    <i data-lucide="trophy" class="ui-icon ui-icon-sm"></i>
                     <span>${(user.rank || (isCoordSupervisor ? '#2' : '#3')).replace('بين المنسقين', '').trim()}</span>
                   </a>
                 `
                     : ''
                 }
 
-                <div class="web-profile-pill" id="web-profile-trigger" title="عرض الملف الوظيفي وإعدادات الحساب">
-                  <img src="${avatarSrc}" alt="Avatar" class="web-profile-avatar" />
-                  <div class="web-profile-meta">
-                    <span class="web-profile-name">${user.fullName}</span>
-                    <span class="web-profile-role">${isManager ? 'مسؤول التسويق' : isCoordSupervisor ? 'مشرف منسق' : 'منسق ميداني'}</span>
-                  </div>
-                </div>
-
-                <button type="button" class="web-logout-btn" id="web-navbar-logout" title="تسجيل الخروج">
-                  <img src="${assetsPrefix}icons/log-out.svg" class="ui-icon ui-icon-sm" alt="" />
-                  <span>خروج</span>
+                <button type="button" class="web-profile-btn" id="web-profile-trigger" title="${userName} - ${roleLabel}" aria-label="الملف الشخصي">
+                  <i data-lucide="user" class="ui-icon ui-icon-md"></i>
                 </button>
               `
                   : `
                 <a href="${prefix}login.html" class="btn btn-primary btn-sm">
-                  <img src="${assetsPrefix}icons/log-in.svg" class="ui-icon ui-icon-sm" alt="" />
+                  <i data-lucide="log-in" class="ui-icon ui-icon-sm"></i>
                   <span>تسجيل دخول</span>
                 </a>
               `
               }
 
-              <!-- Mobile Menu Toggle Button (List Icon) -->
-              <button type="button" class="web-mobile-toggle" id="web-mobile-menu-btn" aria-label="قائمة الخيارات">
-                <img src="${assetsPrefix}icons/list.svg" class="ui-icon ui-icon-md" alt="قائمة" />
+              <!-- Mobile Menu Toggle Button (Menu Icon) -->
+              <button type="button" class="web-mobile-toggle" id="web-mobile-menu-btn" aria-label="قائمة الخيارات" title="فتح القائمة الرئيسية">
+                <i data-lucide="menu" class="ui-icon ui-icon-md"></i>
               </button>
             </div>
           </div>
 
           <!-- Mobile Dropdown Menu Drawer -->
-          <div class="web-mobile-drawer" id="web-mobile-menu-drawer">
-            ${navLinks
-              .map((link) => {
-                const isActive = path.includes(link.id);
-                const showPendingBadge = isSupervisor && link.id === 'supervisor' && pendingReviewCount > 0;
-                return `
-                  <a href="${link.href}" class="web-nav-item ${isActive ? 'active' : ''} cm-s1">
-                    <img src="${assetsPrefix}icons/${link.icon}" class="ui-icon ui-icon-md" alt="" />
-                    <span>${link.label}</span>
-                    ${showPendingBadge ? `<span class="nav-pending-badge glowing-under-review" title="${pendingReviewCount} أنشطة بانتظار التقييم">${pendingReviewCount}</span>` : ''}
-                  </a>
-                `;
-              })
-              .join('')}
-            ${
-              user
-                ? `
-              <button type="button" class="web-nav-item cm-s2" id="drawer-logout-btn">
-                <img src="${assetsPrefix}icons/log-out.svg" class="ui-icon ui-icon-md" alt="" />
-                <span>تسجيل الخروج</span>
-              </button>
-            `
-                : ''
-            }
+          <div class="web-mobile-drawer" id="web-mobile-drawer">
+            <div class="web-mobile-drawer-header">
+              <span>القائمة الرئيسية</span>
+              <button type="button" class="web-mobile-drawer-close" id="web-mobile-drawer-close" aria-label="إغلاق">&times;</button>
+            </div>
+            <div class="web-mobile-drawer-nav">
+              ${navLinks
+                .map((link) => {
+                  const isActive = path.includes(link.id);
+                  return `
+                    <a href="${link.href}" class="web-mobile-drawer-item ${isActive ? 'active' : ''}" data-nav-id="${link.id}">
+                      <i data-lucide="${link.icon}" class="ui-icon ui-icon-md"></i>
+                      <span>${link.label}</span>
+                    </a>
+                  `;
+                })
+                .join('')}
+            </div>
           </div>
         </header>
-        <div id="offline-banner" class="offline-banner"></div>
       `;
 
-      // Profile click listener
-      const profileTrigger = document.getElementById('web-profile-trigger');
-      if (profileTrigger) {
-        profileTrigger.addEventListener('click', () => {
-          this.openProfileModal();
-        });
-      }
+      // Wire up mobile toggle
+      const toggleBtn = document.getElementById('web-mobile-menu-btn');
+      const drawer = document.getElementById('web-mobile-drawer');
+      const drawerClose = document.getElementById('web-mobile-drawer-close');
 
-      // Logout button listener
-      const logoutBtn = document.getElementById('web-navbar-logout');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-          if (global.AuthManager) global.AuthManager.logout();
-        });
-      }
-
-      const drawerLogoutBtn = document.getElementById('drawer-logout-btn');
-      if (drawerLogoutBtn) {
-        drawerLogoutBtn.addEventListener('click', () => {
-          if (global.AuthManager) global.AuthManager.logout();
-        });
-      }
-
-      // Mobile drawer toggle listener
-      const mobileBtn = document.getElementById('web-mobile-menu-btn');
-      const mobileDrawer = document.getElementById('web-mobile-menu-drawer');
-      if (mobileBtn && mobileDrawer) {
-        mobileBtn.addEventListener('click', (e) => {
+      if (toggleBtn && drawer) {
+        toggleBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          mobileDrawer.classList.toggle('open');
+          drawer.classList.toggle('open');
         });
+        if (drawerClose) {
+          drawerClose.addEventListener('click', () => drawer.classList.remove('open'));
+        }
         document.addEventListener('click', (e) => {
-          if (!mobileDrawer.contains(e.target) && e.target !== mobileBtn) {
-            mobileDrawer.classList.remove('open');
+          if (!drawer.contains(e.target) && !toggleBtn.contains(e.target)) {
+            drawer.classList.remove('open');
           }
         });
       }
 
-      // Hide legacy bottom navigation if present
-      const bottomNavMount = document.getElementById('bottom-nav-mount');
-      if (bottomNavMount) {
-        bottomNavMount.style.display = 'none';
-        bottomNavMount.innerHTML = '';
+      // Profile modal trigger
+      const profTrig = document.getElementById('web-profile-trigger');
+      if (profTrig) {
+        profTrig.addEventListener('click', () => {
+          this.openProfileModal();
+        });
       }
+
+      if (typeof global.refreshIcons === 'function') {
+        global.refreshIcons(mount);
+      }
+
+      return mount.querySelector('header');
     }
 
-    /**
+/**
      * Profile Modal & Role Switcher
      */
     static ensureProfileModal() {
@@ -408,19 +591,19 @@
       const user = global.AuthManager ? global.AuthManager.getCurrentUser() : null;
       if (!user) return;
 
-      const isSup = user && (user.role === 'marketing_manager' || user.role === 'coordination_manager' || user.role === 'supervisor');
+      const isSup = user && user.role === 'marketing_manager';
       const isCoordSupervisor = user && user.role === 'coordinator_supervisor';
       const isSubPage = window.location.pathname.includes('/pages/');
       const assetsPrefix = isSubPage ? '../assets/' : './assets/';
       const avatarSrc = isSup
-        ? `${assetsPrefix}images/avatar-supervisor.svg`
-        : `${assetsPrefix}images/avatar-coordinator.svg`;
+        ? `${assetsPrefix}images/avatar-supervisor.avif`
+        : `${assetsPrefix}images/avatar-coordinator.avif`;
 
       modal.innerHTML = `
         <div class="modal-sheet cm-s3">
           <div class="modal-header">
             <h3 class="cm-s4">
-              <img src="${assetsPrefix}icons/user-cog.svg" class="ui-icon ui-icon-md" alt="" />
+              <i data-lucide="user-cog" class="ui-icon ui-icon-md"></i>
               <span>الملف الوظيفي وإعدادات الحساب</span>
             </h3>
             <button type="button" class="close-modal-btn" id="close-profile-modal">&times;</button>
@@ -444,11 +627,11 @@
           <div class="card cm-s10">
             <div class="cm-s11">
               <h4 class="cm-s12">
-                <img src="${assetsPrefix}icons/clipboard-edit.svg" class="ui-icon ui-icon-sm" alt="" />
+                <i data-lucide="clipboard-edit" class="ui-icon ui-icon-sm"></i>
                 <span>البيانات الشخصية والاتصال (البريد والهاتف)</span>
               </h4>
               <span class="badge badge-warning cm-s13" id="contact-lock-status-badge">
-                <img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+                <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
                 <span>محمية بكلمة المرور</span>
               </span>
             </div>
@@ -467,7 +650,7 @@
                  
                 />
                 <button type="button" class="btn btn-primary btn-sm cm-s18" id="btn-unlock-contact">
-                  <img src="${assetsPrefix}icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+                  <i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>
                   <span>تأكيد وعرض</span>
                 </button>
               </div>
@@ -478,7 +661,7 @@
             <div class="is-hidden" id="contact-unlocked-view">
               <div class="cm-s20">
                 <span class="badge badge-success cm-s21">
-                  <img src="${assetsPrefix}icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+                  <i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>
                   <span>تم تأكيد الهوية بنجاح — البيانات مفتوحة للتعديل</span>
                 </span>
                 <button type="button" id="btn-relock-contact" class="btn btn-secondary btn-sm cm-s22">
@@ -506,7 +689,7 @@
           <!-- Section 2: Change Password -->
           <div class="card cm-s10">
             <h4 class="cm-s27">
-              <img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
+              <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
               <span>تغيير كلمة المرور</span>
             </h4>
             <form id="profile-password-form">
@@ -530,30 +713,8 @@
             </form>
           </div>
 
-          <!-- Section 3: Switch Role Sandbox -->
-          <div class="card cm-s29">
-            <h4 class="cm-s30">
-              <img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
-              <span>تبديل الصلاحية (للمعاينة الفورية)</span>
-            </h4>
-            <div class="responsive-form-grid cm-s31">
-              <button type="button" class="btn ${user.role === 'coordinator' ? 'btn-primary' : 'btn-secondary'} btn-sm" id="switch-to-coord">
-                <img src="${assetsPrefix}images/avatar-coordinator.svg" class="ui-icon ui-icon-sm" alt="" />
-                <span>1. منسق ميداني (ADCO-101)</span>
-              </button>
-              <button type="button" class="btn ${user.role === 'coordinator_supervisor' ? 'btn-primary' : 'btn-secondary'} btn-sm" id="switch-to-coord-sup">
-                <img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
-                <span>2. مشرف منسق (ADCO-501)</span>
-              </button>
-              <button type="button" class="btn ${isSup ? 'btn-primary' : 'btn-secondary'} btn-sm" id="switch-to-sup">
-                <img src="${assetsPrefix}images/avatar-supervisor.svg" class="ui-icon ui-icon-sm" alt="" />
-                <span>3. مسؤول التسويق (ADCO-901)</span>
-              </button>
-            </div>
-          </div>
-
           <button type="button" class="btn btn-danger btn-sm cm-s32" id="modal-logout-btn">
-            <img src="${assetsPrefix}icons/log-out.svg" class="ui-icon ui-icon-sm" alt="" />
+            <i data-lucide="log-out" class="ui-icon ui-icon-sm"></i>
             <span>تسجيل الخروج من المنظومة</span>
           </button>
         </div>
@@ -590,7 +751,7 @@
           lockedView.style.display = 'none';
           unlockedView.style.display = 'block';
           lockBadge.className = 'badge badge-success';
-          lockBadge.innerHTML = `<img src="${assetsPrefix}icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" /><span>تم التحقق (مفتوح للتعديل)</span>`;
+          lockBadge.innerHTML = `<i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i><span>تم التحقق (مفتوح للتعديل)</span>`;
           if (typeof global.showToast === 'function') {
             global.showToast('تم تأكيد الهوية بنجاح، يمكنك الآن مراجعة وتعديل بياناتك الشخصية', 'success');
           }
@@ -620,7 +781,7 @@
           unlockPassInput.value = '';
           unlockError.style.display = 'none';
           lockBadge.className = 'badge badge-warning';
-          lockBadge.innerHTML = `<img src="${assetsPrefix}icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" /><span>محمية بكلمة المرور</span>`;
+          lockBadge.innerHTML = `<i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i><span>محمية بكلمة المرور</span>`;
         });
       }
 
@@ -656,42 +817,6 @@
           global.showToast(err.message, 'error');
         }
       });
-
-      const coordBtn = document.getElementById('switch-to-coord');
-      if (coordBtn) {
-        coordBtn.addEventListener('click', async () => {
-          await global.AuthManager.login('ADCO-101', 'Pass@1234');
-          modal.classList.remove('active');
-          if (typeof global.showToast === 'function') {
-            global.showToast('تم التبديل إلى حساب المنسق الميداني (أحمد محمود - سموحة)', 'success');
-          }
-          window.location.href = isSubPage ? './dashboard.html' : './pages/dashboard.html';
-        });
-      }
-
-      const coordSupBtn = document.getElementById('switch-to-coord-sup');
-      if (coordSupBtn) {
-        coordSupBtn.addEventListener('click', async () => {
-          await global.AuthManager.login('ADCO-501', 'Super@2026');
-          modal.classList.remove('active');
-          if (typeof global.showToast === 'function') {
-            global.showToast('تم التبديل إلى حساب مشرف المنسق (أيمن الروبي - فتح الله الإسكندرية)', 'success');
-          }
-          window.location.href = isSubPage ? './dashboard.html' : './pages/dashboard.html';
-        });
-      }
-
-      const supBtn = document.getElementById('switch-to-sup');
-      if (supBtn) {
-        supBtn.addEventListener('click', async () => {
-          await global.AuthManager.login('ADCO-901', 'Admin@2026');
-          modal.classList.remove('active');
-          if (typeof global.showToast === 'function') {
-            global.showToast('تم التبديل إلى حساب مسؤول التسويق (م. حسام الدين غانم)', 'success');
-          }
-          window.location.href = isSubPage ? './supervisor-panel.html' : './pages/supervisor-panel.html';
-        });
-      }
 
       document.getElementById('modal-logout-btn').addEventListener('click', () => {
         global.AuthManager.logout();

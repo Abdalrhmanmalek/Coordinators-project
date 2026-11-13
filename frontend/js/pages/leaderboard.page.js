@@ -51,70 +51,33 @@
 
   // Base Data Set
   const computed = Activity && typeof Activity.getLeaderboardData === 'function' ? Activity.getLeaderboardData() : [];
+  
+  // Item 10: The leaderboard must ONLY list field coordinators (exclude supervisors/managers)
   const extraCoordinators = [
-    { coordinatorId: 'ADCO-501', name: 'أيمن عبد الرحمن الروبي (مشرف منسق)', branch: 'مسؤول فروع فتح الله - الإسكندرية', acceptedCount: 6, totalScore: 92, submissionsCount: 6 },
-    { coordinatorId: 'ADCO-104', name: 'محمد عادل الشناوي', branch: 'الإسكندرية - المنتزه', acceptedCount: 7, totalScore: 89, submissionsCount: 8 },
-    { coordinatorId: 'ADCO-105', name: 'نهى كمال عبد العزيز', branch: 'الإسكندرية - سيدي جابر', acceptedCount: 5, totalScore: 84, submissionsCount: 6 },
-    { coordinatorId: 'ADCO-106', name: 'كريم طارق الفقي', branch: 'برج العرب', acceptedCount: 4, totalScore: 78, submissionsCount: 5 }
+    { coordinatorId: 'ADCO-104', name: 'محمد عادل الشناوي', branch: 'الإسكندرية - المنتزه', role: 'coordinator', acceptedCount: 7, totalScore: 89, submissionsCount: 8 },
+    { coordinatorId: 'ADCO-105', name: 'نهى كمال عبد العزيز', branch: 'الإسكندرية - سيدي جابر', role: 'coordinator', acceptedCount: 5, totalScore: 84, submissionsCount: 6 },
+    { coordinatorId: 'ADCO-106', name: 'كريم طارق الفقي', branch: 'برج العرب', role: 'coordinator', acceptedCount: 4, totalScore: 78, submissionsCount: 5 }
   ];
 
-  const merged = [...computed];
+  let merged = [...computed];
   extraCoordinators.forEach((ec) => {
     if (!merged.some((m) => m.coordinatorId === ec.coordinatorId)) {
       merged.push(ec);
     }
   });
 
+  // Strict coordinator filter (Item 10)
+  merged = merged.filter((item) => {
+    const r = (item.role || '').toLowerCase();
+    const isCoord = !r || r === 'coordinator';
+    const notSupervisor = !item.name.includes('مشرف') && !item.name.includes('مدير');
+    return isCoord && notSupervisor;
+  });
+
   // Dynamic filter state
   let currentPeriod = 'month';
+  let selectedMonth = '2026-11';
   let searchQuery = '';
-
-  const trendRegistry = {
-    'ADCO-501': { dir: 'up', delta: 2 },
-    'ADCO-104': { dir: 'down', delta: 1 },
-    'ADCO-101': { dir: 'up', delta: 1 },
-    'ADCO-102': { dir: 'up', delta: 2 },
-    'ADCO-105': { dir: 'same', delta: 0 },
-    'ADCO-106': { dir: 'down', delta: 2 }
-  };
-
-  function getTrend(cid, rank) {
-    if (trendRegistry[cid]) return trendRegistry[cid];
-    if (rank === 1) return { dir: 'up', delta: 2 };
-    if (rank === 2) return { dir: 'up', delta: 1 };
-    if (rank === 3) return { dir: 'same', delta: 0 };
-    return rank % 2 === 0 ? { dir: 'down', delta: 1 } : { dir: 'up', delta: 1 };
-  }
-
-  function renderTrendBadge(trend) {
-    if (!trend || trend.dir === 'same' || trend.delta === 0) {
-      return `
-        <span class="rank-trend trend-same" title="ثبات الترتيب دون تغيير">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-        </span>
-      `;
-    }
-    if (trend.dir === 'up') {
-      return `
-        <span class="rank-trend trend-up" title="صعود +${trend.delta} مراكز عن الفترة السابقة">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m18 15-6-6-6 6"/>
-          </svg>
-          <span>+${trend.delta}</span>
-        </span>
-      `;
-    }
-    return `
-      <span class="rank-trend trend-down" title="هبوط -${trend.delta} مراكز عن الفترة السابقة">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m6 9 6 6 6-6"/>
-        </svg>
-        <span>-${trend.delta}</span>
-      </span>
-    `;
-  }
 
   function getProcessedData() {
     let list = merged.map((item) => {
@@ -123,28 +86,37 @@
       let total = item.submissionsCount || accepted;
 
       if (currentPeriod === 'week') {
-        score = Math.max(65, Math.round(score * 0.94));
-        accepted = Math.max(1, Math.round(accepted * 0.5));
-        total = Math.max(accepted, Math.round(total * 0.5));
+        score = Math.max(70, Math.min(100, Math.round(score * 0.95)));
+        accepted = Math.max(1, Math.round(accepted * 0.4));
+        total = Math.max(accepted, Math.round(total * 0.45));
       } else if (currentPeriod === 'all') {
-        score = Math.min(100, score + 4);
-        accepted = accepted + 5;
-        total = total + 6;
+        score = Math.max(75, Math.min(100, Math.round(score * 1.02)));
+        accepted = accepted * 3;
+        total = total * 3;
       }
 
-      const qualityRate = Math.min(100, Math.round((score / 100) * 100));
+      // If viewing past locked month
+      if (selectedMonth === '2026-10') {
+        score = Math.max(72, Math.min(98, Math.round(score * 0.98)));
+      } else if (selectedMonth === '2026-09') {
+        score = Math.max(70, Math.min(95, Math.round(score * 0.94)));
+      }
+
+      const qualityRate = total > 0 ? `${Math.round((accepted / total) * 100)}%` : '100%';
 
       return {
         ...item,
         totalScore: score,
         acceptedCount: accepted,
         submissionsCount: total,
-        qualityRate: `${qualityRate}%`
+        qualityRate
       };
     });
 
     list.sort((a, b) => b.totalScore - a.totalScore);
-    list.forEach((m, idx) => (m.rank = idx + 1));
+    list.forEach((item, index) => {
+      item.rank = index + 1;
+    });
 
     if (searchQuery.trim()) {
       const q = normalizeArabic(searchQuery);
@@ -172,17 +144,17 @@
     }
 
     // 1. Render Top 3 Cards Grid (when not searching)
+    // Item 11: Trend +/- removed from coordinator view
     if (topMount && !isSearching) {
       const top3 = list.slice(0, 3);
       if (top3.length === 0) {
         topMount.innerHTML = '';
       } else {
-        const medalImgs = ['medal-gold.svg', 'medal-silver.svg', 'medal-bronze.svg'];
+        const medalImgs = ['medal-gold.avif', 'medal-silver.avif', 'medal-bronze.avif'];
         topMount.innerHTML = top3
           .map((item, idx) => {
-            const medal = medalImgs[idx] || 'medal-gold.svg';
+            const medal = medalImgs[idx] || 'medal-gold.avif';
             const rankLabel = idx === 0 ? 'الأول' : (idx === 1 ? 'الثاني' : 'الثالث');
-            const trend = getTrend(item.coordinatorId, item.rank);
 
             return `
               <div class="top-card rank-${item.rank}">
@@ -190,14 +162,16 @@
                   <div class="top-card-user">
                     <div class="top-card-rank-indicator">
                       <span class="top-card-rank-num">#${item.rank}</span>
-                      ${renderTrendBadge(trend)}
                     </div>
                     <div class="top-card-meta">
                       <strong class="top-card-name" title="${item.name}">
                         ${typeof formatTwoWordName === 'function' ? formatTwoWordName(item.name) : item.name}
                       </strong>
                       <span class="top-card-sub" title="${item.branch}">
-                        ${item.branch} • ${item.acceptedCount} أنشطة معتمدة
+                        <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
+                        <span>${item.branch}</span>
+                        <span class="top-card-sub-dot">•</span>
+                        <span>${item.acceptedCount} أنشطة</span>
                       </span>
                     </div>
                   </div>
@@ -208,20 +182,20 @@
 
                 <div class="top-card-stats">
                   <div class="top-stat-item">
-                    <span class="top-stat-label">إجمالي النقاط:</span>
+                    <span class="top-stat-label">النقاط:</span>
                     <span class="top-stat-val highlight">${item.totalScore}/100</span>
                   </div>
                   <div class="top-stat-item">
-                    <span class="top-stat-label">الأنشطة المقبولة:</span>
+                    <span class="top-stat-label">المقبولة:</span>
                     <span class="top-stat-val">${item.acceptedCount}</span>
                   </div>
                   <div class="top-stat-item">
-                    <span class="top-stat-label">الجولات المكتملة:</span>
+                    <span class="top-stat-label">الجولات:</span>
                     <span class="top-stat-val">${item.submissionsCount}</span>
                   </div>
                   <div class="top-stat-item">
-                    <span class="top-stat-label">معدل الجودة:</span>
-                    <span class="top-stat-val">${item.qualityRate}</span>
+                    <span class="top-stat-label">الجودة:</span>
+                    <span class="top-stat-val success">${item.qualityRate}</span>
                   </div>
                 </div>
               </div>
@@ -231,9 +205,10 @@
       }
     }
 
-    // 2. Render General Ranking Rows Table (Fish.audio Style)
+    // 2. Render Full Leaderboard List Table
     if (listMount) {
-      const displayRows = isSearching ? list : (list.length > 3 ? list.slice(3) : []);
+      // In normal mode, rows start from rank #4 onwards. In search mode, show all matching rows (including top 3)
+      const displayRows = isSearching ? list : list.slice(3);
 
       if (displayRows.length === 0) {
         listMount.innerHTML = `
@@ -248,13 +223,11 @@
       listMount.innerHTML = displayRows
         .map((item) => {
           const isUser = currentUser && currentUser.employeeId === item.coordinatorId;
-          const trend = getTrend(item.coordinatorId, item.rank);
 
           return `
             <div class="ranking-row ${isUser ? 'is-current-user' : ''}">
               <div class="cell-rank">
                 <span class="rank-circle">${item.rank}</span>
-                ${renderTrendBadge(trend)}
               </div>
 
               <div class="cell-user">
@@ -263,7 +236,10 @@
                     <strong>${typeof formatTwoWordName === 'function' ? formatTwoWordName(item.name) : item.name}</strong>
                     ${isUser ? '<span class="you-pill">أنت</span>' : ''}
                   </div>
-                  <span class="user-sub-sm">${item.branch}</span>
+                  <span class="user-sub-sm">
+                    <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
+                    <span>${item.branch}</span>
+                  </span>
                 </div>
               </div>
 
@@ -280,21 +256,41 @@
               </div>
 
               <div class="cell-stat">
-                <span>${item.acceptedCount}</span>
+                <span class="stat-badge-accepted">${item.acceptedCount}</span>
               </div>
 
               <div class="cell-stat">
-                <span>${item.submissionsCount}</span>
+                <span class="stat-badge-rounds">${item.submissionsCount}</span>
               </div>
 
               <div class="cell-stat">
-                <span>${item.qualityRate}</span>
+                <span class="stat-badge-quality">${item.qualityRate}</span>
               </div>
             </div>
           `;
         })
         .join('');
     }
+    if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') window.refreshIcons();
+  }
+
+  // Bind Month Selector (Item 10)
+  const monthSelect = document.getElementById('lb-month-select');
+  const monthBadge = document.getElementById('lb-month-status-badge');
+  if (monthSelect) {
+    monthSelect.addEventListener('change', () => {
+      selectedMonth = monthSelect.value;
+      if (monthBadge) {
+        if (selectedMonth === '2026-11') {
+          monthBadge.textContent = 'مؤقت (قيد الاحتساب)';
+          monthBadge.className = 'badge badge-warning';
+        } else {
+          monthBadge.textContent = 'معتمد ومغلق';
+          monthBadge.className = 'badge badge-success';
+        }
+      }
+      renderView();
+    });
   }
 
   // Bind Period Switcher Tabs

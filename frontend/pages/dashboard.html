@@ -9,14 +9,8 @@
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   </script>
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/layout.css" />
-  <link rel="stylesheet" href="../css/components.css" />
-  <link rel="stylesheet" href="../css/dashboard.css" />
-  <link rel="stylesheet" href="../css/enhancements.css" />
-  <link rel="stylesheet" href="../css/styles.css" />
-  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+    <link rel="stylesheet" href="../css/app.min.css" />
+<script src="../js/vendor/lucide.min.js"></script>
 </head>
 <body>
   <div id="app-header-mount"></div>
@@ -25,12 +19,12 @@
     <!-- Top Welcome & Quick Actions -->
     <div class="db-s1">
       <div>
-        <h1 class="db-s2" id="welcome-title">لوحة المتابعة الميدانية</h1>
-        <p id="welcome-role">استعراض بطاقات الفروع والأنشطة الترويجية ومتابعة تقييمات الجودة المعتمدة</p>
+        <h1 class="db-s2" id="welcome-title">لوحة المتابعة</h1>
+        <p id="welcome-role"></p>
       </div>
       <a href="./activity-card.html" class="btn btn-primary">
-        <img src="../assets/icons/plus-circle.svg" class="ui-icon" alt="" />
-        <span>تسجيل نشاط جديد</span>
+        <i data-lucide="plus-circle" class="ui-icon"></i>
+        <span>نشاط جديد</span>
       </a>
     </div>
 
@@ -38,17 +32,17 @@
     <div class="kpi-row">
       <div class="kpi-card">
         <div class="kpi-icon-wrap">
-          <img src="../assets/icons/layout-dashboard.svg" class="ui-icon ui-icon-lg" alt="" />
+          <i data-lucide="layout-dashboard" class="ui-icon ui-icon-lg"></i>
         </div>
         <div>
           <div class="kpi-num" id="kpi-total">0</div>
-          <div class="kpi-title">إجمالي الأنشطة المسجلة</div>
+          <div class="kpi-title">إجمالي الأنشطة</div>
         </div>
       </div>
 
       <div class="kpi-card">
         <div class="kpi-icon-wrap db-s3">
-          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-lg" alt="" />
+          <i data-lucide="check-circle-2" class="ui-icon ui-icon-lg"></i>
         </div>
         <div>
           <div class="kpi-num db-s4" id="kpi-accepted">0</div>
@@ -58,11 +52,11 @@
 
       <div class="kpi-card" id="kpi-card-under-review">
         <div class="kpi-icon-wrap db-s5">
-          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-lg" alt="" />
+          <i data-lucide="clock" class="ui-icon ui-icon-lg"></i>
         </div>
         <div>
           <div class="kpi-num db-s6" id="kpi-under-review">0</div>
-          <div class="kpi-title">بانتظار المراجعة والتقييم</div>
+          <div class="kpi-title">بانتظار التقييم</div>
         </div>
       </div>
     </div>
@@ -71,26 +65,26 @@
     <div id="sup-filter-toolbar" class="card db-s7 is-hidden">
       <div class="db-s8">
         <div class="db-s9">
-          <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span id="sup-toolbar-title">تصفية الفروع والسلاسل التجارية: <strong id="sup-client-tag">جميع العملاء (العميل الأم)</strong></span>
+          <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
+          <span id="sup-toolbar-title">تصفية الفروع: <strong id="sup-client-tag">جميع العملاء</strong></span>
         </div>
         <span class="badge badge-mint" id="sup-branch-count-badge">كل الفروع</span>
       </div>
       <div class="responsive-form-grid db-s10">
         <div class="form-group db-s11" id="group-filter-parent-client">
-          <label class="form-label db-s12" for="filter-parent-client">اسم العميل الأم (Parent Client)</label>
+          <label class="form-label db-s12" for="filter-parent-client">العميل الأم</label>
           <select id="filter-parent-client" class="form-select db-s13">
             <option value="ALL">جميع السلاسل والعملاء</option>
           </select>
         </div>
         <div class="form-group db-s11">
-          <label class="form-label db-s12" for="filter-sup-branch">اسم فرع العميل (Client Branch)</label>
+          <label class="form-label db-s12" for="filter-sup-branch">الفرع</label>
           <select id="filter-sup-branch" class="form-select db-s13">
             <option value="ALL">كل فروع العميل</option>
           </select>
         </div>
         <div class="form-group db-s11" id="group-filter-sup-coord">
-          <label class="form-label db-s12" for="filter-sup-coord">المنسق الميداني</label>
+          <label class="form-label db-s12" for="filter-sup-coord">المنسق</label>
           <select id="filter-sup-coord" class="form-select db-s13">
             <option value="ALL">كل المنسقين</option>
           </select>
@@ -101,26 +95,22 @@
     <!-- Master Branch Cards Section (Branch-Centric Navigation) -->
     <div class="section-header-row">
       <h3 class="section-header-title">
-        <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-sm" alt="" />
-        <span>بطاقات الفروع الرئيسية وفروع الشركة الموردة للبضاعة</span>
+        <i data-lucide="map-pin" class="ui-icon ui-icon-sm"></i>
+        <span>بطاقات الفروع</span>
       </h3>
       <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
         <button type="button" id="reset-branch-card-filter" class="btn btn-outline btn-sm is-hidden">
-          <span>إظهار كافة الفروع</span>
+          <span>كل الفروع</span>
         </button>
-        <a class="btn btn-secondary btn-sm" href="./leaderboard.html" title="عرض لوحة المتصدرين">
-          <img src="../assets/icons/trophy.svg" class="ui-icon ui-icon-sm" alt="" />
-          <span>المتصدرين</span>
-        </a>
-      </div>
+        </div>
     </div>
     <div id="master-branches-mount" class="master-branches-grid"></div>
 
-    <!-- Filter Bar & Activities Feed Section (باقي الصفحة: شريط التصفية وقائمة الأنشطة الميدانية) -->
+    <!-- Filter Bar & Activities Feed Section -->
     <div class="section-header-row" style="margin-top: 28px;">
       <h3 class="section-header-title">
-        <img src="../assets/icons/shield-check.svg" class="ui-icon ui-icon-sm" alt="" />
-        <span>أنشطة المتابعة الميدانية والزيارات الترويجية</span>
+        <i data-lucide="shield-check" class="ui-icon ui-icon-sm"></i>
+        <span>الأنشطة الميدانية</span>
       </h3>
     </div>
 
@@ -131,22 +121,22 @@
           <span class="chip-count-pill" id="cnt-all">0</span>
         </button>
         <button type="button" class="filter-chip" data-filter="Under Review">
-          <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="clock" class="ui-icon ui-icon-sm"></i>
           <span>قيد المراجعة</span>
           <span class="chip-count-pill" id="cnt-review">0</span>
         </button>
         <button type="button" class="filter-chip" data-filter="Accepted">
-          <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>
           <span>مقبول</span>
           <span class="chip-count-pill" id="cnt-accepted">0</span>
         </button>
         <button type="button" class="filter-chip" data-filter="Rejected">
-          <img src="../assets/icons/x-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="x-circle" class="ui-icon ui-icon-sm"></i>
           <span>المرفوضة</span>
           <span class="chip-count-pill" id="cnt-rejected">0</span>
         </button>
         <button type="button" class="filter-chip" data-filter="CLOSED">
-          <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-sm" alt="" />
+          <i data-lucide="archive" class="ui-icon ui-icon-sm"></i>
           <span>المنتهية</span>
           <span class="chip-count-pill" id="cnt-closed">0</span>
         </button>

@@ -1,11 +1,17 @@
-const CACHE_NAME = 'adco-field-cache-v7';
+const CACHE_NAME = 'adco-field-cache-v11';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './css/styles.css',
-  './css/mobile-pwa.css',
-  './css/activity-details.css',
-  './assets/ADCO-logo.png',
+  './css/app.min.css',
+  './assets/images/ADCO-logo.avif',
+  './assets/images/auth-hero-bg.avif',
+  './assets/images/fathalla-branch.avif',
+  './assets/images/avatar-coordinator.avif',
+  './assets/images/avatar-supervisor.avif',
+  './assets/images/medal-gold.avif',
+  './assets/images/medal-silver.avif',
+  './assets/images/medal-bronze.avif',
+  './js/vendor/lucide.min.js',
   './js/config/env.config.js',
   './js/config/adco-catalogs.config.js',
   './js/utils/formatters.js',
@@ -36,7 +42,8 @@ const ASSETS_TO_CACHE = [
   './pages/leaderboard.html',
   './pages/supervisor-panel.html',
   './pages/sheets-view.html',
-  './pages/analytics.html'
+  './pages/analytics.html',
+  './pages/branch-details.html'
 ];
 
 self.addEventListener('install', (e) => {
@@ -61,22 +68,24 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
+// Cache-First (Stale-While-Revalidate) for instant, lightning-fast loads
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  if (!e.request.url.startsWith('http')) return;
 
   e.respondWith(
-    fetch(e.request)
-      .then((networkRes) => {
-        if (networkRes && networkRes.status === 200) {
-          const clone = networkRes.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone)).catch(() => {});
-        }
-        return networkRes;
-      })
-      .catch(() => {
-        return caches.match(e.request, { ignoreSearch: true }).then((cachedRes) => {
-          return cachedRes || caches.match('./index.html');
-        });
-      })
+    caches.match(e.request, { ignoreSearch: true }).then((cachedRes) => {
+      const fetchPromise = fetch(e.request)
+        .then((networkRes) => {
+          if (networkRes && networkRes.status === 200) {
+            const clone = networkRes.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone)).catch(() => {});
+          }
+          return networkRes;
+        })
+        .catch(() => cachedRes || caches.match('./index.html'));
+
+      return cachedRes || fetchPromise;
+    })
   );
 });

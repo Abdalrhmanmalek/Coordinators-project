@@ -204,7 +204,7 @@
         console.warn('Could not read buffer for EXIF:', err);
       }
 
-      const fileName = file.name || 'image.jpg';
+      const fileName = file.name || 'image.avif';
       const isWhatsApp = /WA|\.whatsapp|WhatsApp/i.test(fileName);
       const isTelegram = /Telegram/i.test(fileName);
       const isScreenshot = /Screenshot/i.test(fileName);
@@ -244,7 +244,7 @@
       return {
         fileName,
         fileSizeKb: Math.round(file.size / 1024),
-        fileType: file.type || 'image/jpeg',
+        fileType: file.type || 'image/avif',
         takenAtEgypt,
         originType,
         originLabel,
@@ -299,7 +299,15 @@
             ctx.fillStyle = '#4ade80';
             ctx.fillText(`ADCO | ${roundLabel} | ${timestampFormatted} (توقيت مصر)`, 18, height - 22);
 
-            const mimeType = 'image/jpeg';
+            const mimeType = (() => {
+              try {
+                const c = document.createElement('canvas');
+                c.width = 1; c.height = 1;
+                return c.toDataURL('image/avif').startsWith('data:image/avif') ? 'image/avif' : 'image/webp';
+              } catch {
+                return 'image/avif';
+              }
+            })();
             canvas.toBlob(
               (blob) => {
                 if (!blob) {

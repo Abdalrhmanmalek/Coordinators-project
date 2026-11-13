@@ -32,9 +32,9 @@
         });
 
         // Upgrade legacy cartoon SVG placeholders to high-res realistic retail shelf photos
-        const realisticPhoto = 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80';
+        const realisticPhoto = './assets/images/fathalla-branch.avif';
         list.forEach((act) => {
-          if (!act.photoUrl || act.photoUrl.includes('fathalla-branch.svg')) {
+          if (!act.photoUrl || act.photoUrl.includes('fathalla-branch.avif')) {
             act.photoUrl = realisticPhoto;
             updated = true;
           }
@@ -42,7 +42,7 @@
             act.followUpHistory.forEach((s) => {
               if (Array.isArray(s.photos)) {
                 s.photos.forEach((p) => {
-                  if (!p.photoUrl || p.photoUrl.includes('fathalla-branch.svg')) {
+                  if (!p.photoUrl || p.photoUrl.includes('fathalla-branch.avif')) {
                     p.photoUrl = realisticPhoto;
                     updated = true;
                   }
@@ -81,7 +81,7 @@
         const role = user.role;
 
         // Tier 3: Coordination Manager / Marketing Manager (Global Visibility)
-        if (role === 'marketing_manager' || role === 'coordination_manager' || role === 'supervisor') {
+        if (role === 'marketing_manager') {
           return all;
         }
 

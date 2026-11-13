@@ -1,0 +1,640 @@
+/* =========================================================
+   ADCO Field Operations System - evaluation.css
+   Dedicated Standalone Evaluation Page Architecture & Styles
+   Zero text overlaps, clean boxed grid hierarchy, Light Mode aesthetic
+   ========================================================= */
+
+/* Main Header Breadcrumb & Actions Bar */
+.eval-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.eval-header-title-col {
+  flex: 1;
+  min-width: 280px;
+}
+
+.eval-page-title {
+  font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+  font-weight: 800;
+  color: var(--adco-green-deep);
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eval-page-subtitle {
+  font-size: 0.88rem;
+  color: var(--adco-gray-600);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.eval-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   SECTION 1: TOP — Branch Details & Master Info (Zero Overlaps)
+   ========================================================= */
+.eval-card-section {
+  background: #ffffff;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+  padding: 22px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.eval-section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.eval-section-heading-text {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--adco-green-deep);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.eval-branch-hero-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #f0fdfa 0%, #f8fafc 100%);
+  border: 1px solid #ccfbf1;
+  border-radius: 14px;
+  padding: 16px 20px;
+  flex-wrap: wrap;
+}
+
+.eval-client-main-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--adco-green-deep);
+  margin: 0 0 4px 0;
+}
+
+.eval-branch-sub-line {
+  font-size: 0.85rem;
+  color: var(--adco-gray-600);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.eval-supplying-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #99f6e4;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  color: #0f766e;
+  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.06);
+}
+
+.eval-supplying-pill strong {
+  color: var(--adco-green-deep);
+  font-weight: 800;
+}
+
+/* Dedicated Grid for Master Details with generous spacing */
+.eval-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.eval-info-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 64px;
+  box-sizing: border-box;
+  transition: all 0.18s ease;
+}
+
+.eval-info-box:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+}
+
+.eval-info-box.span-full {
+  grid-column: 1 / -1;
+}
+
+.eval-box-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1.2;
+}
+
+.eval-box-val {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.eval-box-val.highlight-brand {
+  color: var(--adco-green-dark);
+}
+
+.eval-box-val.highlight-date {
+  color: var(--adco-green-deep);
+}
+
+/* =========================================================
+   SECTION 2: MIDDLE — Photos, Metadata & GPS Validation
+   ========================================================= */
+.eval-media-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 440px) 1fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .eval-media-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+.eval-photo-card {
+  background: #ffffff;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.eval-photo-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-xs {
+  padding: 5px 12px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.eval-photo-wrapper {
+  position: relative;
+  background: #0f172a;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid #cbd5e1;
+}
+
+.eval-photo-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.eval-photo-wrapper:hover img {
+  transform: scale(1.03);
+}
+
+.eval-exif-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 0.8rem;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.eval-exif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.eval-exif-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  padding-top: 4px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+/* GPS Validation Column */
+.eval-gps-card {
+  background: #ffffff;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.eval-distance-banner {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+  border: 1.5px solid #5eead4;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.eval-distance-banner.warning {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-color: #fcd34d;
+}
+
+.eval-dist-text {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.eval-dist-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #115e59;
+  margin-right: 6px;
+}
+
+.eval-gps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.eval-loc-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eval-loc-box.coordinator {
+  border-right: 4px solid #0f766e;
+}
+
+.eval-loc-box.branch {
+  border-right: 4px solid #3b82f6;
+}
+
+.eval-loc-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.eval-loc-coords {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #0f172a;
+  font-family: monospace;
+}
+
+.eval-loc-link {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #0f766e;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.eval-loc-link:hover {
+  text-decoration: underline;
+}
+
+/* Field Verification Checklist to balance layout & eliminate empty space */
+.eval-verification-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.eval-check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #334155;
+}
+
+.eval-check-item strong {
+  color: #0f172a;
+  margin-left: 4px;
+}
+
+/* Quick Status Action Controls inside Middle Section */
+.eval-quick-status-wrap {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 0;
+}
+
+.eval-quick-status-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.eval-quick-btn-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.eval-quick-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 8px;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.eval-quick-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.eval-quick-btn.active.status-accepted {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.28);
+}
+
+.eval-quick-btn.active.status-rejected {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.28);
+}
+
+.eval-quick-btn.active.status-review {
+  background: #d97706;
+  border-color: #d97706;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.28);
+}
+
+.eval-quick-btn.active .ui-icon,
+.eval-quick-btn.active .lucide {
+  color: #ffffff;
+  stroke: currentColor;
+}
+
+/* =========================================================
+   SECTION 3: BOTTOM — Evaluation Criteria, Scores & Final Submit
+   STRICTLY AT THE VERY END OF THE PAGE
+   ========================================================= */
+.eval-form-section {
+  background: #ffffff;
+  border: 1px solid var(--adco-gray-200);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+  padding: 24px 26px;
+  margin-bottom: 40px;
+}
+
+.eval-scoring-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #f0fdfa 100%);
+  border: 1.5px solid #ccfbf1;
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 22px;
+}
+
+.eval-scoring-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.eval-scoring-header strong {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--adco-green-deep);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eval-scores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.eval-score-input-wrap {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.eval-score-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 1.25;
+}
+
+.eval-score-weight {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #0f766e;
+  background: #ccfbf1;
+  padding: 2px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.eval-score-num-input {
+  width: 100%;
+  height: 42px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.eval-score-num-input:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+  outline: none;
+}
+
+.eval-submit-btn-row {
+  margin-top: 24px;
+}
+
+.eval-primary-submit-btn {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px -4px rgba(15, 118, 110, 0.32);
+  cursor: pointer;
+}
+
+/* =========================================================
+   RESPONSIVE TUNING FOR EVALUATION STANDALONE PAGE
+   ========================================================= */
+@media (max-width: 768px) {
+  .eval-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .eval-header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .eval-header-actions .btn {
+    flex: 1 1 100%;
+  }
+
+  .eval-card-section {
+    padding: 18px 14px;
+    margin-bottom: 18px;
+    border-radius: 14px;
+  }
+
+  .eval-branch-hero-banner {
+    padding: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .eval-supplying-pill {
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: flex-start;
+  }
+
+  .eval-details-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .eval-scores-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}

@@ -17,7 +17,7 @@
 
 ## 📁 2. Architectural & Modular Constraints
 * **Modular Isolation:** Never bloat core files (e.g., `frontend/js/activity-manager.js` must remain a lean facade under 150 lines). All new business logic must reside in `frontend/js/services/`, state in `frontend/js/store/`, pure math/helpers in `frontend/js/utils/`, reusable UI in `frontend/js/components/`, and standalone views in `frontend/js/pages/`.
-* **Zero Emojis Policy:** Unicode emojis (📸, 🏆, ⭐, 📍, 📝, 🚀, ⏳, ✅, ❌, etc.) are **strictly forbidden** across all HTML templates, JS files, and CSS. Use clean vector SVG icons from `frontend/assets/icons/` or inline SVGs.
+* **Zero Emojis Policy:** Unicode emojis (📸, 🏆, ⭐, 📍, 📝, 🚀, ⏳, ✅, ❌, etc.) are **strictly forbidden** across all HTML templates, JS files, and CSS. Use clean vector icons via Lucide Icons CDN (`<i data-lucide="..." class="ui-icon"></i>`) or inline SVGs.
 * **Brand Share Isolation:** The `1/N` brand share calculations (`brand-share.util.js`) must be stored in the database payload and shown **ONLY** to the Marketing Manager during evaluation (`supervisor.page.js`), never on external coordinator cards or views.
 * **Supplying Branch Privacy:** The supplying branch (`فرع الشركة المورد للبضاعة`) must remain strictly inside internal detail views (`activity-details.html`, `branch-details.html`, and supervisor modal). Never display it on outer summary cards (`master-branch-card.js`, `activity-card-item.js`).
 

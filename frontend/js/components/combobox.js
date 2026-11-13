@@ -104,8 +104,6 @@ export function createSearchableCombobox({
       highlightedIndex = 0;
     }
 
-    const isHttp = typeof window !== 'undefined' && /^https?:$/.test(window.location.protocol);
-    const prefix = isHttp ? '/assets/icons/' : (window.location.pathname.includes('/pages/') ? '../assets/icons/' : './assets/icons/');
     dropdown.innerHTML = filteredOptions
       .map((opt, idx) => {
         const isSelected = opt === selectedValue;
@@ -113,11 +111,14 @@ export function createSearchableCombobox({
         return `
           <div class="combobox-option ${isSelected ? 'selected' : ''} ${isHigh ? 'highlighted' : ''}" data-index="${idx}">
             <span>${highlightMatch(opt, query)}</span>
-            ${isSelected ? `<img src="${prefix}check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />` : ''}
+            ${isSelected ? '<i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>' : ''}
           </div>
         `;
       })
       .join('');
+    if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') {
+      window.refreshIcons(dropdown);
+    }
 
     dropdown.querySelectorAll('.combobox-option').forEach((el) => {
       el.addEventListener('click', () => {

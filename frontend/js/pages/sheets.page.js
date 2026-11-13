@@ -180,7 +180,7 @@ const Auth = global.AuthManager || global.AuthService;
             </td>
             <td style="text-align:center;" dir="ltr">${r.magazineStartDate && r.magazineEndDate ? `${r.magazineStartDate} إلى ${r.magazineEndDate}` : (r.magazineDate || '-')}</td>
             <td style="font-weight:800; color:#92400e; background:#fffbeb;">
-              <img src="../assets/icons/star.svg" class="ui-icon ui-icon-sm" alt="" style="vertical-align:middle;" />
+              <i data-lucide="star" class="ui-icon ui-icon-sm" style="vertical-align:middle;"></i>
               ${r.overallRatingBadge}
             </td>
             <td>
@@ -204,6 +204,7 @@ const Auth = global.AuthManager || global.AuthService;
         `
         )
         .join('');
+      if (typeof refreshIcons === 'function') refreshIcons(tbody);
     }
 
     [searchInput, fltClient, fltBrand, fltActivity, fltActivityType, fltStatus, fltClosure, fltDateFrom, fltDateTo].forEach((el) => {

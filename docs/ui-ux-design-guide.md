@@ -32,18 +32,29 @@ This master design guide defines the enterprise visual standards, clean light-mo
 
 ## 2. Layout, Navigation & Screen Hierarchy
 
-### 2.1 Floating Top Website Navigation Bar (`web-top-navbar`)
-* Sleek, lightweight **floating top navigation bar** (`max-width: 1560px`, `height: 64px`, `border-radius: 18px`, `background: rgba(255, 255, 255, 0.88)`, `backdrop-filter: blur(16px)`, `box-shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.06)`).
+### 2.1 Persistent Top Website Navigation Bar (`web-top-navbar`)
+* Sleek, lightweight **persistent top navigation bar** (`max-width: 1560px`, `height: 64px`, `border-radius: 18px`, `background: rgba(255, 255, 255, 0.96)`, `backdrop-filter: blur(16px)`, `box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08)`, `position: fixed`, `top: 0`, `z-index: 1000`).
+* **Mount-Once & Client-Side SPA Routing (`navigateTo`):**
+  * Mounted once outside the dynamic viewport container (`#app-header-mount`).
+  * Never destroyed or re-created during view switches.
+  * Internal links trigger instant SPA content swapping on `<main class="web-main-workspace">`, maintaining scroll position, history state, and avoiding full browser reloads.
+* **Typography & Active Link States:**
+  * **Default state:** `font-weight: 500; color: #475569; padding: 0.5rem 0.9rem; border-radius: 10px; transition: color 0.15s ease, background-color 0.15s ease;`
+  * **Active / Pressed / Focus state:** `font-weight: 800 !important; color: #0f766e !important; background-color: #f0fdfa !important; border-radius: 10px !important;`
+  * Zero blurry text shadows, zero underline glitches, and identical horizontal padding to prevent layout jitter.
+* **Responsive Breakpoint Behavior:**
+  * **Desktop & Laptop Screens (769px to 1240px):** All primary navigation links remain persistently visible with compact padding (`padding: 0.45rem 0.65rem`), preserving full navigation capabilities without collapsing.
+  * **Mobile & Small Tablet Portrait (<= 768px):** Navigation smoothly collapses into a clean mobile header featuring the active page title pill (`.web-mobile-center-title`) and Lucide hamburger menu toggle (`#web-mobile-menu-btn`), sliding open the drawer with all navigation links.
 * **Right Side (RTL):**
-  * Official ADCO logo (`ADCO-logo.png`).
+  * Official ADCO logo (`ADCO-logo.avif`).
   * Corporate title: `(ADCO) شركة الاسكندريه للكيماويات و المنظفات`.
   * Subtitle: `منظومة إدارة العمليات الميدانية والتقارير`.
-* **Center:**
-  * Coordinator Links: `الرئيسية`, `إضافة نشاط`, `لوحة الترتيب`.
-  * Supervisor Links: `لوحة الإشراف`, `جدول البيانات`, `التحليلات`, `سجل الأنشطة`.
+* **Center Navigation Links:**
+  * **Coordinator Links:** `الرئيسية`, `نشاط جديد`, `المتصدرين`.
+  * **Supervisor / Marketing Manager Links:** `الإشراف والتقييم`, `التقارير والشيتات`, `التحليلات`, `الأنشطة`, `المتصدرين` (with glowing amber badge for pending review activities).
 * **Left Side:**
   * Coordinator Rank Badge (`#1`, `#2`, `#3` — automatically hidden in Tier 3 Manager mode).
-  * User profile card trigger and clean logout button.
+  * User profile card trigger (`.web-profile-pill`) and clean logout button.
 
 ### 2.2 Authentication & Landing Screens (`frontend/index.html` & `frontend/pages/login.html`)
 * **Light Atmospheric Backdrop:** Soft pastel mint/teal gradient (`#f8fafc` ➔ `#f0fdfa` ➔ `#ecfdf5`) with a crisp `#ffffff` centered floating card (`border-radius: 20px`, `box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.07)`).
@@ -130,7 +141,7 @@ This master design guide defines the enterprise visual standards, clean light-mo
   * By default requires only 2 actions: capturing a new photo (720p client compressor) and live GPS location (Haversine proximity check $\le 150\text{m}$).
   * An optional collapsible section `تعديل المنتجات والعلامات المشاركة (اختياري)` allows updating products and brands for that round, with automatic live recalculation of the $1/N$ brand share.
 * **Strict Zero Emojis Policy & High-Resolution Retail Photography:**
-  * Zero text emojis across HTML templates, JS components, buttons, and mock data. All icons are rendered via SVG vector assets (`frontend/assets/icons/`).
+  * Zero text emojis across HTML templates, JS components, buttons, and mock data. All icons are rendered via **Lucide Icons CDN** (`<i data-lucide="..." class="ui-icon"></i>`).
   * Cartoon SVG placeholders (`fathalla-branch.svg`) are replaced with high-resolution realistic retail supermarket shelf, gondola, and podium photos from Unsplash.
 * **Sticky Navbar Offset Protection:**
   * Top padding on `.web-main-workspace` and `.pwa-content` is configured to `calc(108px + env(safe-area-inset-top, 0px))` on desktop and `calc(88px + env(safe-area-inset-top, 0px))` on mobile, completely preventing header text clipping under the 86px floating navbar.

@@ -13,26 +13,30 @@
 
   class ActivitySubmissionService {
     /**
-     * Submit a new Activity Card with "النشاط", "نوع النشاط", "عدد النشاط", and conditional "تاريخ إصدار المجلة"
+     * Submit a new Activity Card associated with an open Branch Card
+     * Supports: server-generated reference ID, multiple photos array, 2-field status model,
+     * and relaxed geofence confirmation (< 500m confirmable, > 500m hard block).
      */
     static async submitActivity(payload) {
-      const activityId = `ACT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
       const nowIso = new Date().toISOString();
       const formattedNow = global.formatDateTime ? global.formatDateTime(nowIso) : nowIso.slice(0, 16).replace('T', ' ');
 
-      const initialPhotos =
-        payload.initialPhotos && payload.initialPhotos.length > 0
-          ? payload.initialPhotos
-          : [
-              {
-                photoUrl: payload.photoUrl,
-                photoHash: payload.photoHash,
-                sizeKb: payload.sizeKb || 175,
-                width: payload.width || 1280,
-                height: payload.height || 720,
-                capturedAt: formattedNow
-              }
-            ];
+      // Item 7: Multiple photos array per round
+      const photosList = Array.isArray(payload.photos) && payload.photos.length > 0
+        ? payload.photos
+        : (payload.initialPhotos && payload.initialPhotos.length > 0
+            ? payload.initialPhotos
+            : [
+                {
+                  photoUrl: payload.photoUrl,
+                  photoHash: payload.photoHash || 'placeholder-hash',
+                  sizeKb: payload.sizeKb || 175,
+                  width: payload.width || 1280,
+                  height: payload.height || 720,
+                  capturedAt: formattedNow,
+                  originType: payload.originType || 'CAMERA_DIRECT'
+                }
+              ]);
 
       const activityVal = payload.activity || 'عقد';
       const activityTypeVal = payload.activityType || 'جندولة';
@@ -52,27 +56,57 @@
       };
       const locationData = payload.location || defaultLoc;
 
-      // Automated GPS Proximity Validation (Haversine distance <= 150m from registered branch)
+      // Item 6: Relaxed Geofence Logic
+      // - <= 150m: normal submission
+      // - 150m to 500m: confirmation required (flag locationConfirmedOutOfRange)
+      // - > 500m: hard stop error
       const proximityCheck = this.validateBranchProximity(
         payload.branch,
         locationData,
         payload.maxBranchProximityMeters || ADCO_CATALOGS.maxBranchProximityMeters || 150
       );
-      if (!proximityCheck.isValid) {
-        throw new Error(proximityCheck.errorMessage || 'موقعك الحالي بعيد جداً عن نطاق الفرع المسجل');
+      const dist = proximityCheck.distanceMeters || 0;
+      if (dist > 500) {
+        throw new Error('موقعك الحالي بعيد جداً عن نطاق الفرع المسجل (أكثر من 500 متر). لا يمكن اعتماد النشاط.');
       }
-      locationData.distanceFromBranchMeters = proximityCheck.distanceMeters;
-      locationData.proximityVerified = true;
+      if (dist > (payload.maxBranchProximityMeters || 150)) {
+        if (!payload.locationConfirmedOutOfRange) {
+          const err = new Error(`أنت على مسافة (${dist} متر) من الفرع المسجل. هل تود التأكيد والإرسال رغم ذلك؟`);
+          err.code = 'CONFIRM_OUT_OF_RANGE';
+          err.distanceMeters = dist;
+          throw err;
+        }
+        locationData.locationConfirmedOutOfRange = true;
+      }
+      locationData.distanceFromBranchMeters = dist;
+      locationData.proximityVerified = dist <= 150;
+
+      // Item 5: Server-Generated Reference ID (Fallback to official CIR/ALX format if backend not yet live)
+      const bCode = payload.branchCode || 'ALX-00944';
+      const fallbackRef = `CIR-${String(Math.floor(1000 + Math.random() * 9000))}/${bCode}/A${String(Math.floor(100 + Math.random() * 899))}`;
+      const activityId = payload.id || payload.activityRef || fallbackRef;
+
+      // Item 8: Two-Field Status Model
+      // reviewStatus: 'UNDER_REVIEW' | 'ACCEPTED' | 'REJECTED'
+      // endStatus: 'OPEN' | 'ENDING_REQUESTED' | 'ENDED'
+      const reviewStatus = payload.reviewStatus || 'UNDER_REVIEW';
+      const endStatus = payload.endStatus || 'OPEN';
 
       const newRecord = {
         id: activityId,
+        activityRef: activityId,
+        branchCardId: payload.branchCardId || null, // Item 3: Association with open Branch Card
         coordinatorId: payload.coordinatorId,
         coordinatorName: payload.coordinatorName,
         client: payload.client,
+        clientId: payload.clientId || null,
         branch: payload.branch,
+        branchId: payload.branchId || null,
+        branchCode: bCode,
         coordinatorBranch: payload.coordinatorBranch,
         brands: payload.brands || [],
-        skuVariant: payload.skuVariant,
+        products: Array.isArray(payload.products) ? payload.products : [], // Item 4: [{ brandId, productGroupId, skuId }]
+        skuVariant: payload.skuVariant || '',
         activity: activityVal,
         activityType: activityTypeVal,
         activityCount: activityCountVal,
@@ -80,17 +114,22 @@
         magazineDate: magazineDateVal,
         magazineStartDate: magStartVal,
         magazineEndDate: magEndVal,
-        products: Array.isArray(payload.products) ? payload.products : [],
         activityDate: actDate,
         startDate: actDate,
         activityDateFormatted: formattedActDate,
         endDate: null,
-        isClosed: false,
-        photoUrl: initialPhotos[0].photoUrl,
-        photoHash: initialPhotos[0].photoHash,
-        initialPhotos: initialPhotos,
+        // Item 8: Status fields
+        reviewStatus: reviewStatus,
+        endStatus: endStatus,
+        status: reviewStatus === 'ACCEPTED' ? 'Accepted' : (reviewStatus === 'REJECTED' ? 'Rejected' : 'Under Review'),
+        isClosed: endStatus === 'ENDED',
+        closureRequested: endStatus === 'ENDING_REQUESTED',
+        // Item 7: Photos
+        photoUrl: photosList[0] ? photosList[0].photoUrl : '',
+        photoHash: photosList[0] ? photosList[0].photoHash : '',
+        photos: photosList,
+        initialPhotos: photosList,
         location: locationData,
-        status: 'Under Review',
         supervisorScore: null,
         overallRating: null,
         ratedSessionsCount: 0,
@@ -99,7 +138,7 @@
         reviewedAt: null,
         timestamp: nowIso,
         roundsCount: 1,
-        totalPhotos: initialPhotos.length,
+        totalPhotos: photosList.length,
         followUpHistory: [
           {
             roundNumber: 1,
@@ -107,21 +146,23 @@
             timestamp: formattedNow,
             uploadedBy: payload.coordinatorName,
             uploadedById: payload.coordinatorId,
-            reviewStatus: 'Under Review',
+            reviewStatus: 'UNDER_REVIEW',
             sessionScore: null,
             sessionNotes: '',
             location: locationData,
-            photos: initialPhotos
+            photos: photosList
           }
         ]
       };
 
       if (!navigator.onLine) {
-        await global.queueOfflineItem(newRecord);
+        if (typeof global.queueOfflineItem === 'function') {
+          await global.queueOfflineItem(newRecord);
+        }
         return { success: true, offline: true, record: newRecord };
       }
 
-      await new Promise((r) => setTimeout(r, 350));
+      await new Promise((r) => setTimeout(r, 200));
       const all = this.getAllActivities();
       all.unshift(newRecord);
       this.saveAllActivities(all);

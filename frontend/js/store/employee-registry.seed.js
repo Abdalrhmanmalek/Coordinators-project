@@ -1,6 +1,9 @@
 /**
- * ADCO Default Employee Registry (demo seed)
- * Pure data module consumed by auth.js. Exposed as window.ADCO_DEFAULT_REGISTRY.
+ * ============================================================================
+ * [DEVELOPMENT / OFFLINE DEMO SEED ONLY]
+ * DO NOT SHIP TO PRODUCTION. In production environments, user credentials and
+ * employee records must be fetched strictly from the secure backend auth API.
+ * ============================================================================
  */
 
 (function (global) {

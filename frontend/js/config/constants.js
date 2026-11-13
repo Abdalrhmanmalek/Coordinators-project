@@ -17,16 +17,13 @@ export const APP_CONFIG = Object.freeze({
 export const ROLES = Object.freeze({
   COORDINATOR: 'coordinator',
   COORDINATOR_SUPERVISOR: 'coordinator_supervisor',
-  MARKETING_MANAGER: 'marketing_manager',
-  COORDINATION_MANAGER: 'marketing_manager',
-  SUPERVISOR: 'supervisor'
+  MARKETING_MANAGER: 'marketing_manager'
 });
 
 export const ROLE_LABELS = Object.freeze({
   coordinator: 'منسق ميداني',
   coordinator_supervisor: 'مشرف منسق',
-  marketing_manager: 'مسؤول التسويق',
-  supervisor: 'مسؤول التسويق'
+  marketing_manager: 'مسؤول التسويق'
 });
 
 export const ACTIVITY_STATUS = Object.freeze({

@@ -51,23 +51,26 @@
       userRole === 'coordinator_supervisor' ||
       userRole === 'supervisor'
     ) && userRole !== 'marketing_manager' && userRole !== 'admin';
-    const isActivityActive = !act.isClosed && (act.status === 'Accepted' || act.status === 'نشط' || !act.status);
-    const canRequestClosure = isCoordOrSupervisor && isActivityActive && !act.closureRequested;
+    const isClosed = act.endStatus === 'ENDED' || Boolean(act.isClosed);
+    const isClosureRequested = act.endStatus === 'ENDING_REQUESTED' || Boolean(act.closureRequested);
+    const isActivityActive = !isClosed && (act.reviewStatus === 'ACCEPTED' || act.status === 'Accepted' || act.status === 'نشط' || !act.status);
+    const canRequestClosure = isCoordOrSupervisor && isActivityActive && !isClosureRequested;
+    const fallbackThumb = isSub ? '../assets/images/fathalla-branch.avif' : './assets/images/fathalla-branch.avif';
 
     return `
       <div class="activity-card-item" data-act-id="${act.id}" role="button" tabindex="0" style="cursor: pointer;" title="اضغط لفتح سجل المراجعات وتفاصيل النشاط بالكامل" onclick="if(!event.target.closest('button')) { window.location.href='${detailsUrl}'; }">
         <div class="activity-card-head">
-          <img src="${act.photoUrl || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80'}" alt="${act.client}" class="activity-card-thumb" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=720&q=80';" />
+          <img src="${act.photoUrl || fallbackThumb}" alt="${act.client}" class="activity-card-thumb" onerror="this.onerror=null; this.src='${fallbackThumb}';" />
           <div class="db-s17">
             <div class="db-s18">
               <strong class="db-s19">${act.client}</strong>
               <div class="db-s20">
-                ${act.isClosed ? `<span class="badge badge-success db-s21">منتهي</span>` : act.closureRequested ? `<span class="badge badge-warning db-s21">طلب إنهاء</span>` : ''}
-                ${typeof ctx.renderStatusBadge === 'function' ? ctx.renderStatusBadge(act.status) : `<span class="badge badge-mint">${act.status || 'Active'}</span>`}
+                ${isClosed ? `<span class="badge badge-success db-s21">منتهي</span>` : isClosureRequested ? `<span class="badge badge-warning db-s21">طلب إنهاء</span>` : ''}
+                ${typeof ctx.renderStatusBadge === 'function' ? ctx.renderStatusBadge(act) : `<span class="badge badge-mint">${act.reviewStatus || act.status || 'Active'}</span>`}
               </div>
             </div>
             <div class="branch-card-sub" style="margin-bottom: 4px;">
-              <img src="../assets/icons/map-pin.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="map-pin" class="ui-icon ui-icon-xs"></i>
               <span>${act.branch}</span>
             </div>
             <p class="db-s22" style="margin-bottom: 4px;">
@@ -78,8 +81,8 @@
             <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
               <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                 <span class="badge badge-mint" style="font-weight: 700; font-size: 0.74rem;">
-                  <img src="../assets/icons/sliders.svg" class="ui-icon ui-icon-xs" alt="" />
-                  <span>نوع العرض: ${actType}${act.activityCount ? ` × ${act.activityCount}` : ''}</span>
+                  <i data-lucide="sliders-horizontal" class="ui-icon ui-icon-xs"></i>
+                  <span>${actType}${act.activityCount ? ` × ${act.activityCount}` : ''}</span>
                 </span>
               </div>
               <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
@@ -92,15 +95,15 @@
 
         <div class="branch-meta-grid">
           <div class="branch-meta-item">
-            <span class="branch-meta-label">المنسق الميداني</span>
+            <span class="branch-meta-label">المنسق</span>
             <span class="branch-meta-val">${(typeof formatTwoWordName === 'function' ? formatTwoWordName(act.coordinatorName) : act.coordinatorName) || '-'}</span>
           </div>
           <div class="branch-meta-item">
-            <span class="branch-meta-label">المشرف المعتمد</span>
+            <span class="branch-meta-label">المشرف</span>
             <span class="branch-meta-val">${supervisorLabel}</span>
           </div>
           <div class="branch-meta-item full-span">
-            <span class="branch-meta-label">الموقع الجغرافي</span>
+            <span class="branch-meta-label">الموقع</span>
             <span class="branch-meta-val">${locAddress}</span>
           </div>
         </div>
@@ -110,8 +113,8 @@
           <div class="branch-card-feedback-preview">
             <div class="feedback-preview-header">
               <span class="feedback-badge-label">
-                <img src="../assets/icons/clipboard-edit.svg" class="ui-icon ui-icon-xs" alt="" />
-                <span>توجيهات مدير التسويق:</span>
+                <i data-lucide="clipboard-edit" class="ui-icon ui-icon-xs"></i>
+                <span>توجيهات المشرف:</span>
               </span>
               <span class="feedback-reviewer-name">${latestReviewer}</span>
             </div>
@@ -120,35 +123,35 @@
         ` : `
           <div class="branch-card-feedback-preview feedback-pending">
             <span class="feedback-badge-label">
-              <img src="../assets/icons/clock.svg" class="ui-icon ui-icon-xs" alt="" />
-              <span>بانتظار مراجعة وتوجيهات مدير التسويق للجولات المرفوعة</span>
+              <i data-lucide="clock" class="ui-icon ui-icon-xs"></i>
+              <span>بانتظار مراجعة المشرف</span>
             </span>
           </div>
         `}
 
         <div class="db-s23" style="margin-top: 10px;">
           <span class="badge badge-warning db-s24">
-            <img src="../assets/icons/star.svg" class="ui-icon ui-icon-sm" alt="" />
-            <span>التقييم: ${ratingStats.totalWeightedScore}/100</span>
+            <i data-lucide="star" class="ui-icon ui-icon-sm"></i>
+            <span>${ratingStats.totalWeightedScore}/100</span>
           </span>
           <span class="db-s25">
-            ${ratingStats.totalSessions} ${ratingStats.totalSessions === 1 ? 'جولة متابعة' : 'جولات متابعة'}
+            ${ratingStats.totalSessions} جولات
           </span>
         </div>
 
         <!-- Direct Action Bar: Inside the Branch Card -->
         <div class="activity-card-action-bar">
           <button type="button" class="btn btn-secondary btn-sm btn-open-card-details" data-act-id="${act.id}" title="فتح سجل المراجعات والجولات وتوجيهات مدير التسويق" onclick="event.stopPropagation(); window.location.href='${detailsUrl}';">
-            <img src="../assets/icons/calendar-clock.svg" class="ui-icon ui-icon-xs" alt="" />
-            <span>سجل المراجعات (${roundsCount})</span>
+            <i data-lucide="calendar-clock" class="ui-icon ui-icon-xs"></i>
+            <span>المراجعات (${roundsCount})</span>
           </button>
           <button type="button" class="btn btn-primary btn-sm btn-quick-add-photo" data-act-id="${act.id}" title="إضافة متابعة جديدة والتقاط الصور لهذا النشاط" onclick="event.stopPropagation(); window.location.href='${newFollowUpUrl}';">
-            <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-xs" alt="" />
-            <span>إضافة متابعة</span>
+            <i data-lucide="camera" class="ui-icon ui-icon-xs"></i>
+            <span>متابعة</span>
           </button>
           ${canRequestClosure ? `
             <button type="button" class="btn btn-secondary btn-sm btn-card-closure-req" data-act-id="${act.id}" title="تقديم طلب إنهاء وتفكيك النشاط لمدير التسويق" onclick="event.stopPropagation(); window.location.href='${closureReqUrl}';">
-              <img src="../assets/icons/archive.svg" class="ui-icon ui-icon-xs" alt="" />
+              <i data-lucide="archive" class="ui-icon ui-icon-xs"></i>
               <span>طلب إنهاء</span>
             </button>
           ` : ''}

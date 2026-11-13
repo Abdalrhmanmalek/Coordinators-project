@@ -1,0 +1,874 @@
+/* =========================================================
+   leaderboard.css - ADCO Field Operations System
+   Executive Leaderboard & Scoreboard System
+   Corporate Emerald Green & Light Mode Design System
+   Full 1440px Width, Unified Toolbar & Multi-Column Table
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1. EXPANDED WORKSPACE CONTAINER (TASK 1: max-width 1440px)
+   --------------------------------------------------------- */
+.lb-workspace {
+  max-width: 1440px;
+  width: 95%;
+  margin: 0 auto;
+  padding-top: calc(108px + env(safe-area-inset-top, 0px));
+  padding-right: 2rem;
+  padding-bottom: 48px;
+  padding-left: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .lb-workspace {
+    padding-top: calc(88px + env(safe-area-inset-top, 0px));
+    padding-right: 14px;
+    padding-left: 14px;
+    padding-bottom: 36px;
+    width: 100%;
+    gap: 16px;
+  }
+}
+
+/* ---------------------------------------------------------
+   2. PAGE HEADER TITLE (TASK 2)
+   --------------------------------------------------------- */
+.lb-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  width: 100%;
+}
+
+.lb-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lb-page-title {
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: var(--adco-green-deep, #134e4a);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.lb-page-sub {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------
+   3. UNIFIED MODERN FILTER TOOLBAR (TASK 2: .leaderboard-toolbar)
+   --------------------------------------------------------- */
+.leaderboard-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: #ffffff;
+  padding: 0.85rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  margin-bottom: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.lb-toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lb-toolbar-search {
+  display: flex;
+  align-items: center;
+  flex: 0 1 320px;
+}
+
+/* Custom Month Selector Pill */
+.lb-month-selector-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  flex-wrap: nowrap;
+}
+
+.lb-month-label {
+  white-space: nowrap;
+  font-weight: 700;
+  color: #0f766e;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+.lb-month-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #f0fdfa;
+  border: 1px solid #99f6e4;
+  color: #0f766e;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem 0.5rem 2.25rem;
+  border-radius: 10px;
+  cursor: pointer;
+  height: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f766e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 0.75rem center;
+  background-size: 16px 16px;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.lb-month-select:hover {
+  background-color: #e6fffa;
+  border-color: #5eead4;
+}
+
+.lb-month-select:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+.lb-status-badge {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+/* Segmented Period Control */
+.lb-period-segmented {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  gap: 4px;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.lb-period-btn {
+  border: none;
+  background: transparent;
+  padding: 0 16px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.lb-period-btn:hover {
+  color: #0f172a;
+}
+
+.lb-period-btn.active {
+  background: #ffffff;
+  color: #0f766e;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+
+/* Search Input */
+.lb-search-input-wrap {
+  position: relative;
+  width: 100%;
+  height: 40px;
+}
+
+.lb-search-ico {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.lb-search-control {
+  width: 100%;
+  height: 40px;
+  padding: 0 40px 0 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 0.88rem;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.lb-search-control:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+/* ---------------------------------------------------------
+   4. TOP 3 CARDS GRID (TASK 3: Wider 1440px Proportions & Hierarchy)
+   --------------------------------------------------------- */
+.top-cards-section {
+  width: 100%;
+}
+
+.top-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.top-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.top-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.09);
+}
+
+/* 1st Place Gold Highlight */
+.top-card.rank-1 {
+  border: 2px solid #f59e0b;
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 45%);
+  box-shadow: 0 8px 24px -4px rgba(245, 158, 11, 0.16);
+}
+
+/* 2nd Place Silver */
+.top-card.rank-2 {
+  border: 1.5px solid #cbd5e1;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 45%);
+  box-shadow: 0 4px 16px -2px rgba(100, 116, 139, 0.08);
+}
+
+/* 3rd Place Bronze */
+.top-card.rank-3 {
+  border: 1.5px solid #fdba74;
+  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 45%);
+  box-shadow: 0 4px 16px -2px rgba(249, 115, 22, 0.08);
+}
+
+/* Card Header */
+.top-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.top-card-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.top-card-rank-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.top-card-rank-num {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #0f766e;
+  line-height: 1;
+}
+
+.top-card.rank-1 .top-card-rank-num {
+  color: #b45309;
+}
+
+.top-card.rank-3 .top-card-rank-num {
+  color: #c2410c;
+}
+
+.top-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.top-card-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.top-card-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.top-card-sub-dot {
+  margin: 0 2px;
+  opacity: 0.6;
+}
+
+.top-card-medal {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.top-card-medal img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* 2x2 Stats Grid inside Top Card */
+.top-card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.top-stat-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.top-stat-label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.top-stat-val {
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.top-stat-val.highlight {
+  color: #0f766e;
+  font-weight: 900;
+  font-size: 0.98rem;
+}
+
+.top-stat-val.success {
+  color: #15803d;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+/* ---------------------------------------------------------
+   5. GENERAL RANKING SCOREBOARD TABLE (TASK 4: Multi-Column Wide Table)
+   --------------------------------------------------------- */
+.ranking-table-section {
+  width: 100%;
+}
+
+.ranking-table-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px -2px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Table Header */
+.ranking-table-head {
+  display: grid;
+  grid-template-columns: 80px minmax(260px, 2.5fr) repeat(4, minmax(130px, 1fr));
+  align-items: center;
+  padding: 1.15rem 1.75rem;
+  background: #f8fafc;
+  border-bottom: 1.5px solid #e2e8f0;
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 0.01em;
+  box-sizing: border-box;
+}
+
+.col-rank {
+  text-align: center;
+}
+
+.col-user {
+  text-align: right;
+}
+
+.col-stat {
+  text-align: center;
+}
+
+/* Table Body Rows */
+.ranking-table-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.ranking-row {
+  display: grid;
+  grid-template-columns: 80px minmax(260px, 2.5fr) repeat(4, minmax(130px, 1fr));
+  align-items: center;
+  padding: 1.15rem 1.75rem;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.ranking-row:last-child {
+  border-bottom: none;
+}
+
+.ranking-row:hover {
+  background-color: #f8fafc;
+}
+
+.ranking-row.is-current-user {
+  background-color: #f0fdf4;
+  border-inline-start: 4px solid #0f766e;
+}
+
+/* Table Cell Elements */
+.cell-rank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.rank-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+}
+
+.ranking-row.is-current-user .rank-circle {
+  background: #0f766e;
+  color: #ffffff;
+  border-color: #0f766e;
+}
+
+.cell-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.user-info-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.user-name-sm {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.you-pill {
+  background: #0f766e;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.user-sub-sm {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cell-stat {
+  text-align: center;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.cell-stat.points-col {
+  color: #0f766e;
+  font-weight: 800;
+}
+
+/* Points Progress & Pill */
+.cell-points-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.score-pill-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.score-main-val {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #0f766e;
+}
+
+.score-total-max {
+  font-size: 0.76rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.points-progress-track {
+  width: 100px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.points-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #14b8a6 0%, #0f766e 100%);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.stat-badge-accepted {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #166534;
+}
+
+.stat-badge-rounds {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.stat-badge-quality {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-weight: 800;
+  font-size: 0.84rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+   6. RESPONSIVE MEDIA QUERIES (Mobile & Tablet)
+   --------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .ranking-table-head {
+    grid-template-columns: 60px minmax(200px, 2fr) repeat(4, minmax(100px, 1fr));
+    padding: 1rem 1.25rem;
+    font-size: 0.78rem;
+  }
+
+  .ranking-row {
+    grid-template-columns: 60px minmax(200px, 2fr) repeat(4, minmax(100px, 1fr));
+    padding: 1rem 1.25rem;
+  }
+}
+
+@media (max-width: 960px) and (min-width: 769px) {
+  .top-cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .top-card {
+    padding: 1.25rem 1.25rem;
+  }
+
+  .leaderboard-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lb-toolbar-search {
+    flex: 1 1 100%;
+  }
+}
+
+/* Brand-New Mobile Spotlight Podium (Max-Width 768px) */
+@media (max-width: 768px) {
+  .leaderboard-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .lb-toolbar-controls {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .lb-month-selector-pill {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .lb-month-select {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .lb-period-segmented {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .lb-period-btn {
+    flex: 1;
+  }
+
+  .lb-toolbar-search {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .top-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  /* 1st Place Gold Card: Spans full width at top with spotlight glow */
+  .top-card.rank-1 {
+    grid-column: 1 / -1 !important;
+    order: 1 !important;
+    border: 2px solid #f59e0b !important;
+    background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%) !important;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.15) !important;
+  }
+
+  /* 2nd & 3rd Place Cards: Balanced 2-column grid directly underneath */
+  .top-card.rank-2 {
+    grid-column: 1 / 2 !important;
+    order: 2 !important;
+    border: 1.5px solid #cbd5e1 !important;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%) !important;
+  }
+
+  .top-card.rank-3 {
+    grid-column: 2 / 3 !important;
+    order: 3 !important;
+    border: 1.5px solid #fdba74 !important;
+    background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%) !important;
+  }
+
+  .top-card {
+    padding: 14px !important;
+  }
+
+  .top-card-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding-top: 10px !important;
+    margin-top: 10px !important;
+  }
+
+  .top-stat-item {
+    padding: 6px 8px !important;
+  }
+
+  .top-stat-label {
+    font-size: 0.68rem !important;
+  }
+
+  .top-stat-val {
+    font-size: 0.88rem !important;
+  }
+
+  .ranking-table-head {
+    grid-template-columns: 48px 1fr 100px;
+    padding: 10px 14px;
+  }
+
+  .ranking-table-head .col-stat:nth-child(n+4) {
+    display: none;
+  }
+
+  .ranking-row {
+    grid-template-columns: 48px 1fr 100px;
+    padding: 12px 14px;
+  }
+
+  .ranking-row .cell-stat:nth-child(n+4) {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .top-card-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .top-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3px;
+    background: #f8fafc;
+    border: 1px solid #eef2f6;
+    border-radius: 10px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .top-stat-label {
+    font-size: 0.72rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+  }
+
+  .top-stat-val {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .ranking-row {
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .lb-workspace {
+    padding: 16px 12px 36px;
+  }
+
+  .top-card {
+    padding: 14px 12px;
+  }
+
+  .top-card-stats {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .ranking-table-head {
+    grid-template-columns: 36px 1fr 80px;
+    padding: 8px 8px;
+    font-size: 0.72rem;
+  }
+
+  .ranking-row {
+    grid-template-columns: 36px 1fr 80px;
+    padding: 8px 8px;
+  }
+
+  .user-name-sm {
+    font-size: 0.84rem;
+  }
+}

@@ -6,6 +6,8 @@
 
 import { STORAGE_KEYS } from '../config/constants.js';
 
+let _inMemoryAccessToken = null;
+
 function generateUUID() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -19,8 +21,6 @@ function generateUUID() {
 
 export class HttpClient {
   constructor() {
-    const isHttp = typeof window !== 'undefined' && /^https?:$/.test(window.location.protocol);
-    const isLocal = isHttp && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
     const envApi = typeof window !== 'undefined' && window.ADCO_ENV && window.ADCO_ENV.API_BASE_URL
       ? window.ADCO_ENV.API_BASE_URL
       : null;
@@ -28,8 +28,9 @@ export class HttpClient {
       ? (window.__ADCO_API_BASE__ || window.ADCO_API_URL)
       : null;
 
-    this.baseURL = globalBase || envApi || (isLocal ? 'http://localhost:3000/api/v1' : '/api/v1');
-    this.timeoutMs = 12000;
+    // Base URL comes from environment variable with clean '/api/v1' relative default (no hardcoded localhost)
+    this.baseURL = (globalBase || envApi || '/api/v1').replace(/\/+$/, '');
+    this.timeoutMs = 2500;
     this.isRefreshing = false;
     this.refreshSubscribers = [];
   }
@@ -39,21 +40,17 @@ export class HttpClient {
   }
 
   getAuthToken() {
-    return localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    // In-memory access token only, never stored in localStorage or accessible via cookies
+    return _inMemoryAccessToken;
   }
 
-  getRefreshToken() {
-    return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-  }
-
-  setTokens(accessToken, refreshToken) {
-    if (accessToken) localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
-    if (refreshToken) localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+  setTokens(accessToken) {
+    // Access token kept strictly in memory
+    _inMemoryAccessToken = accessToken || null;
   }
 
   clearTokens() {
-    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+    _inMemoryAccessToken = null;
   }
 
   /**
@@ -68,7 +65,7 @@ export class HttpClient {
       headers.set('Content-Type', 'application/json');
     }
 
-    // 2. Authorization Header
+    // 2. Authorization Header (from in-memory token)
     const token = this.getAuthToken();
     if (token && !headers.has('Authorization')) {
       headers.set('Authorization', `Bearer ${token}`);
@@ -79,6 +76,10 @@ export class HttpClient {
       headers.set('Idempotency-Key', generateUUID());
     }
 
+    // MOCK_MODE_FAST_FALLBACK: bypass remote network attempt if in mock mode without remote base URL
+    if (typeof window !== 'undefined' && window.ADCO_ENV && window.ADCO_ENV.MOCK_MODE && !window.__ADCO_API_BASE__) {
+      return Promise.reject(new Error('MOCK_MODE_LOCAL'));
+    }
     const url = endpoint.startsWith('http') ? endpoint : `${this.baseURL}${endpoint}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), options.timeoutMs || this.timeoutMs);
@@ -88,12 +89,13 @@ export class HttpClient {
         ...options,
         method,
         headers,
+        credentials: options.credentials || 'include',
         signal: controller.signal
       });
       clearTimeout(timer);
 
-      // Handle 401 Unauthorized with silent token refresh
-      if (response.status === 401 && !options._retry && this.getRefreshToken()) {
+      // Handle 401 Unauthorized with silent token refresh via HttpOnly cookie
+      if (response.status === 401 && !options._retry) {
         const refreshed = await this.silentRefreshToken();
         if (refreshed) {
           options._retry = true;
@@ -126,21 +128,24 @@ export class HttpClient {
     }
   }
 
+  /**
+   * Silent Token Refresh
+   * Does NOT read or send refreshToken in request body; uses HttpOnly cookie sent automatically by browser.
+   */
   async silentRefreshToken() {
     if (this.isRefreshing) {
       return new Promise((resolve) => this.refreshSubscribers.push(resolve));
     }
     this.isRefreshing = true;
     try {
-      const refreshToken = this.getRefreshToken();
       const res = await fetch(`${this.baseURL}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken })
+        credentials: 'include'
       });
       if (res.ok) {
         const data = await res.json();
-        this.setTokens(data.accessToken, data.refreshToken || refreshToken);
+        this.setTokens(data.accessToken);
         this.refreshSubscribers.forEach((cb) => cb(true));
         this.refreshSubscribers = [];
         return true;
@@ -151,6 +156,8 @@ export class HttpClient {
       return false;
     } catch (_) {
       this.clearTokens();
+      this.refreshSubscribers.forEach((cb) => cb(false));
+      this.refreshSubscribers = [];
       return false;
     } finally {
       this.isRefreshing = false;

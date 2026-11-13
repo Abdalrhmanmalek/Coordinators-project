@@ -5,20 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#15803d" />
   <title>تفعيل حساب موظف جديد | شركة أدكو ADCO</title>
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/layout.css" />
-  <link rel="stylesheet" href="../css/components.css" />
-  <link rel="stylesheet" href="../css/auth.css" />
-  <link rel="stylesheet" href="../css/enhancements.css" />
-  <link rel="stylesheet" href="../css/styles.css" />
-  <link rel="stylesheet" href="../css/mobile-pwa.css" />
+    <link rel="stylesheet" href="../css/app.min.css" />
+<script src="../js/vendor/lucide.min.js"></script>
 </head>
 <body>
   <div class="auth-floating-wrapper">
     <!-- Atmospheric Blurred Green Background Backdrop -->
     <div class="auth-floating-bg" aria-hidden="true">
-      <img src="../assets/images/auth-hero-bg.webp" alt="" class="auth-floating-bg-img" />
+      <img src="../assets/images/auth-hero-bg.avif" alt="" class="auth-floating-bg-img" />
       <div class="auth-floating-bg-overlay"></div>
       <div class="auth-floating-bg-ambient"></div>
     </div>
@@ -27,7 +21,7 @@
     <main class="auth-floating-card wizard-box su-s1">
       <div class="wizard-brand-head su-s2">
         <a class="su-s3" href="../index.html">
-          <img class="su-s4" src="../assets/images/ADCO-logo.png" alt="ADCO Logo" />
+          <img class="su-s4" src="../assets/images/ADCO-logo.avif" alt="ADCO Logo" />
         </a>
         <h1 class="su-s5">تفعيل حساب موظف جديد</h1>
         <p class="su-s6">مطابقة السجل الوظيفي وتعيين بيانات الدخول المعتمدة</p>
@@ -36,91 +30,56 @@
         <div class="stepper">
           <div class="step-item active" id="ind-1">
             <div class="step-circle">1</div>
-            <span>فحص القيد</span>
+            <span>كود الموظف والتسجيل</span>
           </div>
           <div class="step-item" id="ind-2">
             <div class="step-circle">2</div>
-            <span>رمز OTP</span>
-          </div>
-          <div class="step-item" id="ind-3">
-            <div class="step-circle">3</div>
-            <span>كلمة المرور</span>
+            <span>البريد وكلمة المرور</span>
           </div>
         </div>
 
-        <!-- STEP 1: Credibility Check -->
+        <!-- STEP 1: Company Code & One-Time Admin Registration Code -->
         <section class="wizard-pane active card su-s7" id="step-1">
-          <h3 class="su-s8">الخطوة 1: التحقق من السجل الوظيفي</h3>
+          <h3 class="su-s8">الخطوة 1: التحقق من كود الموظف وكود التسجيل</h3>
           <p class="su-s9">
-            أدخل الاسم الكامل ورقمك الوظيفي لمطابقته مع قاعدة بيانات الموارد البشرية.
+            أدخل كود الموظف وكود التسجيل المؤقت الممنوح لك من إدارة النظام للتحقق من هويتك.
           </p>
 
           <form id="form-step-1">
             <div class="form-group">
-              <label class="form-label">الاسم الكامل للموظف</label>
-              <input type="text" id="wiz-fullname" class="form-input" placeholder="مثال: أحمد محمود العبد" required />
+              <label class="form-label" for="wiz-empid">كود الموظف (Company Employee Code) *</label>
+              <input type="text" id="wiz-empid" class="form-input" placeholder="أدخل كود الموظف الخاص بك..." required dir="ltr" />
             </div>
             <div class="form-group">
-              <label class="form-label">الرقم الوظيفي (Employee ID)</label>
-              <input type="text" id="wiz-empid" class="form-input" placeholder="مثال: ADCO-101" required />
+              <label class="form-label" for="wiz-regcode">كود التسجيل لمرة واحدة (Registration Code) *</label>
+              <input type="text" id="wiz-regcode" class="form-input" placeholder="كود مؤقت مخصص من الإدارة..." required dir="ltr" />
             </div>
 
-            <button type="submit" class="btn btn-primary su-s10">
+            <button type="submit" class="btn btn-primary su-s10" id="btn-check-reg">
               <span>التحقق والمتابعة</span>
-              <img src="../assets/icons/arrow-left.svg" class="ui-icon ui-icon-sm" alt="" />
+              <i data-lucide="arrow-left" class="ui-icon ui-icon-sm"></i>
             </button>
           </form>
         </section>
 
-        <!-- STEP 2: Mobile/Email & 4-Digit OTP Verification -->
+        <!-- STEP 2: Email & Strict Password Creation (No OTP, No Full Name) -->
         <section class="wizard-pane card su-s7" id="step-2">
-          <h3 class="su-s8">الخطوة 2: تأكيد الهاتف أو البريد الرسمي</h3>
+          <h3 class="su-s8">الخطوة 2: تعيين البريد وكلمة المرور</h3>
           <p class="su-s9" id="verified-emp-banner"></p>
 
           <form id="form-step-2">
             <div class="form-group">
-              <label class="form-label">رقم الهاتف أو البريد الإلكتروني</label>
-              <div class="su-s11">
-                <input type="text" id="wiz-contact" class="form-input" placeholder="01012345678" required />
-                <button type="button" class="btn btn-secondary btn-sm" id="dispatch-otp-btn">إرسال OTP</button>
-              </div>
+              <label class="form-label" for="wiz-email">البريد الإلكتروني الرسمي *</label>
+              <input type="email" id="wiz-email" class="form-input" placeholder="name@adco.com.eg" required dir="ltr" />
             </div>
 
             <div class="form-group">
-              <label class="form-label">رمز التحقق المكون من 4 أرقام</label>
-              <input
-                type="text"
-                id="wiz-otp"
-                class="form-input su-s12"
-                maxlength="4"
-                placeholder="5 8 2 1"
-               
-                required
-              />
-            </div>
-
-            <div class="su-s13">
-              <button type="button" class="btn btn-outline su-s14" id="back-to-1">رجوع</button>
-              <button type="submit" class="btn btn-primary su-s15">تأكيد الرمز</button>
-            </div>
-          </form>
-        </section>
-
-        <!-- STEP 3: Strict Password Creation -->
-        <section class="wizard-pane card su-s7" id="step-3">
-          <h3 class="su-s8">الخطوة 3: تعيين كلمة المرور</h3>
-          <p class="su-s9">
-            اختر كلمة مرور مطابقة للمعايير الأمنية المعتمدة لحماية حسابك الميداني.
-          </p>
-
-          <form id="form-step-3">
-            <div class="form-group">
-              <label class="form-label">كلمة المرور الجديدة</label>
+              <label class="form-label" for="wiz-pass">كلمة المرور الجديدة *</label>
               <input type="password" id="wiz-pass" class="form-input" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required />
             </div>
 
             <div class="form-group">
-              <label class="form-label">تأكيد كلمة المرور</label>
+              <label class="form-label" for="wiz-pass-confirm">تأكيد كلمة المرور *</label>
               <input type="password" id="wiz-pass-confirm" class="form-input" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required />
             </div>
 
@@ -131,10 +90,13 @@
               <div class="rule-item" id="rule-sym">رمز خاص واحد على الأقل (@ # $ % ^ & *)</div>
             </div>
 
-            <button type="submit" class="btn btn-primary">
-              <img src="../assets/icons/check-circle-2.svg" class="ui-icon ui-icon-sm" alt="" />
-              <span>إتمام التفعيل وبدء العمل</span>
-            </button>
+            <div class="su-s13">
+              <button type="button" class="btn btn-outline su-s14" id="back-to-1">رجوع</button>
+              <button type="submit" class="btn btn-primary su-s15">
+                <i data-lucide="check-circle-2" class="ui-icon ui-icon-sm"></i>
+                <span>إتمام التفعيل وبدء العمل</span>
+              </button>
+            </div>
           </form>
         </section>
 

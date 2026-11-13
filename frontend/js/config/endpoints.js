@@ -9,6 +9,7 @@ export const API_ENDPOINTS = Object.freeze({
     SIGNUP: '/auth/signup',
     REFRESH: '/auth/refresh',
     LOGOUT: '/auth/logout',
+    CHECK_REGISTRATION_CODE: '/auth/check-registration-code',
     VERIFY_EMPLOYEE: '/auth/verify-employee-id'
   },
   EMPLOYEES: {

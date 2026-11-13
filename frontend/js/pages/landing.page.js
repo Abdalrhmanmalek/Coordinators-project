@@ -23,7 +23,7 @@
       const user = session.user || session;
       toast(`مرحباً بك ${user.fullName}`, 'success');
       setTimeout(() => {
-        if (user.role === 'marketing_manager' || user.role === 'coordination_manager' || user.role === 'supervisor') {
+        if (user.role === 'marketing_manager') {
           window.location.href = './pages/supervisor-panel.html';
         } else {
           window.location.href = './pages/dashboard.html';
@@ -47,7 +47,7 @@
       resumeBtn.className = 'btn btn-outline';
       resumeBtn.style.marginTop = '12px';
       resumeBtn.innerHTML = `
-        <img src="./assets/icons/layout-dashboard.svg" class="ui-icon ui-icon-sm" alt="" />
+        <i data-lucide="layout-dashboard" class="ui-icon ui-icon-sm"></i>
         <span>متابعة الجلسة النشطة (${currentUser.fullName})</span>
       `;
       card.appendChild(resumeBtn);

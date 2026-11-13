@@ -27,7 +27,7 @@
   }
 
   const isCoordSup = user && user.role === 'coordinator_supervisor';
-  const isManager = user && (user.role === 'marketing_manager' || user.role === 'coordination_manager' || user.role === 'supervisor');
+  const isManager = user && user.role === 'marketing_manager';
 
   const welcomeTitle = document.getElementById('welcome-title');
   const welcomeRole = document.getElementById('welcome-role');
@@ -35,13 +35,12 @@
   if (welcomeTitle) welcomeTitle.textContent = `أهلاً، ${user.fullName}`;
   if (welcomeRole) {
     if (isCoordSup) {
-      const clientName = user.assignedClientName || 'فتح الله جملة ماركت (Fathalla)';
-      const region = user.region || 'الإسكندرية';
-      welcomeRole.textContent = `مشرف منسق — مسؤول فروع ${clientName} - ${region}`;
+      const clientName = user.assignedClientName || 'فتح الله';
+      welcomeRole.textContent = `مشرف منسق — ${clientName}`;
     } else if (isManager) {
-      welcomeRole.textContent = 'مسؤول التسويق — استعراض كافة السجلات الميدانية للجمهورية';
+      welcomeRole.textContent = 'مسؤول التسويق';
     } else {
-      const branchLabel = user.assignedBranchName || user.branch || 'فرع سموحة - الإسكندرية';
+      const branchLabel = user.assignedBranchName || user.branch || 'فرع سموحة';
       welcomeRole.textContent = `منسق ميداني — ${branchLabel}`;
     }
   }
@@ -176,9 +175,23 @@
     });
   }
 
-  function renderStatusBadge(status) {
-    if (status === 'Accepted') return '<span class="badge badge-success">مقبول</span>';
-    if (status === 'Rejected') return '<span class="badge badge-danger">مرفوض</span>';
+  function renderStatusBadge(statusOrAct) {
+    let reviewSt = statusOrAct;
+    let endSt = null;
+    if (statusOrAct && typeof statusOrAct === 'object') {
+      reviewSt = statusOrAct.reviewStatus || statusOrAct.status;
+      endSt = statusOrAct.endStatus || (statusOrAct.isClosed ? 'ENDED' : 'OPEN');
+    }
+    if (endSt === 'ENDED' || reviewSt === 'ENDED' || reviewSt === 'CLOSED') {
+      return '<span class="badge badge-success">منتهي</span>';
+    }
+    const normalized = String(reviewSt || '').toUpperCase();
+    if (normalized === 'ACCEPTED' || reviewSt === 'Accepted' || reviewSt === 'مقبول') {
+      return '<span class="badge badge-success">مقبول</span>';
+    }
+    if (normalized === 'REJECTED' || reviewSt === 'Rejected' || reviewSt === 'مرفوض') {
+      return '<span class="badge badge-danger">مرفوض</span>';
+    }
     return '<span class="badge badge-warning">قيد المراجعة</span>';
   }
 
@@ -217,11 +230,13 @@
         act.brands.forEach((b) => b && entry.brands.add(b));
       }
       entry.total += 1;
-      if (act.isClosed) {
+      const isActClosed = act.endStatus === 'ENDED' || Boolean(act.isClosed);
+      const revSt = act.reviewStatus || act.status;
+      if (isActClosed) {
         entry.closed += 1;
-      } else if (act.status === 'Accepted') {
+      } else if (revSt === 'ACCEPTED' || revSt === 'Accepted') {
         entry.accepted += 1;
-      } else if (act.status === 'Rejected') {
+      } else if (revSt === 'REJECTED' || revSt === 'Rejected') {
         entry.rejected += 1;
       } else {
         entry.review += 1;
@@ -271,7 +286,7 @@
         <div class="card db-s15" style="grid-column: 1 / -1; padding: 24px; text-align: center;">
           <p class="db-s16" style="margin-bottom: 12px; font-weight: 600;">لا توجد بطاقات فروع مسجلة حالياً.</p>
           <a href="./activity-card.html" class="btn btn-primary btn-sm">
-            <img src="../assets/icons/plus-circle.svg" class="ui-icon ui-icon-sm" alt="" />
+            <i data-lucide="plus-circle" class="ui-icon ui-icon-sm"></i>
             <span>تسجيل أول نشاط ميداني</span>
           </a>
         </div>
@@ -286,25 +301,20 @@
     mount.querySelectorAll('.branch-master-card').forEach((card) => {
       card.addEventListener('click', (e) => {
         if (e.target.closest('.status-counter-btn')) return;
-        const targetHref = card.dataset.href;
-        if (targetHref) {
-          if (Router && typeof Router.navigateTo === 'function') {
-            Router.navigateTo(targetHref);
-          } else {
-            window.location.href = targetHref;
-          }
-        }
+        const bName = card.dataset.branch;
+        selectedBranchKey = (selectedBranchKey === bName) ? null : bName;
+        if (supBranchSelect) supBranchSelect.value = selectedBranchKey || 'ALL';
+        if (supBranchCountBadge) supBranchCountBadge.textContent = selectedBranchKey || 'كل فروع العميل';
+        renderDashboard();
       });
       card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.target.closest('.status-counter-btn')) {
-          const targetHref = card.dataset.href;
-          if (targetHref) {
-            if (Router && typeof Router.navigateTo === 'function') {
-              Router.navigateTo(targetHref);
-            } else {
-              window.location.href = targetHref;
-            }
-          }
+        if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('.status-counter-btn')) {
+          e.preventDefault();
+          const bName = card.dataset.branch;
+          selectedBranchKey = (selectedBranchKey === bName) ? null : bName;
+          if (supBranchSelect) supBranchSelect.value = selectedBranchKey || 'ALL';
+          if (supBranchCountBadge) supBranchCountBadge.textContent = selectedBranchKey || 'كل فروع العميل';
+          renderDashboard();
         }
       });
     });
@@ -313,16 +323,24 @@
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const bName = btn.dataset.branch;
-        const cName = btn.dataset.client;
         const st = btn.dataset.st || 'ALL';
-        const targetUrl = `./branch-details.html?branch=${encodeURIComponent(bName)}&client=${encodeURIComponent(cName)}&status=${encodeURIComponent(st)}`;
-        if (Router && typeof Router.navigateTo === 'function') {
-          Router.navigateTo(targetUrl);
+        if (selectedBranchKey === bName && currentFilter === st) {
+          selectedBranchKey = null;
+          currentFilter = 'ALL';
         } else {
-          window.location.href = targetUrl;
+          selectedBranchKey = bName;
+          currentFilter = st;
         }
+        if (supBranchSelect) supBranchSelect.value = selectedBranchKey || 'ALL';
+        if (supBranchCountBadge) supBranchCountBadge.textContent = selectedBranchKey || 'كل فروع العميل';
+        syncFilterChipsUI();
+        renderDashboard();
       });
     });
+
+    if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') {
+      window.refreshIcons(mount);
+    }
   }
 
   function renderDashboard() {
@@ -355,10 +373,11 @@
       ? baseActivities.filter((a) => (a.branch || '') === selectedBranchKey)
       : baseActivities;
 
-    const accepted = allActivities.filter((a) => !a.isClosed && a.status === 'Accepted');
-    const reviewList = allActivities.filter((a) => !a.isClosed && a.status === 'Under Review');
-    const rejectedList = allActivities.filter((a) => !a.isClosed && a.status === 'Rejected');
-    const closedList = allActivities.filter((a) => Boolean(a.isClosed));
+    const closedList = allActivities.filter((a) => a.endStatus === 'ENDED' || Boolean(a.isClosed));
+    const openActivities = allActivities.filter((a) => a.endStatus !== 'ENDED' && !a.isClosed);
+    const accepted = openActivities.filter((a) => a.reviewStatus === 'ACCEPTED' || a.status === 'Accepted');
+    const reviewList = openActivities.filter((a) => a.reviewStatus === 'UNDER_REVIEW' || a.status === 'Under Review' || (!a.reviewStatus && !a.status));
+    const rejectedList = openActivities.filter((a) => a.reviewStatus === 'REJECTED' || a.status === 'Rejected');
 
     const cntAll = document.getElementById('cnt-all');
     const cntReview = document.getElementById('cnt-review');
@@ -392,9 +411,15 @@
     const filtered =
       currentFilter === 'ALL'
         ? allActivities
-        : currentFilter === 'CLOSED'
+        : (currentFilter === 'CLOSED' || currentFilter === 'ENDED')
           ? closedList
-          : allActivities.filter((a) => !a.isClosed && a.status === currentFilter);
+          : openActivities.filter((a) => {
+              const rSt = a.reviewStatus || a.status;
+              if (currentFilter === 'Accepted' || currentFilter === 'ACCEPTED') return rSt === 'ACCEPTED' || rSt === 'Accepted';
+              if (currentFilter === 'Rejected' || currentFilter === 'REJECTED') return rSt === 'REJECTED' || rSt === 'Rejected';
+              if (currentFilter === 'Under Review' || currentFilter === 'UNDER_REVIEW') return rSt === 'UNDER_REVIEW' || rSt === 'Under Review' || (!a.reviewStatus && !a.status);
+              return rSt === currentFilter;
+            });
 
     const container = document.getElementById('activities-list');
     if (!container) return;
@@ -404,7 +429,7 @@
         <div class="card db-s15">
           <p class="db-s16">لا توجد بطاقات نشاط مطابقة لهذا التصنيف حالياً.</p>
           <a href="./activity-card.html" class="btn btn-primary btn-sm">
-            <img src="../assets/icons/camera.svg" class="ui-icon ui-icon-sm" alt="" />
+            <i data-lucide="camera" class="ui-icon ui-icon-sm"></i>
             <span>توثيق نشاط ميداني الآن</span>
           </a>
         </div>
@@ -449,6 +474,10 @@
         window.location.href = `./activity-details.html?id=${actId}`;
       });
     });
+
+    if (typeof window !== 'undefined' && typeof window.refreshIcons === 'function') {
+      window.refreshIcons(container);
+    }
   }
 
   document.querySelectorAll('.filter-chip').forEach((btn) => {
@@ -460,4 +489,7 @@
   });
 
   renderDashboard();
+  if (typeof window !== "undefined" && typeof window.refreshIcons === "function") {
+    window.refreshIcons(document);
+  }
 })(typeof window !== 'undefined' ? window : globalThis);

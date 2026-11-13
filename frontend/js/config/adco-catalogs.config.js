@@ -1,6 +1,9 @@
 /**
+ * [DEVELOPMENT / OFFLINE DEMO CATALOGS ONLY]
  * ADCO Static Catalogs Config (clients, branches, supplying-branch map, branch coordinates, brands, activities)
- * Single source of truth for static dictionaries. Exposed as window.ADCO_CATALOGS.
+ * Single source of truth for offline demo & client-side simulation.
+ * In production, master catalogs and branch IDs are fetched dynamically from the ADCO Backend API.
+ * Exposed as window.ADCO_CATALOGS.
  */
 
 (function (global) {
@@ -93,6 +96,42 @@
       'فرع طنطا - الغربية': { latitude: 30.7865, longitude: 31.0004 },
       'فرع المنصورة - الدقهلية': { latitude: 31.0409, longitude: 31.3785 },
       'فرع دمنهور - البحيرة': { latitude: 31.0341, longitude: 30.4682 }
+    },
+
+    // Relational Database IDs & Entity Codes Mapping
+    clientDetailsMap: {
+      'فتح الله جملة ماركت (Fathalla)': { id: 'CLI-00492', code: 'FATHALLA', name: 'فتح الله جملة ماركت (Fathalla)' },
+      'سوبر ماركت زهران (Zahran)': { id: 'CLI-00493', code: 'ZAHRAN', name: 'سوبر ماركت زهران (Zahran)' },
+      'كارفور هايبر ماركت (Carrefour)': { id: 'CLI-00494', code: 'CARREFOUR', name: 'كارفور هايبر ماركت (Carrefour)' },
+      'أسواق فتح الله - روز (Rose)': { id: 'CLI-00495', code: 'ROSE', name: 'أسواق فتح الله - روز (Rose)' },
+      'مترو ماركت (Metro)': { id: 'CLI-00496', code: 'METRO', name: 'مترو ماركت (Metro)' },
+      'كازيون ماركت (Kazyon)': { id: 'CLI-00497', code: 'KAZYON', name: 'كازيون ماركت (Kazyon)' },
+      'بيم ماركت (BIM)': { id: 'CLI-00498', code: 'BIM', name: 'بيم ماركت (BIM)' },
+      'سبينيس هايبر ماركت (Spinneys)': { id: 'CLI-00499', code: 'SPINNEYS', name: 'سبينيس هايبر ماركت (Spinneys)' },
+      'أوكازيون ماركت (Okazion)': { id: 'CLI-00500', code: 'OKAZION', name: 'أوكازيون ماركت (Okazion)' },
+      'الفرجاني ماركت (El-Fergany)': { id: 'CLI-00501', code: 'FERGANY', name: 'الفرجاني ماركت (El-Fergany)' }
+    },
+    branchDetailsMap: {
+      'فرع سموحة - الإسكندرية': { id: 'BR-ALX-00944', code: 'ALX-00944', name: 'فرع سموحة - الإسكندرية' },
+      'فرع رشدي - كفر عبده': { id: 'BR-ALX-00945', code: 'ALX-00945', name: 'فرع رشدي - كفر عبده' },
+      'فرع سيدي جابر - طريق الحرية': { id: 'BR-ALX-00946', code: 'ALX-00946', name: 'فرع سيدي جابر - طريق الحرية' },
+      'فرع محرم بك - قناة السويس': { id: 'BR-ALX-00947', code: 'ALX-00947', name: 'فرع محرم بك - قناة السويس' },
+      'فرع المنتزه - شيراتون': { id: 'BR-ALX-00948', code: 'ALX-00948', name: 'فرع المنتزه - شيراتون' },
+      'فرع لوران - الكورنيش': { id: 'BR-ALX-00949', code: 'ALX-00949', name: 'فرع لوران - الكورنيش' },
+      'فرع العجمي - الهانوفيل': { id: 'BR-ALX-00950', code: 'ALX-00950', name: 'فرع العجمي - الهانوفيل' },
+      'فرع ميامي - جمال عبد الناصر': { id: 'BR-ALX-00951', code: 'ALX-00951', name: 'فرع ميامي - جمال عبد الناصر' },
+      'فرع جليم - سان ستيفانو': { id: 'BR-ALX-00952', code: 'ALX-00952', name: 'فرع جليم - سان ستيفانو' },
+      'فرع برج العرب الجديدة': { id: 'BR-ALX-00953', code: 'ALX-00953', name: 'فرع برج العرب الجديدة' }
+    },
+    brandDetailsMap: {
+      'جلاسي': { id: 'BRD-GLAS-01', code: 'GLAS', name: 'جلاسي' },
+      'ديفا': { id: 'BRD-DIVA-02', code: 'DIVA', name: 'ديفا' },
+      'سبيد': { id: 'BRD-SPED-03', code: 'SPED', name: 'سبيد' },
+      'فلفيتا': { id: 'BRD-VELV-04', code: 'VELV', name: 'فلفيتا' },
+      'فما': { id: 'BRD-FAMA-05', code: 'FAMA', name: 'فما' },
+      'فييا': { id: 'BRD-FEYA-06', code: 'FEYA', name: 'فييا' },
+      'كلوريل': { id: 'BRD-CLOR-07', code: 'CLOR', name: 'كلوريل' },
+      'ماكسيل ماجيك': { id: 'BRD-MAXL-08', code: 'MAXL', name: 'ماكسيل ماجيك' }
     },
     maxBranchProximityMeters: 150,
     officialBrands: [

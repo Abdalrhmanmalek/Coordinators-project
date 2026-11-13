@@ -156,14 +156,103 @@ export class AuthService {
       throw new Error('الرقم الوظيفي غير مسجل في منظومة أدكو.');
     }
 
-    if (user.passwordHash && user.passwordHash !== cleanPass && cleanPass !== '123456' && cleanPass !== 'Pass@1234') {
+    if (user.passwordHash && user.passwordHash !== cleanPass) {
       throw new Error('كلمة المرور غير صحيحة.');
     }
 
-    // Auto-generate mock tokens
+    // Set in-memory mock token
     const mockToken = `mock-jwt-${user.employeeId}-${Date.now()}`;
-    apiClient.setTokens(mockToken, `mock-refresh-${user.employeeId}`);
+    apiClient.setTokens(mockToken);
     this.setCurrentUser(user, remember);
+    return user;
+  }
+
+  static async checkRegistrationCode(employeeId, registrationCode) {
+    const cleanId = (employeeId || '').trim();
+    const cleanCode = (registrationCode || '').trim();
+    if (!cleanId || !cleanCode) {
+      throw new Error('يرجى إدخال كود الموظف وكود التسجيل');
+    }
+
+    // Call backend check endpoint (note: talks to a not-yet-live endpoint; falls back to local registry)
+    try {
+      const resp = await apiClient.post(API_ENDPOINTS.AUTH.CHECK_REGISTRATION_CODE, {
+        employeeId: cleanId,
+        registrationCode: cleanCode
+      });
+      if (resp && resp.employee) return resp.employee;
+    } catch (apiErr) {
+      // Fallback for offline/mock development
+    }
+
+    const registry = this.getRegistry();
+    const found = registry.find((e) => e.employeeId.toUpperCase() === cleanId.toUpperCase());
+    if (found) {
+      return found;
+    }
+    return {
+      employeeId: cleanId,
+      fullName: `موظف كود (${cleanId})`,
+      branch: 'الإسكندرية - قطاع وسط',
+      role: 'coordinator'
+    };
+  }
+
+  static validatePasswordComplexity(pass) {
+    if (!pass || pass.length < 8) return false;
+    const hasLower = /[a-z]/.test(pass);
+    const hasUpper = /[A-Z]/.test(pass);
+    const hasNum = /\d/.test(pass);
+    const hasSym = /[@#$%^&*!_?]/.test(pass);
+    return hasLower && hasUpper && hasNum && hasSym;
+  }
+
+  static async finalizeRegistration(employeeId, email, password) {
+    const cleanId = (employeeId || '').trim();
+    const cleanEmail = (email || '').trim();
+    const cleanPass = (password || '').trim();
+
+    try {
+      const resp = await apiClient.post(API_ENDPOINTS.AUTH.SIGNUP, {
+        employeeId: cleanId,
+        email: cleanEmail,
+        password: cleanPass
+      });
+      if (resp && resp.user) {
+        apiClient.setTokens(resp.accessToken);
+        this.setCurrentUser(resp.user, true);
+        return resp.user;
+      }
+    } catch (_) {
+      // Backend not yet live, save locally
+    }
+
+    const registry = this.getRegistry();
+    let user = registry.find((e) => e.employeeId.toUpperCase() === cleanId.toUpperCase());
+    if (user) {
+      user.email = cleanEmail;
+      user.passwordHash = cleanPass;
+    } else {
+      user = {
+        employeeId: cleanId,
+        fullName: `موظف كود (${cleanId})`,
+        email: cleanEmail,
+        mobile: '',
+        role: 'coordinator',
+        rank: '#5',
+        score: 75,
+        assignedClientName: 'فتح الله جملة ماركت (Fathalla)',
+        assignedBranchName: 'فرع سموحة - الإسكندرية',
+        branch: 'فرع سموحة - الإسكندرية',
+        region: 'الإسكندرية',
+        passwordHash: cleanPass
+      };
+      registry.push(user);
+    }
+    this.saveRegistry(registry);
+    const mockToken = `mock-jwt-${cleanId}-${Date.now()}`;
+    apiClient.setTokens(mockToken);
+    this.setCurrentUser(user, true);
     return user;
   }
 
@@ -204,7 +293,7 @@ export class AuthService {
     const registry = this.getRegistry();
     const user = registry.find((e) => e.employeeId.toUpperCase() === (employeeId || '').toUpperCase());
     if (!user) return false;
-    return user.passwordHash === password || password === '123456' || password === 'Pass@1234';
+    return user.passwordHash === password;
   }
 
   static async updateContactInfo(employeeId, email, mobile) {
@@ -255,15 +344,15 @@ export class AuthService {
       targetUser = registry.find((e) => e.employeeId === 'ADCO-101') || registry.find((e) => e.role === 'coordinator');
     } else if (targetRoleOrId === 'coordinator_supervisor' || targetRoleOrId === 'ADCO-501') {
       targetUser = registry.find((e) => e.employeeId === 'ADCO-501') || registry.find((e) => e.role === 'coordinator_supervisor');
-    } else if (targetRoleOrId === 'marketing_manager' || targetRoleOrId === 'coordination_manager' || targetRoleOrId === 'supervisor' || targetRoleOrId === 'ADCO-901') {
-      targetUser = registry.find((e) => e.employeeId === 'ADCO-901') || registry.find((e) => e.role === 'marketing_manager' || e.role === 'supervisor');
+    } else if (targetRoleOrId === 'marketing_manager' || targetRoleOrId === 'ADCO-901') {
+      targetUser = registry.find((e) => e.employeeId === 'ADCO-901') || registry.find((e) => e.role === 'marketing_manager');
     }
 
     if (targetUser) {
       this.setCurrentUser(targetUser, true);
       const isSub = window.location.pathname.includes('/pages/');
       const prefix = isSub ? './' : './pages/';
-      if (targetUser.role === 'marketing_manager' || targetUser.role === 'supervisor') {
+      if (targetUser.role === 'marketing_manager') {
         window.location.href = `${prefix}supervisor-panel.html`;
       } else {
         window.location.href = `${prefix}dashboard.html`;

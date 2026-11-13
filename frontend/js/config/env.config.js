@@ -13,11 +13,7 @@
     ? (window.__ADCO_API_BASE__ || window.ADCO_API_URL || (window.ADCO_CONFIG && window.ADCO_CONFIG.API_URL))
     : null;
 
-  const resolvedApiBase = runtimeApiBase || (
-    isLocalHost
-      ? 'http://localhost:3000/api/v1'
-      : (isHttp ? '/api/v1' : '')
-  );
+  const resolvedApiBase = runtimeApiBase || (isHttp ? '/api/v1' : '');
 
   const ADCO_ENV = {
     APP_NAME: 'ADCO Field Operations',
@@ -36,7 +32,7 @@
     GPS_MAX_DISTANCE_METERS: 150,
     IMAGE_MAX_DIMENSION: 1280, // 720p canvas limit (1280x720 long edge)
     IMAGE_JPEG_QUALITY: 0.78,
-    CACHE_VERSION: 'adco-field-cache-v6'
+    CACHE_VERSION: 'adco-field-cache-v11'
   };
 
   global.ADCO_ENV = Object.freeze(ADCO_ENV);

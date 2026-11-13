@@ -1,0 +1,7 @@
+# Vercel Deployment Ignore
+src/
+scripts/
+scratch/
+docs/
+*.md
+
